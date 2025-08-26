@@ -8,6 +8,13 @@ app.use(cors());
 app.use(express.json());
 
 // 1. List devices
+app.get("/getDeviceInformation", (req, res) => {
+  exec("which naps2", (err, stdout) => {
+    if (err || !stdout) return res.json({ installed: false });
+    res.json({ installed: true, path: stdout.trim() });
+  });
+});
+
 app.get("/devices", (req, res) => {
   exec("naps2 console --listdevices --driver sane", (err, stdout, stderr) => {
     if (err) return res.status(500).send(stderr || err.message);
@@ -80,7 +87,7 @@ app.post("/scan", (req, res) => {
     if (responded) return;
     clearTimeout(timer); // cancel timeout
     responded = true;
-    
+
     if (code !== 0) {
       return res.status(500).send("Scan failed");
     }
