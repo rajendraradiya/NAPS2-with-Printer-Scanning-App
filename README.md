@@ -60,6 +60,6 @@ The backend will start on http://localhost:5000.
 
 <li>      GET  /devices →  it's return all connected device likes printer.</li>
 
-<li> POST /api/scan → Triggers scanner hardware, returns Base64-encoded PDF.. </li>
+<li> POST /scan → Triggers scanner hardware, returns Base64-encoded PDF.. </li>
 
 </ul>
