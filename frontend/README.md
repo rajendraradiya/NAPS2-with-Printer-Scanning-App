@@ -1,12 +1,66 @@
-# React + Vite
+# NAPS2 + Printer Scanning App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, browser-based scanning solution inspired by **NAPS2**.  
+This app provides an easy-to-use **React + Tailwind** frontend with an **Express** backend that integrates directly with scanner hardware. Documents are captured, processed, and returned as **Base64-encoded PDFs**, which are displayed seamlessly inside an `<iframe>` for preview or printing.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## Expanding the ESLint configuration
+- **Frontend (React + Tailwind)**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+  - Clean, responsive UI with TailwindCSS
+  - Document preview in an `<iframe>` (Base64 PDF rendering)
+  - Option to download or print scanned PDFs
+  - SDK download and setup instructions for running locally
+
+- **Backend (Express + Hardware Integration)**
+  - Communicates with scanner devices via system drivers (TWAIN/WIA on Windows, SANE on Linux, etc.)
+  - Captures scans, runs optional OCR, and converts output to PDF
+  - Returns Base64-encoded PDF back to frontend
+  - Supports multi-page scanning and merging
+
+---
+
+## 📂 Project Structure
+
+## ⚡ Getting Started
+
+### 1. Clone repo
+
+```bash
+git clone https://github.com/your-org/naps2-printer-app.git
+cd folder
+```
+
+This will run the React frontend at http://localhost:3000.
+
+### 2. Setup Frontend
+
+```bash
+cd fronted
+npm install
+npm run dev
+```
+
+### 2. Setup Backend
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+The backend will start on http://localhost:5000.
+
+---
+
+🔌 API Endpoints
+
+<ul>
+
+<li>      GET  /api/scan → Triggers scanner hardware, returns Base64-encoded PDF.</li>
+
+<li> POST /api/upload → Upload scanned files manually if no scanner is connected. </li>
+
+</ul>
