@@ -34,7 +34,11 @@ git clone https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App.git
 
 This will run the React frontend at http://localhost:3000.
 
-### 2. Setup Frontend
+### 2. Download SDK for interaction with hardware.
+
+[https://www.naps2.com/](https://www.naps2.com/)
+
+### 3. Setup Frontend
 
 ```bash
 cd fronted
@@ -42,7 +46,7 @@ npm install
 npm run dev
 ```
 
-### 2. Setup Backend
+### 4. Setup Backend
 
 ```bash
 cd backend
@@ -63,3 +67,37 @@ The backend will start on http://localhost:5000.
 <li> POST /scan → Triggers scanner hardware, returns Base64-encoded PDF.. </li>
 
 </ul>
+
+---
+
+## Screenshot
+
+#### 1. Home Page
+
+<img src="frontend/src/assets/Screenshot1.png" />
+
+---
+
+#### 2. Getting Device
+
+<img src="frontend/src/assets/Screenshot2.png" />
+
+---
+
+#### 3. Select Device
+
+<img src="frontend/src/assets/Screenshot3.png" />
+
+---
+
+#### 4. Scanning Device
+
+<img src="frontend/src/assets/Screenshot4.png" />
+
+---
+
+#### 5. Rending base64 Pdf
+
+<img src="frontend/src/assets/Screenshot5.png" />
+
+
