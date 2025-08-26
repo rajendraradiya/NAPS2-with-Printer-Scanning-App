@@ -29,8 +29,7 @@ This app provides an easy-to-use **React + Tailwind** frontend with an **Express
 ### 1. Clone repo
 
 ```bash
-git clone https://github.com/your-org/naps2-printer-app.git
-cd folder
+git clone https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App.git
 ```
 
 This will run the React frontend at http://localhost:3000.
@@ -59,8 +58,8 @@ The backend will start on http://localhost:5000.
 
 <ul>
 
-<li>      GET  /api/scan → Triggers scanner hardware, returns Base64-encoded PDF.</li>
+<li>      GET  /devices →  it's return all connected device likes printer.</li>
 
-<li> POST /api/upload → Upload scanned files manually if no scanner is connected. </li>
+<li> POST /api/scan → Triggers scanner hardware, returns Base64-encoded PDF.. </li>
 
 </ul>
