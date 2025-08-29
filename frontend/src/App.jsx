@@ -49,7 +49,7 @@ export default function ScannerApp() {
 
   const getSdkInformation = async () => {
     try {
-      await fetch("http://localhost:5000/getDeviceInformation")
+      await fetch(`${import.meta.env.VITE_API_URL}/getDeviceInformation`)
         .then((res) => res.json())
         .then((data) => {
           if (data.installed) {
@@ -66,7 +66,7 @@ export default function ScannerApp() {
   const getDeviceList = async () => {
     setLoader(true);
     try {
-      await fetch("http://localhost:5000/devices")
+      await fetch(`${import.meta.env.VITE_API_URL}/devices`)
         .then((res) => res.json())
         .then((data) => {
           setDevices(data);
@@ -80,6 +80,7 @@ export default function ScannerApp() {
   };
 
   const startScan = async () => {
+    setImageBase64(null);
     if (!selectedDevice) return alert("Select a device first!");
     setLoader(true);
     let timer = setInterval(() => {
@@ -92,6 +93,8 @@ export default function ScannerApp() {
         body: JSON.stringify({ device: selectedDevice }),
       });
       const data = await res.json();
+
+      console.log(data);
 
       setLoader(false);
       setCount(0);

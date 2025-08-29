@@ -1,11 +1,17 @@
 import express from "express";
 import { exec, spawn } from "child_process";
 import fs from "fs";
+import dotenv from "dotenv";
 import cors from "cors";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+dotenv.config();
+
+app.get("/", (req, res) => {
+  res.send("<H1>BACKEND IS RUNNING...</H1>");
+});
 
 // 1. List devices
 app.get("/getDeviceInformation", (req, res) => {
@@ -19,6 +25,9 @@ app.get("/devices", (req, res) => {
   exec("naps2 console --listdevices --driver sane", (err, stdout, stderr) => {
     if (err) return res.status(500).send(stderr || err.message);
     const devices = stdout.split("\n").filter(Boolean);
+    if (devices.length === 0) {
+      return res.status(404).json({ success: false, error: "No scanners detected. Please check printer configuration." });
+    }
     res.json(devices);
   });
 });
@@ -26,84 +35,79 @@ app.get("/devices", (req, res) => {
 // 2. Scan document
 app.post("/scan", (req, res) => {
   const { device } = req.body;
-  console.log(device);
   const outputFile = "scan.pdf";
   let responded = false;
-  // const command = `naps2 console -o  ${outputFile} --noprofile --driver sane --device '${device}'`;
-  // // const command = `naps2 console -o scan.pdf --noprofile --driver sane --device ${device}`;
 
-  // exec(command, (err, stdout, stderr) => {
-  //   console.log({ err, stdout, stderr });
-  //   if (err)
-  //     return res.status(500).json({
-  //       status: 500,
-  //       err: err,
-  //     });
+  try {
+    const child = spawn("naps2", [
+      "console",
+      "-o",
+      outputFile,
+      "--noprofile",
+      "--driver",
+      "sane",
+      "--device",
+      device,
+    ]);
 
-  //   fs.access(outputFile, fs.constants.F_OK, (accessError) => {
-  //     if (accessError) {
-  //       return res.status(500).json({
-  //         status: 500,
-  //         error: "Scan file was not created.",
-  //       });
-  //     }
-  //     fs.readFile(outputFile, (error, data) => {
-  //       console.log("Error", error, data);
-  //       if (error) return res.status(500).send(error.message);
-  //       const base64Image = data.toString("base64");
-  //       res.json({ imageBase64: base64Image });
-  //       fs.unlink(outputFile, (errorFile) => {
-  //         if (errorFile) console.error("Error deleting scan file:", errorFile);
-  //       });
-  //     });
-  //   });
+    child.stdout.on("data", (data) => {
+      console.log(`stdout: ${data}`);
+    });
 
-  //   console.log(fs);
-  // });
+    child.stderr.on("data", (data) => {
+      console.error(`stderr: ${data}`);
+    });
 
-  const child = spawn("naps2", [
-    "console",
-    "-o",
-    outputFile,
-    "--noprofile",
-    "--driver",
-    "sane",
-    "--device",
-    device,
-  ]);
+    const timer = setTimeout(() => {
+      if (!responded) {
+        responded = true;
+        child.kill("SIGKILL"); // force kill
+        return res
+          .status(500)
+          .json({ success: false, error: "Scan timed out" });
+      }
+    }, 60000);
 
-  child.stdout.on("data", (data) => console.log(`stdout: ${data}`));
-  child.stderr.on("data", (data) => console.error(`stderr: ${data}`));
-
-  const timer = setTimeout(() => {
-    if (!responded) {
+    child.on("close", (code) => {
+      if (responded) return;
       responded = true;
-      child.kill("SIGKILL"); // stop scanner process
-      return res.status(500).json({ status: 500, error: "Scan timed out" });
-    }
-  }, 60000);
+      clearTimeout(timer);
 
-  child.on("close", (code) => {
-    if (responded) return;
-    clearTimeout(timer); // cancel timeout
-    responded = true;
+      if (code !== 0) {
+        return res
+          .status(500)
+          .json({ success: false, status: 500, error: "Scan failed" });
+      }
 
-    if (code !== 0) {
-      return res.status(500).send("Scan failed");
-    }
+      fs.readFile(outputFile, (err, data) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ success: false, status: 500, error: err.message });
+        }
 
-    fs.readFile(outputFile, (error, data) => {
-      if (error) return res.status(500).send(error.message);
+        const base64Image = data.toString("base64");
+        res.json({ success: true, imageBase64: base64Image });
 
-      const base64Image = data.toString("base64");
-      res.json({ imageBase64: base64Image });
-      fs.unlink(outputFile, () => {});
-
-      fs.unlink(outputFile, (errorFile) => {
-        if (errorFile) console.error("Error deleting scan file:", errorFile);
+        fs.unlink(outputFile, (unlinkErr) => {
+          if (unlinkErr) console.error("Error deleting scan file:", unlinkErr);
+        });
       });
     });
-  });
+  } catch (err) {
+    if (!responded) {
+      responded = true;
+      return res
+        .status(500)
+        .json({
+          success: false,
+          status: 500,
+          error: err.message || "Unexpected error",
+        });
+    }
+  }
 });
 
-app.listen(5000, () => console.log("Backend running on port 5000"));
+app.listen(process.env.BASE_URL_PORT, () =>
+  console.log(`Backend running on port ${process.env.BASE_URL_PORT}`)
+);
