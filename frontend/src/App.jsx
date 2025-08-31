@@ -2,8 +2,16 @@ import React, { useState, useEffect } from "react";
 import searchImage from "../src/assets/searching.gif";
 import scanImage from "../src/assets/scan.gif";
 import DialogBox from "../src/components/DialogBox";
+import axios from "axios";
+
+const axioInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
 
 export default function ScannerApp() {
+  const platform = window?.navigator?.platform?.split(" ")[0];
+  const platform2 = window?.navigator?.userAgentData?.platform;
+  console.log(platform , platform2)
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [imageBase64, setImageBase64] = useState(null);
@@ -14,17 +22,19 @@ export default function ScannerApp() {
   // Fetch scanner devices from backend
 
   useEffect(() => {
-    // getSdkInformation();
+    getSdkInformation();
   }, []);
 
   const onClickHandler = (val = false) => {
-    const platform = window.navigator.platform.split(" ")[0];
+    console.log( window.navigator)
+
+    console.log(platform);
     if (platform === "Linux") {
       downloadFile(
         "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
         "naps2-8.2.0-linux-x64.deb"
       );
-    } else if (platform === "Windows") {
+    } else if (platform === "Win32" || platform2 === "Windows") {
       downloadFile(
         "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
         "naps2-8.2.0-win-x64.exe"
@@ -49,12 +59,12 @@ export default function ScannerApp() {
 
   const getSdkInformation = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/getDeviceInformation`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.installed) {
+      await   axioInstance.post(`/api/getDeviceInformation`,  { os: platform2 || platform } )
+        .then((res) => {
+          if (res.data.installed) {
             setIsInstalled(false);
           } else {
+            console.log("Here");
             setIsInstalled(true);
           }
         });
@@ -64,16 +74,16 @@ export default function ScannerApp() {
   };
 
   const getDeviceList = async () => {
+    console.log(platform2 || platform)
     setLoader(true);
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/devices`)
-        .then((res) => res.json())
-        .then((data) => {
-          setDevices(data);
+      await axioInstance.post(`/api/devices`,{ os: platform2 || platform  }).then((res) => {
+          setDevices(res.data);
           setLoader(false);
         });
     } catch (err) {
-      console.error(err);
+      console.error( err);
+      alert(err?.response?.data?.error)
       setDevices([]);
       setLoader(false);
     }
@@ -87,11 +97,7 @@ export default function ScannerApp() {
       setCount((prev) => prev + 1);
     }, 1000);
     try {
-      const res = await fetch("http://localhost:5000/scan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device: selectedDevice }),
-      });
+      const res = await axioInstance.post(`/api/scan`, { device: selectedDevice });
       const data = await res.json();
 
       console.log(data);
