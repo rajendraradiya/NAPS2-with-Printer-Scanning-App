@@ -1,8 +1,9 @@
-const express  = require("express");
+const express = require("express");
 const { exec, spawn } = require("child_process");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const path= require("path");
 
 const app = express();
 app.use(cors());
@@ -10,7 +11,7 @@ app.use(express.json());
 dotenv.config();
 
 app.get("/", (req, res) => {
-  res.send("<H1>1BACKEND IS RUNNING...</H1>");
+  res.sendFile(path.resolve("index.html"));
 });
 
 // 1. List devices
@@ -39,11 +40,11 @@ app.post("/api/getDeviceInformation", (req, res) => {
 
 app.post("/api/devices", (req, res) => {
   const { os } = req.body;
-  console.log(os)
+  console.log(os);
   let command = "";
   if (os === "Linux") {
     command = "naps2 console --listdevices --driver sane";
-  } else if (os === "Windows" ||  os === "Win32") {
+  } else if (os === "Windows" || os === "Win32") {
     // command =
     //   '"C:\\Program Files\\NAPS2\\NAPS2.Console.exe" --listdevices --driver wia';
     command = `"C:\\Program Files\\NAPS2\\NAPS2.Console.exe" --listdevices --driver wia`;
@@ -82,7 +83,7 @@ app.post("/api/scan", (req, res) => {
         "--device",
         device,
       ]);
-    } else if (os === "Windows" ||   os === "Win32") {
+    } else if (os === "Windows" || os === "Win32") {
       child = spawn(
         '"C:\\Program Files\\NAPS2\\NAPS2.Console.exe"', // full path to exe
         [
@@ -155,6 +156,6 @@ app.post("/api/scan", (req, res) => {
   }
 });
 
-app.listen(process.env.BASE_URL_PORT , () =>
+app.listen(process.env.BASE_URL_PORT,  () =>
   console.log(`Backend running on port ${process.env.BASE_URL_PORT}`)
 );

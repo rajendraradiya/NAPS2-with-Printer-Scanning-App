@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+    <script type="module" crossorigin src="/assets/index-pdF6HUyu.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BTKFB_1k.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <button
+      className="bg-blue-500 w-50 h-10 rounded-2xl"
+      onclick="getDeviceList()"
+    >
+      Start
+    </button>
+    <select id="myDropdown"></select>
+    <button
+      className="bg-blue-600 w-50 h-10 rounded-2xl mt-6"
+      onclick="startScan()"
+    >
+      Scan Now
+    </button>
+    <iframe id="myFrame" width="400" height="200"></iframe>
+    <pre id="output"></pre>
+
+    <script>
+        const platform = window?.navigator?.platform?.split(" ")[0];
+      const getDeviceList = async () => {
+        // console.log(platform2 || platform);
+        // setLoader(true);
+        try {
+          await axios
+            .post(`/api/devices`, { os: platform })
+            .then(async (res) => {
+              // console.log(res.data);
+              const dropdown = document.getElementById("myDropdown");
+              res.data.forEach((item) => {
+                const option = document.createElement("option");
+                option.value = item;
+                option.textContent = item;
+                dropdown.appendChild(option);
+              });
+              // setDevices(res.data);
+              // setLoader(false);
+            });
+        } catch (err) {
+          console.error(err);
+          // alert(err?.response?.data?.error);
+          // setDevices([]);
+          // setLoader(false);
+        }
+      };
+
+      const startScan = async () => {
+        // setImageBase64(null);
+        // if (!selectedDevice) return alert("Select a device first!");
+        // setLoader(true);
+        // let timer = setInterval(() => {
+        //   setCount((prev) => prev + 1);
+        // }, 1000);
+        try {
+          const dropdown = document.getElementById("myDropdown");
+          const res = await axios.post(`/api/scan`, {
+            device: dropdown.value,
+            os: platform,
+          });
+
+          // console.log(data.imageBase64);
+          const res1 = JSON.parse(JSON.stringify(res));
+          document.getElementById("output").innerText = res1.data.imageBase64;
+          document.getElementById("myFrame").src =
+            "data:application/pdf;base64," + res1.data.imageBase64;
+
+          // setLoader(false);
+          // setCount(0);
+          // clearInterval(timer);
+          // if (res.status === 500) {
+          //   alert("Please scan again.");
+          //   setImageBase64(null);
+          //   return;
+          // }
+          // setImageBase64(data.imageBase64);
+        } catch (err) {
+          // console.log(err);
+          // setLoader(false);
+          // setCount(0);
+          // clearInterval(timer);
+          // setImageBase64(null);
+          // console.log(err);
+          // if (err.status === 500) {
+          //   alert("Please scan again.");
+          // }
+        }
+      };
+    </script>
+  </body>
+</html>
