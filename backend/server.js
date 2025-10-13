@@ -3,16 +3,16 @@ const { exec, spawn } = require("child_process");
 const fs = require("fs");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const path= require("path");
+const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 dotenv.config();
 
-app.get("/", (req, res) => {
-  res.sendFile(path.resolve("index.html"));
-});
+// app.get("/", (req, res) => {
+//   res.sendFile(path.resolve("index.html"));
+// });
 
 // 1. List devices
 app.post("/api/getDeviceInformation", (req, res) => {
@@ -84,8 +84,9 @@ app.post("/api/scan", (req, res) => {
         device,
       ]);
     } else if (os === "Windows" || os === "Win32") {
+      const exePath = "C:\\Program Files\\NAPS2\\NAPS2.Console.exe";
       child = spawn(
-        '"C:\\Program Files\\NAPS2\\NAPS2.Console.exe"', // full path to exe
+        exePath, // full path to exe
         [
           "-o",
           outputFile,
@@ -93,7 +94,7 @@ app.post("/api/scan", (req, res) => {
           "--driver",
           "wia", // use "wia" or "twain" on Windows, not "sane"
           "--device",
-          "HP OfficeJet Pro 9720 Series [00DEEE]", //device.trim(),
+          device,
         ],
         { shell: true } // helps with Windows path/args parsing
       );
@@ -156,6 +157,4 @@ app.post("/api/scan", (req, res) => {
   }
 });
 
-app.listen(process.env.BASE_URL_PORT,  () =>
-  console.log(`Backend running on port ${process.env.BASE_URL_PORT}`)
-);
+app.listen(5000, () => console.log(`Backend running on port 5000`));
