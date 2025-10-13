@@ -51,6 +51,9 @@ app.post("/api/devices", (req, res) => {
   } else if (os === "Mac") {
   }
 
+  console.log("GET Scanning...");
+  console.log("COMMAND");
+  console.log(command);
   exec(command, (err, stdout, stderr) => {
     if (err) return res.status(500).send(stderr || err.message);
     const devices = stdout.split("\n").filter(Boolean);
@@ -60,9 +63,15 @@ app.post("/api/devices", (req, res) => {
         error: "No scanners detected. Please check printer configuration.",
       });
     }
+
+    console.log("Devices List");
+    console.log(devices);
     res.json(devices);
   });
 });
+
+// const command = `naps2 console -o  ${outputFile} --noprofile --driver sane --device '${device}'`;
+// // const command = `naps2 console -o scan.pdf --noprofile --driver sane --device ${device}`;
 
 // 2. Scan document
 app.post("/api/scan", (req, res) => {
@@ -83,7 +92,9 @@ app.post("/api/scan", (req, res) => {
         "--device",
         device,
       ]);
+      console.log(child);
     } else if (os === "Windows" || os === "Win32") {
+      console.log("Scanning in windows...");
       const exePath = "C:\\Program Files\\NAPS2\\NAPS2.Console.exe";
       child = spawn(
         exePath, // full path to exe
@@ -98,8 +109,15 @@ app.post("/api/scan", (req, res) => {
         ],
         { shell: true } // helps with Windows path/args parsing
       );
+      console.log("first command...");
+      console.log(child);
+      console.log("Second command...");
+      const command2 = `naps2 console -o ${outputFile} --noprofile --driver sane --device "${device}"`;
+      console.log(command2);
     } else if (os === "Mac") {
     }
+
+    console.log("EXECUTING COMMAND");
 
     child.stdout.on("data", (data) => {
       console.log(`stdout: ${data}`);
