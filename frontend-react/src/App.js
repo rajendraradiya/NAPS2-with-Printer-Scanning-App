@@ -3,6 +3,9 @@ import searchImage from "../src/assets/searching.gif";
 import scanImage from "../src/assets/scan.gif";
 import DialogBox from "../src/components/DialogBox";
 import axios from "axios";
+import windowsIcon from "./assets/windows-icon.webp";
+import LinuxIcon from "./assets/linux-icon.png";
+import macIcon from "./assets/mac-icon.png";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:5000",
@@ -225,6 +228,36 @@ export default function ScannerApp() {
             ) : (
               ""
             )}
+
+            <div className="text-center mt-10">
+              <p className="text-gray-600">
+                ❗<b>Important : </b> For scanning, you’ll need the NAPS2
+                application and the naps2-service file. You can download both
+                files from the links provided below.
+              </p>
+
+              <div className="flex justify-center space-x-4 my-4">
+                <img
+                  src={windowsIcon}
+                  alt="Windows Icon"
+                  class="h-10 w-10 object-contain"
+                  title="Windows"
+                />
+                <img
+                  src={LinuxIcon}
+                  alt="Linux Icon"
+                  class="h-10 w-10 object-contain mx-8"
+                  title="Linux"
+                />
+
+                <img
+                  src={macIcon}
+                  alt="Mac Icon"
+                  class="h-10 w-10 object-contain"
+                  title="Mac"
+                />
+              </div>
+            </div>
           </div>
           <div class="w-3/4 p-6 bg-gray-100 shadow-md">
             {imageBase64 ? (
