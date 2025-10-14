@@ -101,20 +101,19 @@ export default function ScannerApp() {
     }, 1000);
     try {
       const res = await axioInstance.post(`/api/scan`, {
-        device: selectedDevice,
+        device: selectedDevice.trim(),
+        os: platform2 || platform,
       });
-      const data = await res.json();
-
-      console.log(data);
-
-      setLoader(false);
-      setCount(0);
-      clearInterval(timer);
-      if (res.status === 500) {
-        alert("Please scan again.");
+      if (res.status !== 200) {
+        alert("Something went wrong. Please try again later!");
         setImageBase64(null);
         return;
       }
+      const data = res.data;
+      setLoader(false);
+      setCount(0);
+      clearInterval(timer);
+
       setImageBase64(data.imageBase64);
     } catch (err) {
       console.log(err);
