@@ -135,144 +135,126 @@ export default function ScannerApp() {
       ) : (
         ""
       )}
-      <div style={{ width: "100vw" }} className="flex justify-center">
-        {loader ? (
+
+      {loader ? (
+        <div
+          style={{
+            background: "white",
+            height: "100vh",
+            width: "100vw",
+            position: "fixed",
+            opacity: "0.98",
+            top: "0",
+          }}
+        >
           <div
+            className="text-center flex justify-center items-center"
             style={{
-              background: "white",
               height: "100vh",
               width: "100vw",
-              position: "fixed",
-              opacity: "0.98",
-              top: "0",
             }}
           >
-            <div
-              className="text-center flex justify-center items-center"
-              style={{
-                height: "100vh",
-                width: "100vw",
-              }}
-            >
-              <div>
-                {devices && devices.length === 0 ? (
-                  <>
-                    <div>
-                      <img src={searchImage} />
-                    </div>
-                    <h3 className="text-stone-600 mt-4">getting devices...</h3>
-                  </>
-                ) : (
-                  ""
-                )}
-                {selectedDevice ? (
-                  <>
-                    <div>
-                      <img src={scanImage} />
-                    </div>
-                    <h3 className="text-stone-600 mt-4">Scanning...{count}</h3>
-                  </>
-                ) : (
-                  ""
-                )}
-              </div>
-              <div></div>
+            <div>
+              {devices && devices.length === 0 ? (
+                <>
+                  <div>
+                    <img src={searchImage} />
+                  </div>
+                  <h3 className="text-stone-600 mt-4">getting devices...</h3>
+                </>
+              ) : (
+                ""
+              )}
+              {selectedDevice ? (
+                <>
+                  <div>
+                    <img src={scanImage} />
+                  </div>
+                  <h3 className="text-stone-600 mt-4">Scanning...{count}</h3>
+                </>
+              ) : (
+                ""
+              )}
             </div>
+            <div></div>
           </div>
-        ) : (
-          ""
-        )}
-        <div className="p-6 text-center">
-          <h1 className="text-2xl font-bold mb-4 ">NAPS2 SCANNER</h1>
-          {/* <table className="border-1">
-            <thead>
-              <tr>
-                <td>Windows</td>
-                <td>Linux</td>
-                <td>Mac</td>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr>
-                <td>
-                  <a href="https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe">
-                    <i className="fa fa-download fa-fw"></i>Download
-                  </a>
-                </td>
-                <td>
-                  <a href="https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb">
-                    <i className="fa fa-download fa-fw"></i>Download
-                  </a>
-                </td>
-                <td>
-                  <a href="https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg">
-                    <i className="fa fa-download fa-fw"></i>Download
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table> */}
-
-          {devices && devices.length === 0 ? (
-            <button
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300"
-              onClick={getDeviceList}
-            >
-              Start
-            </button>
-          ) : (
-            ""
-          )}
-
-          {devices && devices.length ? (
-            <>
-              <div>
-                <select
-                  className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                  onChange={(e) => setSelectedDevice(e.target.value)}
-                >
-                  <option value="">Select Device</option>
-                  {devices.map((d, i) => (
-                    <option key={i} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
-                onClick={startScan}
-              >
-                Scan Now
-              </button>
-            </>
-          ) : (
-            ""
-          )}
-
-          {imageBase64 && (
-            <div className="mt-6 p-4">
-              <iframe
-                src={`data:application/pdf;base64,${imageBase64}`}
-                width="100%"
-                height="600px"
-              >
-                <p>
-                  Your browser does not support iframes. You can{" "}
-                  <a
-                    href={`data:application/pdf;base64,${imageBase64}`}
-                    download="your_document.pdf"
-                  >
-                    download the PDF
-                  </a>{" "}
-                  instead.
-                </p>
-              </iframe>
-            </div>
-          )}
         </div>
-      </div>
+      ) : (
+        ""
+      )}
+
+      <>
+        <div class="flex h-screen w-screen">
+          <div class="w-1/4 p-6 bg-white shadow-md flex flex-col items-center justify-center">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1>
+
+            {devices && devices.length === 0 ? (
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+                onClick={getDeviceList}
+              >
+                Start
+              </button>
+            ) : (
+              ""
+            )}
+
+            {devices && devices.length ? (
+              <>
+                <div>
+                  <select
+                    className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                    onChange={(e) => setSelectedDevice(e.target.value)}
+                  >
+                    <option value="">Select Device</option>
+                    {devices.map((d, i) => (
+                      <option key={i} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
+                  onClick={startScan}
+                >
+                  Scan Now
+                </button>
+              </>
+            ) : (
+              ""
+            )}
+          </div>
+          <div class="w-3/4 p-6 bg-gray-100 shadow-md">
+            {imageBase64 ? (
+              <div className="mt-6 p-4">
+                <iframe
+                  src={`data:application/pdf;base64,${imageBase64}`}
+                  width="100vw"
+                  height="100vh"
+                >
+                  <p>
+                    Your browser does not support iframes. You can{" "}
+                    <a
+                      href={`data:application/pdf;base64,${imageBase64}`}
+                      download="your_document.pdf"
+                    >
+                      download the PDF
+                    </a>{" "}
+                    instead.
+                  </p>
+                </iframe>
+              </div>
+            ) : (
+              <div className="w-full h-full border border-gray-300 flex justify-center items-center bg-gray-100">
+                <h6 className="text-gray-950">
+                  <b>This section displays a live preview of the scanned document.</b>
+                </h6>
+              </div>
+            )}
+          </div>
+        </div>
+      </>
     </>
   );
 }
