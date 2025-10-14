@@ -50,7 +50,6 @@ app.post("/api/devices", (req, res) => {
   } else if (os === "Mac") {
   }
 
-
   exec(command, (err, stdout, stderr) => {
     if (err) return res.status(500).send(stderr || err.message);
     const devices = stdout.split("\n").filter(Boolean);
@@ -64,7 +63,6 @@ app.post("/api/devices", (req, res) => {
     res.json(devices);
   });
 });
-
 
 // 2. Scan document
 app.post("/api/scan", (req, res) => {
@@ -100,10 +98,18 @@ app.post("/api/scan", (req, res) => {
         ],
         { shell: true } // helps with Windows path/args parsing
       );
-      const command2 = `naps2 console -o ${outputFile} --noprofile --driver sane --device "${device}"`;
     } else if (os === "Mac") {
+      child = spawn("naps2", [
+        "console",
+        "-o",
+        outputFile,
+        "--noprofile",
+        "--driver",
+        "sane",
+        "--device",
+        device,
+      ]);
     }
-
 
     child.stdout.on("data", (data) => {
       console.log(`stdout: ${data}`);
