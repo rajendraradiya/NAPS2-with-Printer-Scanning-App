@@ -203,6 +203,7 @@ export default function ScannerApp() {
               <>
                 <div>
                   <select
+                    style={{ minWidth: "340px" }}
                     className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                     onChange={(e) => setSelectedDevice(e.target.value)}
                   >
@@ -248,7 +249,10 @@ export default function ScannerApp() {
             ) : (
               <div className="w-full h-full border border-gray-300 flex justify-center items-center bg-gray-100">
                 <h6 className="text-gray-950">
-                  <b>This section displays a live preview of the scanned document.</b>
+                  <b>
+                    This section displays a live preview of the scanned
+                    document.
+                  </b>
                 </h6>
               </div>
             )}
