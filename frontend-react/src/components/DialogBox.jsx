@@ -1,16 +1,17 @@
 import { useState } from "react";
 
 export default function TailwindDialog({ open, onClickHandler }) {
-  //   const [open, setOpen] = useState(open);
-
   return (
     <div className="flex h-screen items-center justify-center">
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="text-xl font-semibold text-gray-800">Please complete one-time setup</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Please complete one-time setup
+            </h2>
             <p className="mt-2 text-gray-600">
-            For this scanning process, NAps2 SDK is required. Please download and install.
+              For this scanning process, NAPS2 SDK and naps2-service is
+              required. Please download and install.
             </p>
 
             {/* Actions */}

@@ -184,7 +184,7 @@ export default function ScannerApp() {
         )}
         <div className="p-6 text-center">
           <h1 className="text-2xl font-bold mb-4 ">NAPS2 SCANNER</h1>
-          <table className="border-1">
+          {/* <table className="border-1">
             <thead>
               <tr>
                 <td>Windows</td>
@@ -212,11 +212,11 @@ export default function ScannerApp() {
                 </td>
               </tr>
             </tbody>
-          </table>
+          </table> */}
 
           {devices && devices.length === 0 ? (
             <button
-              className="bg-blue-500 w-50 h-10 rounded-2xl"
+              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300"
               onClick={getDeviceList}
             >
               Start
@@ -241,7 +241,7 @@ export default function ScannerApp() {
                 </select>
               </div>
               <button
-                className="bg-blue-600 w-50 h-10 rounded-2xl mt-6"
+                className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
                 onClick={startScan}
               >
                 Scan Now
