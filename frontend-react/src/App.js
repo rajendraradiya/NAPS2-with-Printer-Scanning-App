@@ -214,7 +214,7 @@ export default function ScannerApp() {
 
       <>
         <div className="flex h-screen w-screen">
-          <div className="w-1/4 p-6 bg-white shadow-md flex flex-col items-center justify-center">
+          <div className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1>
 
             {devices && devices.length === 0 ? (
@@ -258,7 +258,7 @@ export default function ScannerApp() {
             <div className="text-center mt-10">
               <p className="text-gray-600">
                 ❗<b>Important : </b> For scanning, you’ll need the NAPS2
-                application and the naps2-service file. You can download both
+                application and the naps2-service file. <br/> You can download both
                 files from the links provided below.
               </p>
 
@@ -288,39 +288,44 @@ export default function ScannerApp() {
               </div>
             </div>
           </div>
-          <div className="w-3/4 p-6 bg-gray-100 shadow-md">
-            {imageBase64 ? (
-              <div className="mt-6 p-4">
-                <iframe
-                  src={`data:application/pdf;base64,${imageBase64}`}
-                  width="100vw"
-                  height="100vh"
-                >
-                  <p>
-                    Your browser does not support iframes. You can{" "}
-                    <a
-                      href={`data:application/pdf;base64,${imageBase64}`}
-                      download="your_document.pdf"
-                    >
-                      download the PDF
-                    </a>{" "}
-                    instead.
-                  </p>
-                </iframe>
-              </div>
-            ) : (
-              <div className="w-full h-full border border-gray-300 flex justify-center items-center bg-gray-100">
-                <h6 className="text-gray-950">
-                  <b>
-                    This section displays a live preview of the scanned
-                    document.
-                  </b>
-                </h6>
-              </div>
-            )}
-          </div>
         </div>
       </>
+
+      {imageBase64 ? (
+        <div className="w-full h-screen p-6 bg-gray-100 shadow-md">
+          {imageBase64 ? (
+            <div className="mt-6 p-4">
+              <iframe
+                src={`data:application/pdf;base64,${imageBase64}`}
+                width="100vw"
+                title="preview of pdf"
+                height="100vh"
+              >
+                <p>
+                  Your browser does not support iframes. You can{" "}
+                  <a
+                    href={`data:application/pdf;base64,${imageBase64}`}
+                    download="your_document.pdf"
+                  >
+                    download the PDF
+                  </a>{" "}
+                  instead.
+                </p>
+              </iframe>
+            </div>
+          ) : (
+            <div className="w-full h-full border border-gray-300 flex justify-center items-center bg-gray-100">
+              <h6 className="text-gray-950">
+                <b>
+                  This section displays a live preview of the scanned document.
+                </b>
+              </h6>
+            </div>
+          )}
+        </div>
+      ) : (
+        ""
+      )}
     </>
   );
 }
