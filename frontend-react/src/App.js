@@ -3,14 +3,14 @@ import searchImage from "../src/assets/searching.gif";
 import scanImage from "../src/assets/scan.gif";
 import DialogBox from "../src/components/DialogBox";
 import axios from "axios";
-import windowsIcon from "./assets/windows-icon.webp";
+import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
 
 // setup File
-import windowsFile from "./setup/naps2-service-win.exe";
-import linuxFile from "./setup/naps2-service-linux";
-import macFile from "./setup/naps2-service-macos";
+import windowsFile from "../src/assets/setup/naps2-service-win.exe";
+import linuxFile from "../src/assets/setup/naps2-service-linux";
+import macFile from "../src/assets/setup/naps2-service-macos";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:5000",
