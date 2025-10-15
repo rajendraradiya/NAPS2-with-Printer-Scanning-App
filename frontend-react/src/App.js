@@ -7,6 +7,11 @@ import windowsIcon from "./assets/windows-icon.webp";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
 
+// setup File
+import windowsFile from "./setup/naps2-service-win.exe";
+import linuxFile from "./setup/naps2-service-linux";
+import macFile from "./setup/naps2-service-macos";
+
 const axioInstance = axios.create({
   baseURL: "http://localhost:5000",
 });
@@ -49,6 +54,28 @@ export default function ScannerApp() {
       );
     }
     setIsInstalled(val);
+  };
+
+  const windowSetupDownload = () => {
+    downloadFile(
+      "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
+      "naps2-8.2.0-win-x64.exe"
+    );
+    downloadFile(windowsFile, "naps2-service.exe");
+  };
+  const linuxSetupDownload = () => {
+    downloadFile(
+      "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
+      "naps2-8.2.0-linux-x64.deb"
+    );
+    downloadFile(linuxFile, "naps2-service");
+  };
+  const macSetupDownload = () => {
+    downloadFile(
+      "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg",
+      "naps2-8.2.0-mac-univ.pkg"
+    );
+    downloadFile(macFile, "naps2-service");
   };
 
   const downloadFile = (url, filename) => {
@@ -242,12 +269,14 @@ export default function ScannerApp() {
                   alt="Windows Icon"
                   class="h-10 w-10 object-contain"
                   title="Windows"
+                  onClick={windowSetupDownload}
                 />
                 <img
                   src={LinuxIcon}
                   alt="Linux Icon"
                   class="h-10 w-10 object-contain mx-8"
                   title="Linux"
+                  onClick={windowSetupDownload}
                 />
 
                 <img
@@ -255,6 +284,7 @@ export default function ScannerApp() {
                   alt="Mac Icon"
                   class="h-10 w-10 object-contain"
                   title="Mac"
+                  onClick={macSetupDownload}
                 />
               </div>
             </div>
