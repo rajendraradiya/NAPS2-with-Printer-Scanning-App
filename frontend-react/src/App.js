@@ -105,7 +105,6 @@ export default function ScannerApp() {
   };
 
   const getDeviceList = async () => {
-    console.log(platform2 || platform);
     setLoader(true);
     try {
       await axioInstance
@@ -200,7 +199,7 @@ export default function ScannerApp() {
                   <div>
                     <img src={scanImage} />
                   </div>
-                  <h3 className="text-stone-600 mt-4">Scanning...{count}</h3>
+                  <h3 className="text-stone-600 mt-4">Scanning...</h3>
                 </>
               ) : (
                 ""
@@ -276,7 +275,7 @@ export default function ScannerApp() {
                   alt="Linux Icon"
                   className="h-10 w-10 object-contain mx-8"
                   title="Linux"
-                  onClick={windowSetupDownload}
+                  onClick={linuxSetupDownload}
                 />
 
                 <img

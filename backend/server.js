@@ -82,9 +82,8 @@ app.post("/api/scan", (req, res) => {
         device,
       ]);
     } else if (os === "Windows" || os === "Win32") {
-      const exePath = "C:\\Program Files\\NAPS2\\NAPS2.Console.exe";
       child = spawn(
-        exePath, // full path to exe
+        `"C:\\Program Files\\NAPS2\\NAPS2.Console.exe"`, // full path to exe
         [
           "-o",
           outputFile,
