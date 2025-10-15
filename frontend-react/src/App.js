@@ -214,9 +214,9 @@ export default function ScannerApp() {
       )}
 
       <>
-        <div class="flex h-screen w-screen">
-          <div class="w-1/4 p-6 bg-white shadow-md flex flex-col items-center justify-center">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1>
+        <div className="flex h-screen w-screen">
+          <div className="w-1/4 p-6 bg-white shadow-md flex flex-col items-center justify-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1>
 
             {devices && devices.length === 0 ? (
               <button
@@ -267,14 +267,14 @@ export default function ScannerApp() {
                 <img
                   src={windowsIcon}
                   alt="Windows Icon"
-                  class="h-10 w-10 object-contain"
+                  className="h-10 w-10 object-contain"
                   title="Windows"
                   onClick={windowSetupDownload}
                 />
                 <img
                   src={LinuxIcon}
                   alt="Linux Icon"
-                  class="h-10 w-10 object-contain mx-8"
+                  className="h-10 w-10 object-contain mx-8"
                   title="Linux"
                   onClick={windowSetupDownload}
                 />
@@ -282,14 +282,14 @@ export default function ScannerApp() {
                 <img
                   src={macIcon}
                   alt="Mac Icon"
-                  class="h-10 w-10 object-contain"
+                  className="h-10 w-10 object-contain"
                   title="Mac"
                   onClick={macSetupDownload}
                 />
               </div>
             </div>
           </div>
-          <div class="w-3/4 p-6 bg-gray-100 shadow-md">
+          <div className="w-3/4 p-6 bg-gray-100 shadow-md">
             {imageBase64 ? (
               <div className="mt-6 p-4">
                 <iframe
