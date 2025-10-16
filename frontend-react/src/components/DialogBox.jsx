@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-export default function TailwindDialog({ open, onClickHandler }) {
+export default function TailwindDialog({
+  open,
+  onClickHandler,
+  isServiceRunning,
+}) {
   return (
     <div className="flex h-screen items-center justify-center">
       {open && (
@@ -10,8 +14,9 @@ export default function TailwindDialog({ open, onClickHandler }) {
               Please complete one-time setup
             </h2>
             <p className="mt-2 text-gray-600">
-              For this scanning process, NAPS2 SDK and naps2-service is
-              required. Please download and install.
+              {!isServiceRunning
+                ? "It looks like the NAPS2 service isn’t running. You can download it from the link below."
+                : "For this scanning process, NAPS2 SDK and naps2-service is required. Please download and install."}
             </p>
 
             {/* Actions */}

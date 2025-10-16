@@ -26,6 +26,7 @@ export default function ScannerApp() {
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isServiceRunning, setIsServiceRunning] = useState(false);
 
   // Fetch scanner devices from backend
 
@@ -34,25 +35,33 @@ export default function ScannerApp() {
   }, []);
 
   const onClickHandler = (val = false) => {
-    console.log(window.navigator);
-
-    console.log(platform);
-    if (platform === "Linux") {
-      downloadFile(
-        "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
-        "naps2-8.2.0-linux-x64.deb"
-      );
-    } else if (platform === "Win32" || platform2 === "Windows") {
-      downloadFile(
-        "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
-        "naps2-8.2.0-win-x64.exe"
-      );
-    } else if (platform === "Macs") {
-      downloadFile(
-        "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg",
-        "naps2-8.2.0-mac-univ.pkg"
-      );
+    if (!isServiceRunning) {
+      if (platform === "Linux") {
+        downloadFile(linuxFile, "naps2-service");
+      } else if (platform === "Win32" || platform2 === "Windows") {
+        downloadFile(windowsFile, "naps2-service.exe");
+      } else if (platform === "Macs") {
+        downloadFile(macFile, "naps2-service");
+      }
+    } else {
+      if (platform === "Linux") {
+        downloadFile(
+          "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
+          "naps2-8.2.0-linux-x64.deb"
+        );
+      } else if (platform === "Win32" || platform2 === "Windows") {
+        downloadFile(
+          "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
+          "naps2-8.2.0-win-x64.exe"
+        );
+      } else if (platform === "Macs") {
+        downloadFile(
+          "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg",
+          "naps2-8.2.0-mac-univ.pkg"
+        );
+      }
     }
+
     setIsInstalled(val);
   };
 
@@ -92,6 +101,7 @@ export default function ScannerApp() {
       await axioInstance
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
+          setIsServiceRunning(true);
           if (res.data.installed) {
             setIsInstalled(false);
           } else {
@@ -101,6 +111,10 @@ export default function ScannerApp() {
         });
     } catch (err) {
       console.error(err);
+      if (err.request.status === 0) {
+        setIsInstalled(true)
+        setIsServiceRunning(false);
+      }
     }
   };
 
@@ -160,7 +174,11 @@ export default function ScannerApp() {
   return (
     <>
       {isInstalled ? (
-        <DialogBox open={isInstalled} onClickHandler={onClickHandler} />
+        <DialogBox
+          open={isInstalled}
+          onClickHandler={onClickHandler}
+          isServiceRunning={isServiceRunning}
+        />
       ) : (
         ""
       )}
@@ -258,8 +276,8 @@ export default function ScannerApp() {
             <div className="text-center mt-10">
               <p className="text-gray-600">
                 ❗<b>Important : </b> For scanning, you’ll need the NAPS2
-                application and the naps2-service file. <br/> You can download both
-                files from the links provided below.
+                application and the naps2-service file. <br /> You can download
+                both files from the links provided below.
               </p>
 
               <div className="flex justify-center space-x-4 my-4">
