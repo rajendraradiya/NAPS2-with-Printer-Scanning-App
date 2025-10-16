@@ -7,11 +7,6 @@ import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
 
-// setup File
-import windowsFile from "../src/assets/setup/naps2-service-win.exe";
-import linuxFile from "../src/assets/setup/naps2-service-linux";
-import macFile from "../src/assets/setup/naps2-service-macos";
-
 const axioInstance = axios.create({
   baseURL: "http://localhost:5000",
 });
@@ -35,57 +30,75 @@ export default function ScannerApp() {
     getSdkInformation();
   }, []);
 
-  const onClickHandler = (val = false) => {
-    if (!isServiceRunning) {
-      if (platform === "Linux") {
-        downloadFile(linuxFile, "naps2-service");
-      } else if (platform === "Win32" || platform2 === "Windows") {
-        downloadFile(windowsFile, "naps2-service.exe");
-      } else if (platform === "Macs") {
-        downloadFile(macFile, "naps2-service");
-      }
-    } else if (!isNAPS2ServiceRunning) {
-      if (platform === "Linux") {
-        downloadFile(
-          "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
-          "naps2-8.2.0-linux-x64.deb"
-        );
-      } else if (platform === "Win32" || platform2 === "Windows") {
-        downloadFile(
-          "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
-          "naps2-8.2.0-win-x64.exe"
-        );
-      } else if (platform === "Macs") {
-        downloadFile(
-          "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg",
-          "naps2-8.2.0-mac-univ.pkg"
-        );
-      }
-    }
-
-    setIsInstalled(val);
+  const windowsBackendServiceDownload = () => {
+    downloadFile("/setup/naps2-service-win.exe", "naps2-service.exe");
+  };
+  const linuxBackendServiceDownload = () => {
+    downloadFile("/setup/naps2-service-linux", "naps2-service");
+  };
+  const macBackendServiceDownload = () => {
+    downloadFile("/setup/naps2-service-macos", "naps2-service");
   };
 
-  const windowSetupDownload = () => {
+  const windowsNAPS2Download = () => {
     downloadFile(
       "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
       "naps2-8.2.0-win-x64.exe"
     );
-    downloadFile(windowsFile, "naps2-service.exe");
   };
-  const linuxSetupDownload = () => {
+  const linuxNAPS2Download = () => {
     downloadFile(
       "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
       "naps2-8.2.0-linux-x64.deb"
     );
-    downloadFile(linuxFile, "naps2-service");
   };
-  const macSetupDownload = () => {
+  const macNAPS2Download = () => {
     downloadFile(
       "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg",
       "naps2-8.2.0-mac-univ.pkg"
     );
-    downloadFile(macFile, "naps2-service");
+  };
+
+  const onClickHandler = (val = false) => {
+    if (!isServiceRunning) {
+      downloadBackendService();
+    } else if (!isNAPS2ServiceRunning) {
+      downloadNAPS2();
+    }
+    setIsInstalled(val);
+  };
+
+  const downloadBackendService = () => {
+    if (platform === "Linux") {
+      linuxBackendServiceDownload();
+    } else if (platform === "Win32" || platform2 === "Windows") {
+      windowsBackendServiceDownload();
+    } else if (platform === "Macs") {
+      macBackendServiceDownload();
+    }
+  };
+
+  const downloadNAPS2 = () => {
+    if (platform === "Linux") {
+      linuxNAPS2Download();
+    } else if (platform === "Win32" || platform2 === "Windows") {
+      windowsNAPS2Download();
+    } else if (platform === "Macs") {
+      macNAPS2Download();
+    }
+  };
+
+  const windowSetupDownload = () => {
+    windowsBackendServiceDownload();
+    windowsNAPS2Download();
+  };
+  const linuxSetupDownload = () => {
+    linuxBackendServiceDownload();
+    linuxNAPS2Download();
+  };
+  const macSetupDownload = () => {
+    macBackendServiceDownload();
+    macNAPS2Download();
   };
 
   const downloadFile = (url, filename) => {
