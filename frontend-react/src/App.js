@@ -43,6 +43,8 @@ export default function ScannerApp() {
       } else if (platform === "Macs") {
         downloadFile(macFile, "naps2-service");
       }
+      setIsInstalled(false);
+      return;
     } else {
       if (platform === "Linux") {
         downloadFile(
@@ -112,7 +114,7 @@ export default function ScannerApp() {
     } catch (err) {
       console.error(err);
       if (err.request.status === 0) {
-        setIsInstalled(true)
+        setIsInstalled(true);
         setIsServiceRunning(false);
       }
     }
