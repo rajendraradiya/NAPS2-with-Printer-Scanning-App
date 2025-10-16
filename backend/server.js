@@ -46,6 +46,7 @@ app.post("/api/devices", (req, res) => {
   } else if (os === "Windows" || os === "Win32") {
     command = `"C:\\Program Files\\NAPS2\\NAPS2.Console.exe" --listdevices --driver wia`;
   } else if (os === "Mac") {
+    command = "naps2 console --listdevices --driver sane";
   }
 
   exec(command, (err, stdout, stderr) => {

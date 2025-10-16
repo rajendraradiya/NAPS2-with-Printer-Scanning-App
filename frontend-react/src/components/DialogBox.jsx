@@ -6,9 +6,9 @@ export default function TailwindDialog({
   isServiceRunning,
 }) {
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="fixed h-screen items-center justify-center">
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
             <h2 className="text-xl font-semibold text-gray-800">
               Please complete one-time setup
