@@ -27,6 +27,7 @@ export default function ScannerApp() {
   const [loader, setLoader] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isServiceRunning, setIsServiceRunning] = useState(false);
+  const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
 
   // Fetch scanner devices from backend
 
@@ -43,9 +44,7 @@ export default function ScannerApp() {
       } else if (platform === "Macs") {
         downloadFile(macFile, "naps2-service");
       }
-      setIsInstalled(false);
-      return;
-    } else {
+    } else if (!isNAPS2ServiceRunning) {
       if (platform === "Linux") {
         downloadFile(
           "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
@@ -106,9 +105,11 @@ export default function ScannerApp() {
           setIsServiceRunning(true);
           if (res.data.installed) {
             setIsInstalled(false);
+            setIsNAPS2ServiceRunning(true);
           } else {
             console.log("Here");
             setIsInstalled(true);
+            setIsNAPS2ServiceRunning(false);
           }
         });
     } catch (err) {
@@ -180,6 +181,7 @@ export default function ScannerApp() {
           open={isInstalled}
           onClickHandler={onClickHandler}
           isServiceRunning={isServiceRunning}
+          isNAPS2ServiceRunning={isNAPS2ServiceRunning}
         />
       ) : (
         ""
