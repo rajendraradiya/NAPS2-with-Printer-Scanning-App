@@ -4,11 +4,40 @@ const fs = require("fs");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
+const notifier = require("node-notifier");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 dotenv.config();
+
+// Show installed successfully notification (cross-platform)
+function showSuccessNotification() {
+  if (process.platform === 'win32') {
+    // Windows: run VBScript popup
+    // const vbsPath = path.join(__dirname, 'success.vbs');
+
+    // // Create success.vbs if not exists
+    // if (!fs.existsSync(vbsPath)) {
+    //   fs.writeFileSync(vbsPath, 'MsgBox "Installed successfully!", vbInformation, "Setup"');
+    // }
+
+    // exec(`cscript //nologo "${vbsPath}"`, (err) => {
+    //   if (err) console.error("Failed to show popup:", err);
+    // });
+  } else {
+    // Linux / macOS: log to console
+    notifier.notify({
+      title: "Setup",
+      message: "Installed successfully!",
+      sound: true,
+    });
+  }
+}
+
+
+// Example: call this at startup
+showSuccessNotification();
 
 // app.get("/", (req, res) => {
 //   res.sendFile(path.resolve("index.html"));
