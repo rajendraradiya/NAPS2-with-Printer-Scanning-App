@@ -165,7 +165,7 @@ export default function ScannerApp() {
       });
       if (res.status !== 200) {
         alert("Something went wrong. Please try again later!");
-        setImageBase64(null);
+        window.parent.postMessage({ status: "error", data: "" }, "*");
         return;
       }
       const data = res.data;
@@ -173,7 +173,11 @@ export default function ScannerApp() {
       setCount(0);
       clearInterval(timer);
 
-      setImageBase64(data.imageBase64);
+      let message = {
+        status: "success",
+        data: `data:application/pdf;base64,${data.imageBase64}`,
+      };
+      window.parent.postMessage(message, "*");
     } catch (err) {
       console.log(err);
       setLoader(false);
