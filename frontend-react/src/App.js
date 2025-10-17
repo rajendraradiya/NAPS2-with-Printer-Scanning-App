@@ -297,29 +297,43 @@ export default function ScannerApp() {
                 both files from the links provided below.
               </p>
 
-              <div className="flex justify-center space-x-4 my-4">
-                <img
-                  src={windowsIcon}
-                  alt="Windows Icon"
-                  className="h-10 w-10 object-contain"
-                  title="Windows"
+              <div className="flex justify-center my-4">
+                <button
+                  className="text-blue-500 flex flex-col items-center"
                   onClick={windowSetupDownload}
-                />
-                <img
-                  src={LinuxIcon}
-                  alt="Linux Icon"
-                  className="h-10 w-10 object-contain mx-8"
-                  title="Linux"
+                >
+                  <img
+                    src={windowsIcon}
+                    alt="Windows Icon"
+                    className="h-10 w-10 object-contain"
+                    title="Windows"
+                  />
+                  <span className="mt-1"> Windows</span>
+                </button>
+                <button
+                  className="text-blue-500 flex flex-col items-center"
                   onClick={linuxSetupDownload}
-                />
-
-                <img
-                  src={macIcon}
-                  alt="Mac Icon"
-                  className="h-10 w-10 object-contain"
-                  title="Mac"
+                >
+                  <img
+                    src={LinuxIcon}
+                    alt="Linux Icon"
+                    className="h-10 w-10 object-contain mx-8"
+                    title="Linux"
+                  />
+                  <span className="mt-1"> Linux</span>
+                </button>
+                <button
+                  className="text-blue-500 flex flex-col items-center"
                   onClick={macSetupDownload}
-                />
+                >
+                  <img
+                    src={macIcon}
+                    alt="Mac Icon"
+                    className="h-10 w-10 object-contain"
+                    title="Mac"
+                  />
+                  <span className="mt-1"> Mac</span>
+                </button>
               </div>
             </div>
           </div>
