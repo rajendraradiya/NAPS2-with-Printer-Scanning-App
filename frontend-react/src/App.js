@@ -32,19 +32,19 @@ export default function ScannerApp() {
 
   const windowsBackendServiceDownload = () => {
     downloadFile(
-      "https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App/raw/refs/heads/master/frontend-react/public/setup/naps2-service-win.exe",
+      "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/Ebnj__Ky_blNsu1l2pcTndcBy436tcgvQ7FB3Vh64_ITBQ?e=HnUdrF",
       "naps2-service.exe"
     );
   };
   const linuxBackendServiceDownload = () => {
     downloadFile(
-      "https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App/raw/refs/heads/master/frontend-react/public/setup/naps2-service-linux",
+      "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/ES2ZAFV88XlKtmpupEE5DIQBmNPOeHHgi0CN5dMrmQHdUQ?e=7CdOrb",
       "naps2-service"
     );
   };
   const macBackendServiceDownload = () => {
     downloadFile(
-      "https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App/raw/refs/heads/master/frontend-react/public/setup/naps2-service-macos",
+      "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/EY4-XjERaQFClEA-7HKNksgBc0iX_AVtf2c9c5ZElP-wqg?e=WF6ISF",
       "naps2-service"
     );
   };
