@@ -22,7 +22,7 @@ export default function TailwindDialog({
             {/* Actions */}
             <div className="mt-4 flex justify-end space-x-2">
               <button
-                onClick={() => onClickHandler(false)}
+                onClick={() => onClickHandler(false, true)}
                 className="rounded-lg border border-gray-300 px-4 py-2 text-gray-600 hover:bg-gray-100"
               >
                 Cancel

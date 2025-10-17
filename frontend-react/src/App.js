@@ -33,42 +33,52 @@ export default function ScannerApp() {
   const windowsBackendServiceDownload = () => {
     downloadFile(
       "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/Ebnj__Ky_blNsu1l2pcTndcBy436tcgvQ7FB3Vh64_ITBQ?e=HnUdrF",
-      "naps2-service.exe"
+      "naps2-service.exe",
+      true
     );
   };
   const linuxBackendServiceDownload = () => {
     downloadFile(
       "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/ES2ZAFV88XlKtmpupEE5DIQBmNPOeHHgi0CN5dMrmQHdUQ?e=7CdOrb",
-      "naps2-service"
+      "naps2-service",
+      true
     );
   };
   const macBackendServiceDownload = () => {
     downloadFile(
       "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/EY4-XjERaQFClEA-7HKNksgBc0iX_AVtf2c9c5ZElP-wqg?e=WF6ISF",
-      "naps2-service"
+      "naps2-service",
+      true
     );
   };
 
-  const windowsNAPS2Download = () => {
+  const windowsNAPS2Download = (isNewTab = false) => {
     downloadFile(
       "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
-      "naps2-8.2.0-win-x64.exe"
+      "naps2-8.2.0-win-x64.exe",
+      isNewTab
     );
   };
-  const linuxNAPS2Download = () => {
+  const linuxNAPS2Download = (isNewTab = false) => {
     downloadFile(
       "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
-      "naps2-8.2.0-linux-x64.deb"
+      "naps2-8.2.0-linux-x64.deb",
+      isNewTab
     );
   };
-  const macNAPS2Download = () => {
+  const macNAPS2Download = (isNewTab = false) => {
     downloadFile(
       "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg",
-      "naps2-8.2.0-mac-univ.pkg"
+      "naps2-8.2.0-mac-univ.pkg",
+      isNewTab
     );
   };
 
-  const onClickHandler = (val = false) => {
+  const onClickHandler = (val = false, isClose = false) => {
+    if (isClose) {
+      setIsInstalled(false);
+      return;
+    }
     if (!isServiceRunning) {
       downloadBackendService();
     } else if (!isNAPS2ServiceRunning) {
@@ -99,21 +109,24 @@ export default function ScannerApp() {
 
   const windowSetupDownload = () => {
     windowsBackendServiceDownload();
-    windowsNAPS2Download();
+    windowsNAPS2Download(true);
   };
   const linuxSetupDownload = () => {
     linuxBackendServiceDownload();
-    linuxNAPS2Download();
+    linuxNAPS2Download(true);
   };
   const macSetupDownload = () => {
     macBackendServiceDownload();
-    macNAPS2Download();
+    macNAPS2Download(true);
   };
 
-  const downloadFile = (url, filename) => {
+  const downloadFile = (url, filename, isNewTab = false) => {
     const link = document.createElement("a");
     link.href = url;
-    link.download = filename;
+    if (isNewTab) {
+      link.target = "_blank"; // opens in a new tab
+    }
+    // link.download = filename;/
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
