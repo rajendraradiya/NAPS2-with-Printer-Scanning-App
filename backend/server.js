@@ -13,15 +13,13 @@ dotenv.config();
 
 // Show installed successfully notification (cross-platform)
 function showSuccessNotification() {
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     // Windows: run VBScript popup
     // const vbsPath = path.join(__dirname, 'success.vbs');
-
     // // Create success.vbs if not exists
     // if (!fs.existsSync(vbsPath)) {
     //   fs.writeFileSync(vbsPath, 'MsgBox "Installed successfully!", vbInformation, "Setup"');
     // }
-
     // exec(`cscript //nologo "${vbsPath}"`, (err) => {
     //   if (err) console.error("Failed to show popup:", err);
     // });
@@ -34,7 +32,6 @@ function showSuccessNotification() {
     });
   }
 }
-
 
 // Example: call this at startup
 showSuccessNotification();
@@ -82,8 +79,10 @@ app.post("/api/devices", (req, res) => {
     if (err) return res.status(500).send(stderr || err.message);
     const devices = stdout.split("\n").filter(Boolean);
     if (devices.length === 0) {
-      return res.status(500).json({
+      console.log("inside");
+      return res.status(200).json({
         success: false,
+        devices: [],
         error: "No scanners detected. Please check printer configuration.",
       });
     }

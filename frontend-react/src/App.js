@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import searchImage from "../src/assets/searching.gif";
 import scanImage from "../src/assets/scan.gif";
 import DialogBox from "../src/components/DialogBox";
@@ -21,14 +21,9 @@ export default function ScannerApp() {
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [isServiceRunning, setIsServiceRunning] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
 
   // Fetch scanner devices from backend
-
-  useEffect(() => {
-    getSdkInformation();
-  }, []);
 
   const windowsBackendServiceDownload = () => {
     downloadFile(
@@ -74,37 +69,8 @@ export default function ScannerApp() {
     );
   };
 
-  const onClickHandler = (val = false, isClose = false) => {
-    if (isClose) {
-      setIsInstalled(false);
-      return;
-    }
-    if (!isServiceRunning) {
-      downloadBackendService();
-    } else if (!isNAPS2ServiceRunning) {
-      downloadNAPS2();
-    }
-    setIsInstalled(val);
-  };
-
-  const downloadBackendService = () => {
-    if (platform === "Linux") {
-      linuxBackendServiceDownload();
-    } else if (platform === "Win32" || platform2 === "Windows") {
-      windowsBackendServiceDownload();
-    } else if (platform === "Macs") {
-      macBackendServiceDownload();
-    }
-  };
-
-  const downloadNAPS2 = () => {
-    if (platform === "Linux") {
-      linuxNAPS2Download();
-    } else if (platform === "Win32" || platform2 === "Windows") {
-      windowsNAPS2Download();
-    } else if (platform === "Macs") {
-      macNAPS2Download();
-    }
+  const onClickHandler = (val = false) => {
+    setIsInstalled(false);
   };
 
   const windowSetupDownload = () => {
@@ -137,39 +103,37 @@ export default function ScannerApp() {
       await axioInstance
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
-          setIsServiceRunning(true);
           if (res.data.installed) {
-            setIsInstalled(false);
             setIsNAPS2ServiceRunning(true);
           } else {
-            console.log("Here");
-            setIsInstalled(true);
             setIsNAPS2ServiceRunning(false);
           }
         });
     } catch (err) {
       console.error(err);
-      if (err.request.status === 0) {
-        setIsInstalled(true);
-        setIsServiceRunning(false);
-      }
+      setIsNAPS2ServiceRunning(false);
     }
   };
 
   const getDeviceList = async () => {
-    setLoader(true);
     try {
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
         .then((res) => {
-          setDevices(res.data);
-          setLoader(false);
+          if (res?.data?.devices?.length === 0) {
+            alert("No scanners detected.");
+          } else {
+            setDevices(res.data);
+          }
         });
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.error);
-      setDevices([]);
-      setLoader(false);
+      if (err.request.status === 0 || !isNAPS2ServiceRunning) {
+        setIsInstalled(true);
+      } else if (err.response.status === 500) {
+        alert("No scanners detected.");
+        setDevices([]);
+      }
     }
   };
 
@@ -213,17 +177,18 @@ export default function ScannerApp() {
     }
   };
 
+  const calledRef = useRef(false);
+  useEffect(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
+    getDeviceList();
+    getSdkInformation();
+  }, []);
+
   return (
     <>
-      {isInstalled ? (
-        <DialogBox
-          open={isInstalled}
-          onClickHandler={onClickHandler}
-          isServiceRunning={isServiceRunning}
-          isNAPS2ServiceRunning={isNAPS2ServiceRunning}
-        />
-      ) : (
-        ""
+      {isInstalled && (
+        <DialogBox open={isInstalled} onClickHandler={onClickHandler} />
       )}
 
       {loader ? (
@@ -245,7 +210,7 @@ export default function ScannerApp() {
             }}
           >
             <div>
-              {devices && devices.length === 0 ? (
+              {/* {devices && devices.length === 0 ? (
                 <>
                   <div>
                     <img src={searchImage} />
@@ -254,7 +219,7 @@ export default function ScannerApp() {
                 </>
               ) : (
                 ""
-              )}
+              )} */}
               {selectedDevice ? (
                 <>
                   <div>
@@ -278,13 +243,19 @@ export default function ScannerApp() {
           <div className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1>
 
-            {devices && devices.length === 0 ? (
+            {/* {devices && devices.length === 0 ? (
               <button
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
                 onClick={getDeviceList}
               >
                 Start
               </button>
+            ) : (
+              ""
+            )} */}
+
+            {devices && devices.length === 0 ? (
+              <h2 className="text-gray-400"> No Scanner detected</h2>
             ) : (
               ""
             )}
