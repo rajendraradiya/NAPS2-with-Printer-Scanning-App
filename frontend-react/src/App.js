@@ -31,13 +31,22 @@ export default function ScannerApp() {
   }, []);
 
   const windowsBackendServiceDownload = () => {
-    downloadFile("/setup/naps2-service-win.exe", "naps2-service.exe");
+    downloadFile(
+      "https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App/raw/refs/heads/master/frontend-react/public/setup/naps2-service-win.exe",
+      "naps2-service.exe"
+    );
   };
   const linuxBackendServiceDownload = () => {
-    downloadFile("/setup/naps2-service-linux", "naps2-service");
+    downloadFile(
+      "https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App/raw/refs/heads/master/frontend-react/public/setup/naps2-service-linux",
+      "naps2-service"
+    );
   };
   const macBackendServiceDownload = () => {
-    downloadFile("/setup/naps2-service-macos", "naps2-service");
+    downloadFile(
+      "https://github.com/rajendraradiya/NAPS2-with-Printer-Scanning-App/raw/refs/heads/master/frontend-react/public/setup/naps2-service-macos",
+      "naps2-service"
+    );
   };
 
   const windowsNAPS2Download = () => {
