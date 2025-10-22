@@ -1,0 +1,4 @@
+#!/bin/bash
+# Preinstall script
+launchctl unload ~/Library/LaunchAgents/com.naps2.service.plist 2>/dev/null || true
+exit 0

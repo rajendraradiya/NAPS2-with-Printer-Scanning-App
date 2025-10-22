@@ -100,4 +100,141 @@ The backend will start on http://localhost:5000.
 
 <img src="frontend/src/assets/Screenshot5.png" />
 
+# Generate MAC BOOK build
 
+<pre>
+naps2-service-root/
+├─ usr/
+│ └─ local/
+│ └─ bin/
+│ └─ naps2-service # your binary (chmod +x)
+├─ Library/
+│ └─ LaunchDaemons/
+│ └─ com.example.naps2-service.plist # the service plist
+└─ scripts/
+├─ postinstall # executable postinstall script
+└─ preinstall (optional)
+</pre>
+
+## Create the structure again
+
+mkdir -p naps2-service-root/usr/local/bin
+cp naps2-service-macos naps2-service-root/usr/local/bin/naps2-service
+
+/Library/LaunchDaemons/com.example.naps2-service.plist
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>Label</key>
+<string>com.example.naps2-service</string>
+
+
+<key>ProgramArguments</key>
+<array>
+<string>/usr/local/bin/naps2-service</string>
+<!-- add additional args here if needed, e.g. "--port" "5000" -->
+</array>
+
+
+<key>RunAtLoad</key>
+<true/>
+
+
+<key>KeepAlive</key>
+<true/>
+
+
+<key>StandardOutPath</key>
+<string>/var/log/naps2-service.log</string>
+
+
+<key>StandardErrorPath</key>
+<string>/var/log/naps2-service.err</string>
+
+
+<!-- Optional: set UserName to run as specific user (for system daemons typically root) -->
+<!-- <key>UserName</key>
+<string>root</string> -->
+</dict>
+</plist>
+
+```
+
+verification
+
+sudo launchctl load /Library/LaunchDaemons/com.example.naps2-service.plist
+sudo launchctl start com.example.naps2-service
+
+## scripts/postinstall (make executable)
+
+Place this in scripts/postinstall and mark it chmod 755.
+
+<pre>
+
+#!/bin/bash
+set -e
+
+
+# Path to installed plist (pkg installs to /Library/LaunchDaemons)
+PLIST_PATH="/Library/LaunchDaemons/com.example.naps2-service.plist"
+
+
+# Ensure correct ownership/permissions
+if [ -f "$PLIST_PATH" ]; then
+chown root:wheel "$PLIST_PATH"
+chmod 644 "$PLIST_PATH"
+fi
+
+
+# Give the binary execute permission if it exists
+if [ -f "/usr/local/bin/naps2-service" ]; then
+chmod +x "/usr/local/bin/naps2-service"
+fi
+
+
+# Load the LaunchDaemon (safe to ignore errors non-zero on older macOS)
+/bin/launchctl unload "$PLIST_PATH" 2>/dev/null || true
+/bin/launchctl load "$PLIST_PATH" || true
+
+
+# Start the job immediately (newer macOS might manage start automatically)
+/bin/launchctl start com.example.naps2-service || true
+
+
+exit 0
+</pre>
+
+
+## Build unsigned package first
+```
+
+pkgbuild --install-location /usr/local/bin \
+ --identifier com.example.naps2-service \
+ --version 1.0.0 \
+ --root ./naps2-service-root \
+ unsigned-naps2-service.pkg
+
+```
+
+ OR
+
+```
+ pkgbuild \
+--root ./naps2-service-root \
+--scripts ./naps2-service-root/scripts \
+--identifier com.example.naps2-service \
+--version 1.0.0 \
+--install-location / \
+./unsigned-naps2-service.pkg
+
+```
+
+## Sign the package
+
+productsign --sign "Developer ID Installer: Your Name (TEAMID)" \
+ unsigned-naps2-service.pkg \
+ naps2-service.pkg
