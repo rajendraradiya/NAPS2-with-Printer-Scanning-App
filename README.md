@@ -238,3 +238,8 @@ pkgbuild --install-location /usr/local/bin \
 productsign --sign "Developer ID Installer: Your Name (TEAMID)" \
  unsigned-naps2-service.pkg \
  naps2-service.pkg
+
+
+
+
+

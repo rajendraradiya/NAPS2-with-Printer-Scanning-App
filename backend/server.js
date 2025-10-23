@@ -51,7 +51,7 @@ app.post("/api/getDeviceInformation", (req, res) => {
   } else if (os === "Windows" || os === "Win32") {
     const softwareName = "NAPS2";
     command = `powershell -Command "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Where-Object {$_.DisplayName -like '*${softwareName}*'} | Select-Object DisplayName, InstallLocation"`;
-  } else if (os === "Mac") {
+  } else if (os === "macOS") {
     command = `mdfind "kMDItemKind == 'Application'" | grep -i "${softwareName}.app"`;
   }
   if (command == "") {
@@ -71,8 +71,9 @@ app.post("/api/devices", (req, res) => {
     command = "naps2 console --listdevices --driver sane";
   } else if (os === "Windows" || os === "Win32") {
     command = `"C:\\Program Files\\NAPS2\\NAPS2.Console.exe" --listdevices --driver wia`;
-  } else if (os === "Mac") {
-    command = "naps2 console --listdevices --driver sane";
+  } else if (os === "macOS") {
+    command =
+      "/Applications/NAPS2.app/Contents/MacOS/NAPS2 console --listdevices --driver sane";
   }
 
   exec(command, (err, stdout, stderr) => {
@@ -124,8 +125,8 @@ app.post("/api/scan", (req, res) => {
         ],
         { shell: true } // helps with Windows path/args parsing
       );
-    } else if (os === "Mac") {
-      child = spawn("naps2", [
+    } else if (os === "macOS") {
+      child = spawn("/Applications/NAPS2.app/Contents/MacOS/NAPS2", [
         "console",
         "-o",
         outputFile,
