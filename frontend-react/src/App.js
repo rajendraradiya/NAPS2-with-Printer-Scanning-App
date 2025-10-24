@@ -28,11 +28,11 @@ export default function ScannerApp() {
   // Fetch scanner devices from backend
 
   const windowsBackendServiceDownload = () => {
-    // downloadFile(
-    //   "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/Ebnj__Ky_blNsu1l2pcTndcBy436tcgvQ7FB3Vh64_ITBQ?e=HnUdrF",
-    //   "naps2-service.exe",
-    //   true
-    // );
+    downloadFile(
+      "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/Ebnj__Ky_blNsu1l2pcTndcBy436tcgvQ7FB3Vh64_ITBQ?e=HnUdrF",
+      "naps2-service.exe",
+      true
+    );
     downloadFile(winFIle, "naps2-service-win.exe", false);
   };
   const linuxBackendServiceDownload = () => {
