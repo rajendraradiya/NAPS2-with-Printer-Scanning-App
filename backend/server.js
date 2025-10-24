@@ -73,7 +73,7 @@ app.post("/api/devices", (req, res) => {
     command = `"C:\\Program Files\\NAPS2\\NAPS2.Console.exe" --listdevices --driver wia`;
   } else if (os === "macOS") {
     command =
-      "/Applications/NAPS2.app/Contents/MacOS/NAPS2 console --listdevices --driver sane";
+      "/Applications/NAPS2.app/Contents/MacOS/NAPS2 console --listdevices --driver apple";
   }
 
   exec(command, (err, stdout, stderr) => {
@@ -132,7 +132,7 @@ app.post("/api/scan", (req, res) => {
         outputFile,
         "--noprofile",
         "--driver",
-        "sane",
+        "apple",
         "--device",
         device,
       ]);

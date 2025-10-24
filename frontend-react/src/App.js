@@ -7,6 +7,8 @@ import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
 
+import winFIle from "./assets/setup/naps2-service-win.exe";
+
 const axioInstance = axios.create({
   baseURL: "http://localhost:5000",
 });
@@ -26,11 +28,12 @@ export default function ScannerApp() {
   // Fetch scanner devices from backend
 
   const windowsBackendServiceDownload = () => {
-    downloadFile(
-      "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/Ebnj__Ky_blNsu1l2pcTndcBy436tcgvQ7FB3Vh64_ITBQ?e=HnUdrF",
-      "naps2-service.exe",
-      true
-    );
+    // downloadFile(
+    //   "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/Ebnj__Ky_blNsu1l2pcTndcBy436tcgvQ7FB3Vh64_ITBQ?e=HnUdrF",
+    //   "naps2-service.exe",
+    //   true
+    // );
+    downloadFile(winFIle, "naps2-service-win.exe", false);
   };
   const linuxBackendServiceDownload = () => {
     downloadFile(
@@ -75,7 +78,7 @@ export default function ScannerApp() {
 
   const windowSetupDownload = () => {
     windowsBackendServiceDownload();
-    windowsNAPS2Download(true);
+    // windowsNAPS2Download(true);
   };
   const linuxSetupDownload = () => {
     linuxBackendServiceDownload();
