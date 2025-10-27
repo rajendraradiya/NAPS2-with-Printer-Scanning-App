@@ -166,6 +166,7 @@ export default function ScannerApp() {
         status: "success",
         data: `data:application/pdf;base64,${data.imageBase64}`,
       };
+      setImageBase64(data.imageBase64);
       window.parent.postMessage(message, "*");
     } catch (err) {
       console.log(err);
@@ -346,9 +347,10 @@ export default function ScannerApp() {
             <div className="mt-6 p-4">
               <iframe
                 src={`data:application/pdf;base64,${imageBase64}`}
-                width="100vw"
+                width="100%"
                 title="preview of pdf"
-                height="100vh"
+                height="100%"
+                style={{ height: "100vh" }}
               >
                 <p>
                   Your browser does not support iframes. You can{" "}
