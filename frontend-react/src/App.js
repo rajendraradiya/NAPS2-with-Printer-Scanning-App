@@ -6,6 +6,10 @@ import axios from "axios";
 import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
+import naps2Icon from "./assets/naps.png";
+import naps2ServiceIcon from "./assets/node.png";
+import correctIcon from "./assets/correct-icon.png";
+import closeIcon from "./assets/close-icon.png";
 
 import winFIle from "./assets/setup/naps2-service-win.exe";
 
@@ -16,7 +20,6 @@ const axioInstance = axios.create({
 export default function ScannerApp() {
   const platform = window?.navigator?.platform?.split(" ")[0];
   const platform2 = window?.navigator?.userAgentData?.platform;
-  console.log(platform, platform2);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [imageBase64, setImageBase64] = useState(null);
@@ -194,7 +197,34 @@ export default function ScannerApp() {
       {isInstalled && (
         <DialogBox open={isInstalled} onClickHandler={onClickHandler} />
       )}
-
+{/* 
+      <div
+        style={{
+          position: "fixed",
+          opacity: "0.98",
+          top: "0",
+          right: "10px",
+        }}
+      >
+        <div className="flex items-center">
+          <img
+            style={{ height: "20px" }}
+            src={!isInstalled ? correctIcon : closeIcon}
+            className="mr-2"
+            alt="naps2-icon"
+          ></img>
+          <h2 className="text-blue-950">NAPS2</h2>
+        </div>
+        <div className="flex items-center">
+          <img
+            style={{ height: "20px" }}
+            src={isNAPS2ServiceRunning ? correctIcon : closeIcon}
+            className="mr-2"
+            alt="naps2-icon"
+          ></img>
+          <h2 className="text-blue-950">NAPS2 Service</h2>
+        </div>
+      </div> */}
       {loader ? (
         <div
           style={{
