@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
 const notifier = require("node-notifier");
-const operatingSystem = require("os"); 
+const operatingSystem = require("os");
 
 const app = express();
 app.use(cors());
@@ -100,6 +100,7 @@ app.post("/api/scan", (req, res) => {
   const scanFolder = path.join(operatingSystem.tmpdir(), "scans");
   fs.mkdirSync(scanFolder, { recursive: true });
   const outputFile = path.join(scanFolder, `scan_${Date.now()}.pdf`);
+  // const outputFile = "scan.pdf";
 
   let responded = false;
 

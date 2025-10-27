@@ -111,11 +111,12 @@ export default function ScannerApp() {
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
           if (res.data.installed) {
-            setIsNAPS2ServiceRunning(true);
+            setIsInstalled(true);
           } else {
-            setIsNAPS2ServiceRunning(false);
+            setIsInstalled(false);
             setOpenDialogBox(true);
           }
+          setIsNAPS2ServiceRunning(true);
         });
     } catch (err) {
       console.error(err);
@@ -138,7 +139,7 @@ export default function ScannerApp() {
     } catch (err) {
       console.error(err);
       if (err.request.status === 0 || !isNAPS2ServiceRunning) {
-        setIsInstalled(true);
+        setIsInstalled(false);
       } else if (err.response.status === 500) {
         alert("No scanners detected.");
         setDevices([]);
@@ -200,7 +201,7 @@ export default function ScannerApp() {
       {isInstalled && (
         <DialogBox open={openDialogBox} onClickHandler={onClickHandler} />
       )}
-      
+
       <div
         style={{
           position: "fixed",
@@ -210,11 +211,13 @@ export default function ScannerApp() {
         }}
         className="px-4 pt-2 pb-4 mt-2 border border-cyan-400"
       >
-        <h4 className="text-blue-800 mb-2 pb-1 mt-0 border-b border-cyan-200">Information</h4>
+        <h4 className="text-blue-800 mb-2 pb-1 mt-0 border-b border-cyan-200">
+          Information
+        </h4>
         <div className="flex items-center">
           <img
             style={{ height: "20px" }}
-            src={!isInstalled ? correctIcon : closeIcon}
+            src={isInstalled ? correctIcon : closeIcon}
             className="mr-6"
             alt="naps2-icon"
           ></img>
