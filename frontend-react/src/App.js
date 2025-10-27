@@ -26,6 +26,7 @@ export default function ScannerApp() {
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [openDialogBox, setOpenDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
 
   // Fetch scanner devices from backend
@@ -76,7 +77,7 @@ export default function ScannerApp() {
   };
 
   const onClickHandler = (val = false) => {
-    setIsInstalled(false);
+    setOpenDialogBox(false);
   };
 
   const windowSetupDownload = () => {
@@ -113,11 +114,13 @@ export default function ScannerApp() {
             setIsNAPS2ServiceRunning(true);
           } else {
             setIsNAPS2ServiceRunning(false);
+            setOpenDialogBox(true);
           }
         });
     } catch (err) {
       console.error(err);
       setIsNAPS2ServiceRunning(false);
+      setOpenDialogBox(true);
     }
   };
 
@@ -195,9 +198,9 @@ export default function ScannerApp() {
   return (
     <>
       {isInstalled && (
-        <DialogBox open={isInstalled} onClickHandler={onClickHandler} />
+        <DialogBox open={openDialogBox} onClickHandler={onClickHandler} />
       )}
-{/* 
+      
       <div
         style={{
           position: "fixed",
@@ -205,26 +208,28 @@ export default function ScannerApp() {
           top: "0",
           right: "10px",
         }}
+        className="px-4 pt-2 pb-4 mt-2 border border-cyan-400"
       >
+        <h4 className="text-blue-800 mb-2 pb-1 mt-0 border-b border-cyan-200">Information</h4>
         <div className="flex items-center">
           <img
             style={{ height: "20px" }}
             src={!isInstalled ? correctIcon : closeIcon}
-            className="mr-2"
+            className="mr-6"
             alt="naps2-icon"
           ></img>
           <h2 className="text-blue-950">NAPS2</h2>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center pt-2">
           <img
             style={{ height: "20px" }}
             src={isNAPS2ServiceRunning ? correctIcon : closeIcon}
-            className="mr-2"
+            className="mr-6"
             alt="naps2-icon"
           ></img>
           <h2 className="text-blue-950">NAPS2 Service</h2>
         </div>
-      </div> */}
+      </div>
       {loader ? (
         <div
           style={{
