@@ -4,7 +4,6 @@ const fs = require("fs");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
-const notifier = require("node-notifier");
 const operatingSystem = require("os");
 
 const app = express();
@@ -26,11 +25,6 @@ function showSuccessNotification() {
     // });
   } else {
     // Linux / macOS: log to console
-    notifier.notify({
-      title: "Setup",
-      message: "Installed successfully!",
-      sound: true,
-    });
   }
 }
 
