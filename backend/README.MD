@@ -10,6 +10,11 @@ npm run build
 ./build.sh
 
 # 4. Install the package (manually)
-sudo installer -pkg dist/naps2-service.pkg -target /
+
+# Stop service
+launchctl stop com.naps2-service
+launchctl unload ~/Library/LaunchAgents/com.naps2-service.plist
+
+
 
 </pre>
