@@ -6,10 +6,9 @@
   "bin": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "buildWin": "pkg . --targets node18-win-x64 --output ./build/naps2-service",
-    "buildLinux": "pkg . --targets node18-linux-x64 --output ./build/naps2-service",
-    "buildMac": "pkg . --targets node18-macos-x64 --output ./build/naps2-service",
-    "pkg": "pkgbuild --root ./build --identifier com.naps2.installer --version 1.0.0 --scripts ./scripts --install-location /usr/local/naps2-service naps2-installer.pkg"
+    "build-win": "pkg . --targets node18-win-x64 --output ./build/naps2-service",
+    "build-linux": "pkg . --targets node18-linux-x64 --output ./build/naps2-service",
+    "mac": "pkg . --targets node18-macos-x64 --output ./build/naps2-service && pkgbuild --root ./build --identifier com.naps2.installer --version 1.0.0 --scripts ./scripts --install-location /usr/local/naps2-service naps2-installer.pkg"
   },
   "dependencies": {
     "cors": "^2.8.5",
