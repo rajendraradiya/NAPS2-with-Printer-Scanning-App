@@ -12,13 +12,13 @@ echo "=== Installing $SERVICE_NAME ==="
 
 # 1️⃣ Copy binary
 echo "→ Copying binary..."
-if [ ! -f "./build/$BINARY_NAME" ]; then
-  echo "❌ Error: ./build/$BINARY_NAME not found. Please build it first."
+if [ ! -f "./$BINARY_NAME" ]; then
+  echo "❌ Error: ./$BINARY_NAME not found. Please  it first."
   exit 1
 fi
 
 sudo mkdir -p "$SERVICE_PATH"
-sudo cp "./build/$BINARY_NAME" "$SERVICE_PATH/$SERVICE_NAME"
+sudo cp "./$BINARY_NAME" "$SERVICE_PATH/$SERVICE_NAME"
 sudo chmod +x "$SERVICE_PATH/$SERVICE_NAME"
 
 # 2️⃣ Create LaunchAgent plist

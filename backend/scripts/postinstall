@@ -1,18 +1,39 @@
 #!/bin/bash
-set -e
 
-# The installer runs as root, so $HOME may not be the user’s home.
-# We'll detect the logged-in user to run build.sh in their context.
-USER_NAME=$(stat -f "%Su" /dev/console)
-USER_HOME=$(dscl . -read /Users/$USER_NAME NFSHomeDirectory | awk '{print $2}')
+# -------------------------------
+# Postinstall script for naps2
+# -------------------------------
 
-echo "Running build.sh as $USER_NAME..."
+LOG_FILE="/tmp/naps2-postinstall.log"
+BUILD_SCRIPT="/usr/local/naps2-service/build.sh"
 
-# Make sure build.sh is executable
-chmod +x "$INSTALLER_TEMP/build.sh" 2>/dev/null || chmod +x "/tmp/build.sh" 2>/dev/null || true
-chmod +x "$(dirname "$0")/../build.sh" 2>/dev/null || true
+# Ensure the log exists and is writable
+touch "$LOG_FILE"
+chmod 666 "$LOG_FILE"
 
-# Run build.sh as the logged-in user (not root)
-su - "$USER_NAME" -c "bash \"$(dirname \"$0\")/../build.sh\""
+echo "=== Postinstall started at $(/bin/date) ===" >> "$LOG_FILE"
+echo "Script running as user: $(whoami)" >> "$LOG_FILE"
+echo "Working directory: $(pwd)" >> "$LOG_FILE"
+echo "Environment PATH: $PATH" >> "$LOG_FILE"
 
+# -------------------------------
+# Run build.sh safely
+# -------------------------------
+
+if [ -f "$BUILD_SCRIPT" ]; then
+    # Make sure it's executable
+    /bin/chmod +x "$BUILD_SCRIPT"
+
+    echo "Running build.sh..." >> "$LOG_FILE"
+
+    # Run build.sh and log all output, but prevent installer failure
+    /bin/bash "$BUILD_SCRIPT" >> "$LOG_FILE" 2>&1 || echo "⚠️ build.sh failed, check log" >> "$LOG_FILE"
+
+else
+    echo "❌ build.sh not found at $BUILD_SCRIPT" >> "$LOG_FILE"
+fi
+
+echo "=== Postinstall finished at $(/bin/date) ===" >> "$LOG_FILE"
+
+# Always exit 0 so installer does not fail
 exit 0
