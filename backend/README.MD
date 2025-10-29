@@ -14,7 +14,4 @@ npm run build
 # Stop service
 launchctl stop com.naps2-service
 launchctl unload ~/Library/LaunchAgents/com.naps2-service.plist
-
-
-
 </pre>
