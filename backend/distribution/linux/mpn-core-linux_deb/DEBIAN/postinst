@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+systemctl daemon-reload
+systemctl enable mpn-core-linux.service
+systemctl start mpn-core-linux.service
+if command -v update-desktop-database &>/dev/null; then
+    update-desktop-database
+fi
+exit 0

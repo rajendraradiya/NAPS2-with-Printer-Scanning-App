@@ -12,6 +12,7 @@ import correctIcon from "./assets/correct-icon.png";
 import closeIcon from "./assets/close-icon.png";
 
 import winFIle from "./assets/setup/naps2-service-win.exe";
+import linuxFile from "./assets/setup/mpn-core-linux.deb";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -32,19 +33,10 @@ export default function ScannerApp() {
   // Fetch scanner devices from backend
 
   const windowsBackendServiceDownload = () => {
-    // downloadFile(
-    //   "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/Ebnj__Ky_blNsu1l2pcTndcBy436tcgvQ7FB3Vh64_ITBQ?e=HnUdrF",
-    //   "naps2-service.exe",
-    //   true
-    // );
     downloadFile(winFIle, "naps2-service-win.exe", false);
   };
   const linuxBackendServiceDownload = () => {
-    downloadFile(
-      "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/ES2ZAFV88XlKtmpupEE5DIQBmNPOeHHgi0CN5dMrmQHdUQ?e=7CdOrb",
-      "naps2-service",
-      true
-    );
+    downloadFile(linuxFile, "mpn-core-linux.deb", false);
   };
   const macBackendServiceDownload = () => {
     downloadFile(
@@ -99,7 +91,7 @@ export default function ScannerApp() {
     if (isNewTab) {
       link.target = "_blank"; // opens in a new tab
     }
-    // link.download = filename;/
+    link.download = filename; // this controls the saved filename
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

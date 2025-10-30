@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=mpn-core-linux
+Comment=Launch mpn-core-linux
+Exec=/usr/bin/mpn-core-linux
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=Utility;
