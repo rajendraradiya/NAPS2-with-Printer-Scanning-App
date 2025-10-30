@@ -6,7 +6,7 @@
   "bin": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "windows": "pkg . --targets node18-win-x64 --output ./distribution/windows/mpn-core-linux",
+    "windows": "pkg . --targets node18-win-x64 --output ./distribution/windows/mpn-core-win",
     "linux": "pkg . --targets node18-linux-x64 --output ./distribution/linux/mpn-core-linux && node ./distribution/linux/scripts/build-deb.js",
     "build-mac": "pkg . --targets node18-macos-x64 --output ./build/naps2-service-macos",
     "pkg": "pkgbuild --root ./build --identifier com.naps2.installer --version 1.0.0 --scripts ./scripts --install-location /usr/local/naps2-service naps2-installer.pkg"

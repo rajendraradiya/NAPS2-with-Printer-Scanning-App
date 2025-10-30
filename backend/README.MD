@@ -25,6 +25,13 @@ pkill -f naps2-service
 sudo systemctl stop mpn-core-linux.service
 
 
+#Stop service windows
+
+$nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
+& $nssmPath stop mpn-core
+& $nssmPath remove mpn-core confirm
+
+
 <pre>
 # iexpress run command need
 powershell.exe -ExecutionPolicy Bypass -File   build-win.ps1
