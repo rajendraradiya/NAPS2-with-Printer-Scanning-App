@@ -15,3 +15,9 @@ npm run build
 launchctl stop com.naps2-service
 launchctl unload ~/Library/LaunchAgents/com.naps2-service.plist
 </pre>
+
+
+<pre>
+
+powershell.exe -ExecutionPolicy Bypass -File   build-win.ps1
+</pre>
