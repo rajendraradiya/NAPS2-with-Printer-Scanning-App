@@ -7,18 +7,21 @@ const { execSync } = require("child_process");
 const APP_NAME = "mpn-core-linux";
 const VERSION = "1.0";
 const ARCH = "amd64";
+const ICON_FILE = "icon.png"; // your icon file name
 
 // Paths
 const ROOT = path.join(__dirname, ".."); // backend/distribution/linux
-const EXECUTABLE = path.join(ROOT, APP_NAME); // executable
+const EXECUTABLE = path.join(ROOT, APP_NAME);
+const ICON_PATH = path.join(ROOT, ICON_FILE);
 const BUILD_DIR = path.join(ROOT, `${APP_NAME}_deb`);
 const DEBIAN_DIR = path.join(BUILD_DIR, "DEBIAN");
 const BIN_DIR = path.join(BUILD_DIR, "usr", "bin");
 const DESKTOP_DIR = path.join(BUILD_DIR, "usr", "share", "applications");
 const SYSTEMD_DIR = path.join(BUILD_DIR, "lib", "systemd", "system");
+const ICON_INSTALL_DIR = path.join(BUILD_DIR, "usr", "share", "icons", "hicolor", "256x256", "apps");
 
 // Output .deb location
-const OUTPUT_DIR = path.join(ROOT, "..", "..", "setup"); // backend/setup
+const OUTPUT_DIR = path.join(ROOT, "..", "..", "setup");
 const OUTPUT_DEB = path.join(OUTPUT_DIR, `${APP_NAME}.deb`);
 
 function ensureDir(dir) {
@@ -37,6 +40,7 @@ ensureDir(DEBIAN_DIR);
 ensureDir(BIN_DIR);
 ensureDir(DESKTOP_DIR);
 ensureDir(SYSTEMD_DIR);
+ensureDir(ICON_INSTALL_DIR);
 ensureDir(OUTPUT_DIR);
 
 // Verify executable exists
@@ -48,6 +52,14 @@ if (!fs.existsSync(EXECUTABLE)) {
 // Copy executable
 fs.copyFileSync(EXECUTABLE, path.join(BIN_DIR, APP_NAME));
 fs.chmodSync(path.join(BIN_DIR, APP_NAME), 0o755);
+
+// Copy icon if present
+if (fs.existsSync(ICON_PATH)) {
+  fs.copyFileSync(ICON_PATH, path.join(ICON_INSTALL_DIR, `${APP_NAME}.png`));
+  console.log(`🖼️  Icon added: ${ICON_FILE}`);
+} else {
+  console.warn(`⚠️  Icon not found at ${ICON_PATH} — using default system icon.`);
+}
 
 // control file
 writeFile(
@@ -72,7 +84,7 @@ Version=1.0
 Name=${APP_NAME}
 Comment=Start ${APP_NAME} Service
 Exec=systemctl start ${APP_NAME}.service
-Icon=utilities-terminal
+Icon=${APP_NAME}
 Terminal=true
 Type=Application
 Categories=Utility;
@@ -97,7 +109,7 @@ WantedBy=multi-user.target
 `.trimStart()
 );
 
-// postinst: runs automatically after installation
+// postinst
 writeFile(
   path.join(DEBIAN_DIR, "postinst"),
   `
@@ -109,12 +121,15 @@ systemctl daemon-reload
 systemctl enable ${APP_NAME}.service
 systemctl start ${APP_NAME}.service
 
-# Update desktop database
+# Update desktop and icon caches
 if command -v update-desktop-database &>/dev/null; then
     update-desktop-database
 fi
+if command -v gtk-update-icon-cache &>/dev/null; then
+    gtk-update-icon-cache /usr/share/icons/hicolor || true
+fi
 
-# Copy desktop shortcut to the installing user's Desktop
+# Copy desktop shortcut to user's Desktop
 USER_DESKTOP="/home/$SUDO_USER/Desktop"
 if [ -d "$USER_DESKTOP" ]; then
     cp /usr/share/applications/${APP_NAME}.desktop "$USER_DESKTOP/"
