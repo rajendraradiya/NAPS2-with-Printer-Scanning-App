@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=mpn-core-linux
+Comment=Start mpn-core-linux Service
+Exec=systemctl start mpn-core-linux.service
+Icon=mpn-core-linux
+Terminal=true
+Type=Application
+Categories=Utility;

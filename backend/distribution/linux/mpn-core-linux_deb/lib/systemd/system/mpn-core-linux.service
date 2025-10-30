@@ -1,0 +1,11 @@
+[Unit]
+Description=mpn-core-linux Background Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/mpn-core-linux
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

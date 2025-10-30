@@ -7,21 +7,24 @@ BINARY_NAME="naps2-service-macos"
 SERVICE_PATH="/usr/local/$SERVICE_NAME"
 PLIST_PATH="$HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
 AUTOMATOR_APP_PATH="$HOME/Desktop/NAPS2 Service.app"
-BINARY_PATH="$SERVICE_PATH/naps2-service-macos"
+BINARY_PATH="$SERVICE_PATH/$BINARY_NAME"
 
 echo "=== Installing $SERVICE_NAME ==="
 
 # 1️⃣ Copy binary
 echo "→ Copying binary..."
 if [ ! -f "$BINARY_PATH" ]; then
-    echo "❌ Error: $BINARY_PATH not found. Did the package install it?"
-    exit 1
+  echo "❌ Error: $BINARY_PATH not found. Please  it first."
+  exit 1
 fi
-
 
 sudo mkdir -p "$SERVICE_PATH"
 sudo cp "$BINARY_PATH" "$SERVICE_PATH/$SERVICE_NAME"
+sudo chown "$USER_NAME":staff "$SERVICE_PATH/$SERVICE_NAME"
 sudo chmod +x "$SERVICE_PATH/$SERVICE_NAME"
+
+
+
 
 # 2️⃣ Create LaunchAgent plist
 echo "→ Creating LaunchAgent plist..."
@@ -57,34 +60,58 @@ cat <<EOF > "$PLIST_PATH"
 </plist>
 EOF
 
-# 3️⃣ Load LaunchAgent
-echo "→ Loading LaunchAgent..."
-launchctl unload "$PLIST_PATH" 2>/dev/null || true
-launchctl load "$PLIST_PATH"
-launchctl start "com.$SERVICE_NAME"
+# 3️⃣ Load LaunchAgent in user context
+echo "→ Loading LaunchAgent as the real user..."
+USER_NAME="${SUDO_USER:-$USER}"
+USER_ID=$(id -u "$USER_NAME")
+TARGET_PLIST="$HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
+
+
+
+# Copy plist if different
+if ! cmp -s "$PLIST_PATH" "$TARGET_PLIST"; then
+    sudo -u "$USER_NAME" cp "$PLIST_PATH" "$TARGET_PLIST"
+fi
+
+# Unload old LaunchAgent (if running) and load new one
+sudo -u "$USER_NAME" launchctl bootout gui/$USER_ID "$TARGET_PLIST" 2>/dev/null || true
+sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$TARGET_PLIST" || \
+    echo "⚠️ LaunchAgent load failed"
+
+# ✅ Force the service to start immediately
+sudo -u "$USER_NAME" launchctl kickstart -k gui/$USER_ID/com.$SERVICE_NAME || \
+    echo "⚠️ LaunchAgent start failed"
+
 
 # 4️⃣ Create Automator app shortcut
 echo "→ Creating Automator shortcut on Desktop..."
 AUTOMATOR_SCRIPT=$(mktemp)
 cat <<EOF > "$AUTOMATOR_SCRIPT"
 on run {input, parameters}
-    do shell script "$SERVICE_PATH/$SERVICE_NAME &"
+    do shell script "nohup " & quoted form of "$SERVICE_PATH/$SERVICE_NAME" & " > /dev/null 2>&1 &"
     return input
 end run
 EOF
 
-osascript -e "
-tell application \"Automator\"
-    set newDoc to make new document with properties {document type:application}
-    tell newDoc
-        make new action at end with properties {name:\"Run AppleScript\", contents:read POSIX file \"$AUTOMATOR_SCRIPT\"}
-    end tell
-    save newDoc in POSIX file \"$AUTOMATOR_APP_PATH\"
-    close newDoc saving no
-end tell
-"
+echo "→ New Creating Automator"
 
+# Create AppleScript that runs your service
+# Paths
+AUTOMATOR_APP_PATH="$HOME/Desktop/NAPS2 Service.app"
+AUTOMATOR_SCRIPT="$HOME/Desktop/NAPS2 Service.scpt"
+
+# Write AppleScript to file
+cat <<EOF > "$AUTOMATOR_SCRIPT"
+do shell script "nohup '$SERVICE_PATH/$SERVICE_NAME' > /dev/null 2>&1 &"
+EOF
+
+# Compile AppleScript to a .app
+osacompile -o "$AUTOMATOR_APP_PATH" "$AUTOMATOR_SCRIPT"
+
+# Optional: remove the intermediate script
 rm "$AUTOMATOR_SCRIPT"
+
+
 
 echo "✅ Installation complete!"
 echo "-----------------------------------------"
