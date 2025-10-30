@@ -14,7 +14,7 @@ import closeIcon from "./assets/close-icon.png";
 import winFIle from "./assets/setup/naps2-service-win.exe";
 
 const axioInstance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "http://localhost:52345",
 });
 
 export default function ScannerApp() {
