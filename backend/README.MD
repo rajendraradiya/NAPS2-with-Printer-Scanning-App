@@ -25,7 +25,10 @@ pkill -f naps2-service
 sudo systemctl stop mpn-core-linux.service
 
 
-
+<pre>
+# iexpress run command need
+powershell.exe -ExecutionPolicy Bypass -File   build-win.ps1
+</pre>
 </pre>
 
 
