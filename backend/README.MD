@@ -34,7 +34,7 @@ $nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
 
 <pre>
 # iexpress run command need
-powershell.exe -ExecutionPolicy Bypass -File   build-win.ps1
+powershell.exe -ExecutionPolicy Bypass -File   build.ps1
 </pre>
 </pre>
 
