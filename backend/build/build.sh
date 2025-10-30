@@ -7,17 +7,16 @@ BINARY_NAME="naps2-service-macos"
 SERVICE_PATH="/usr/local/$SERVICE_NAME"
 PLIST_PATH="$HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
 AUTOMATOR_APP_PATH="$HOME/Desktop/NAPS2 Service.app"
-BINARY_PATH="$SERVICE_PATH/naps2-service-macos"
+BINARY_PATH="$SERVICE_PATH/$BINARY_NAME"
 
 echo "=== Installing $SERVICE_NAME ==="
 
 # 1️⃣ Copy binary
 echo "→ Copying binary..."
 if [ ! -f "$BINARY_PATH" ]; then
-    echo "❌ Error: $BINARY_PATH not found. Did the package install it?"
-    exit 1
+  echo "❌ Error: $BINARY_PATH not found. Please  it first."
+  exit 1
 fi
-
 
 sudo mkdir -p "$SERVICE_PATH"
 sudo cp "$BINARY_PATH" "$SERVICE_PATH/$SERVICE_NAME"
@@ -57,11 +56,24 @@ cat <<EOF > "$PLIST_PATH"
 </plist>
 EOF
 
-# 3️⃣ Load LaunchAgent
-echo "→ Loading LaunchAgent..."
-launchctl unload "$PLIST_PATH" 2>/dev/null || true
-launchctl load "$PLIST_PATH"
-launchctl start "com.$SERVICE_NAME"
+# 2️⃣ Create LaunchAgent plist
+echo "→ Creating LaunchAgent plist..."
+cat <<EOF > "$PLIST_PATH"
+... plist content ...
+EOF
+
+# 3️⃣ Load LaunchAgent in user context
+echo "→ Loading LaunchAgent as the real user..."
+USER_NAME="${SUDO_USER:-$USER}"
+USER_ID=$(id -u "$USER_NAME")
+TARGET_PLIST="$HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
+if ! cmp -s "$PLIST_PATH" "$TARGET_PLIST"; then
+    sudo -u "$USER_NAME" cp "$PLIST_PATH" "$TARGET_PLIST"
+fi
+
+sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$PLIST_PATH" || \
+    echo "⚠️ LaunchAgent load failed"
+    
 
 # 4️⃣ Create Automator app shortcut
 echo "→ Creating Automator shortcut on Desktop..."
