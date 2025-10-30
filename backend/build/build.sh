@@ -73,13 +73,15 @@ if ! cmp -s "$PLIST_PATH" "$TARGET_PLIST"; then
     sudo -u "$USER_NAME" cp "$PLIST_PATH" "$TARGET_PLIST"
 fi
 
-
 # Unload old LaunchAgent (if running) and load new one
 sudo -u "$USER_NAME" launchctl bootout gui/$USER_ID "$TARGET_PLIST" 2>/dev/null || true
 sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$TARGET_PLIST" || \
     echo "⚠️ LaunchAgent load failed"
 
-    
+# ✅ Force the service to start immediately
+sudo -u "$USER_NAME" launchctl kickstart -k gui/$USER_ID/com.$SERVICE_NAME || \
+    echo "⚠️ LaunchAgent start failed"
+
 
 # 4️⃣ Create Automator app shortcut
 echo "→ Creating Automator shortcut on Desktop..."

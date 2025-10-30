@@ -17,10 +17,12 @@ cat /tmp/naps2-postinstall.log
 # Stop service
 launchctl stop com.naps2-service
 launchctl unload ~/Library/LaunchAgents/com.naps2-service.plist
+
+pkill -f naps2-service
+
+
+
 </pre>
-
-
-
 
 
 
@@ -53,7 +55,11 @@ fi
 
 sudo mkdir -p "$SERVICE_PATH"
 sudo cp "$BINARY_PATH" "$SERVICE_PATH/$SERVICE_NAME"
+sudo chown "$USER_NAME":staff "$SERVICE_PATH/$SERVICE_NAME"
 sudo chmod +x "$SERVICE_PATH/$SERVICE_NAME"
+
+
+
 
 # 2️⃣ Create LaunchAgent plist
 echo "→ Creating LaunchAgent plist..."
@@ -89,23 +95,25 @@ cat <<EOF > "$PLIST_PATH"
 </plist>
 EOF
 
-# 2️⃣ Create LaunchAgent plist
-echo "→ Creating LaunchAgent plist..."
-cat <<EOF > "$PLIST_PATH"
-... plist content ...
-EOF
-
 # 3️⃣ Load LaunchAgent in user context
 echo "→ Loading LaunchAgent as the real user..."
 USER_NAME="${SUDO_USER:-$USER}"
 USER_ID=$(id -u "$USER_NAME")
 TARGET_PLIST="$HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
+
+
+
+# Copy plist if different
 if ! cmp -s "$PLIST_PATH" "$TARGET_PLIST"; then
     sudo -u "$USER_NAME" cp "$PLIST_PATH" "$TARGET_PLIST"
 fi
 
-sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$PLIST_PATH" || \
+
+# Unload old LaunchAgent (if running) and load new one
+sudo -u "$USER_NAME" launchctl bootout gui/$USER_ID "$TARGET_PLIST" 2>/dev/null || true
+sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$TARGET_PLIST" || \
     echo "⚠️ LaunchAgent load failed"
+
     
 
 # 4️⃣ Create Automator app shortcut
@@ -113,23 +121,30 @@ echo "→ Creating Automator shortcut on Desktop..."
 AUTOMATOR_SCRIPT=$(mktemp)
 cat <<EOF > "$AUTOMATOR_SCRIPT"
 on run {input, parameters}
-    do shell script "$SERVICE_PATH/$SERVICE_NAME &"
+    do shell script "nohup " & quoted form of "$SERVICE_PATH/$SERVICE_NAME" & " > /dev/null 2>&1 &"
     return input
 end run
 EOF
 
-osascript -e "
-tell application \"Automator\"
-    set newDoc to make new document with properties {document type:application}
-    tell newDoc
-        make new action at end with properties {name:\"Run AppleScript\", contents:read POSIX file \"$AUTOMATOR_SCRIPT\"}
-    end tell
-    save newDoc in POSIX file \"$AUTOMATOR_APP_PATH\"
-    close newDoc saving no
-end tell
-"
+echo "→ New Creating Automator"
 
+# Create AppleScript that runs your service
+# Paths
+AUTOMATOR_APP_PATH="$HOME/Desktop/NAPS2 Service.app"
+AUTOMATOR_SCRIPT="$HOME/Desktop/NAPS2 Service.scpt"
+
+# Write AppleScript to file
+cat <<EOF > "$AUTOMATOR_SCRIPT"
+do shell script "nohup '$SERVICE_PATH/$SERVICE_NAME' > /dev/null 2>&1 &"
+EOF
+
+# Compile AppleScript to a .app
+osacompile -o "$AUTOMATOR_APP_PATH" "$AUTOMATOR_SCRIPT"
+
+# Optional: remove the intermediate script
 rm "$AUTOMATOR_SCRIPT"
+
+
 
 echo "✅ Installation complete!"
 echo "-----------------------------------------"
@@ -139,7 +154,3 @@ echo "Desktop shortcut:    $AUTOMATOR_APP_PATH"
 echo "-----------------------------------------"
 echo "ℹ️ The service will auto-start on login."
 echo "   You can also double-click the desktop shortcut to start it manually."
-
-
-
-
