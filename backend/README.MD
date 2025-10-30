@@ -14,11 +14,15 @@ npm run pkg
 sudo installer -pkg naps2-installer.pkg -target /
 cat /tmp/naps2-postinstall.log 
 
-# Stop service
+# Stop service mac
 launchctl stop com.naps2-service
 launchctl unload ~/Library/LaunchAgents/com.naps2-service.plist
 
 pkill -f naps2-service
+
+
+# Stop service Linux
+sudo systemctl stop mpn-core-linux.service
 
 
 

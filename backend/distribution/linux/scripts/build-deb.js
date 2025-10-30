@@ -18,7 +18,7 @@ const DESKTOP_DIR = path.join(BUILD_DIR, "usr", "share", "applications");
 const SYSTEMD_DIR = path.join(BUILD_DIR, "lib", "systemd", "system");
 
 // Output .deb location
-const OUTPUT_DIR = path.join(ROOT, "..", "..", "setup");
+const OUTPUT_DIR = path.join(ROOT, "..", "..", "setup"); // backend/setup
 const OUTPUT_DEB = path.join(OUTPUT_DIR, `${APP_NAME}.deb`);
 
 function ensureDir(dir) {
@@ -70,10 +70,10 @@ writeFile(
 [Desktop Entry]
 Version=1.0
 Name=${APP_NAME}
-Comment=Launch ${APP_NAME}
-Exec=/usr/bin/${APP_NAME}
+Comment=Start ${APP_NAME} Service
+Exec=systemctl start ${APP_NAME}.service
 Icon=utilities-terminal
-Terminal=false
+Terminal=true
 Type=Application
 Categories=Utility;
 `.trimStart()
@@ -97,18 +97,30 @@ WantedBy=multi-user.target
 `.trimStart()
 );
 
-// postinst
+// postinst: runs automatically after installation
 writeFile(
   path.join(DEBIAN_DIR, "postinst"),
   `
 #!/bin/bash
 set -e
+
+# Reload and enable service
 systemctl daemon-reload
 systemctl enable ${APP_NAME}.service
 systemctl start ${APP_NAME}.service
+
+# Update desktop database
 if command -v update-desktop-database &>/dev/null; then
     update-desktop-database
 fi
+
+# Copy desktop shortcut to the installing user's Desktop
+USER_DESKTOP="/home/$SUDO_USER/Desktop"
+if [ -d "$USER_DESKTOP" ]; then
+    cp /usr/share/applications/${APP_NAME}.desktop "$USER_DESKTOP/"
+    chmod +x "$USER_DESKTOP/${APP_NAME}.desktop"
+fi
+
 exit 0
 `.trimStart(),
   0o755
@@ -117,7 +129,6 @@ exit 0
 console.log("📦 Building .deb package...");
 
 try {
-  // Build the package
   execSync(`dpkg-deb --build "${BUILD_DIR}" "${OUTPUT_DEB}"`, {
     stdio: "inherit",
     cwd: ROOT,
