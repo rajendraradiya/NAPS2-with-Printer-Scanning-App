@@ -194,4 +194,4 @@ app.post("/api/scan", (req, res) => {
   }
 });
 
-app.listen(52345, () => console.log(`Backend running on port 5000`));
+app.listen(52345, () => console.log(`Backend running on port 52345`));
