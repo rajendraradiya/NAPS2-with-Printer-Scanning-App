@@ -2,10 +2,10 @@
 Class=IEXPRESS
 SEDVersion=3
 [Options]
-PackagePurpose=ExtractOnly
+PackagePurpose=InstallApp
 ShowInstallProgramWindow=0
 HideExtractAnimation=0
-UseLongFileName=1
+UseLongFileName=0
 InsideCompressed=0
 CAB_FixedSize=0
 CAB_ResvCodeSigning=0
@@ -26,8 +26,8 @@ DisplayLicense=
 FinishMessage=Installation completed successfully.
 TargetName=D:\NAPS2-with-Printer-Scanning-App\backend\setup\mpn-core-win.EXE
 FriendlyName=mpn-core
-AppLaunched=
-PostInstallCmd=
+AppLaunched=powershell.exe -ExecutionPolicy Bypass -File   build.ps1
+PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
 FILE0="build.ps1"
