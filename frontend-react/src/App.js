@@ -32,13 +32,13 @@ export default function ScannerApp() {
   // Fetch scanner devices from backend
 
   const windowsBackendServiceDownload = () => {
-    downloadFile('setup/mpn-core-win.EXE', "naps2-service-win.exe", false);
+    downloadFile('/setup/mpn-core-win.EXE', "mpn-core-win.EXE", false);
   };
   const linuxBackendServiceDownload = () => {
-    downloadFile("setup/mpn-core-linux.deb", "mpn-core-linux.deb", false);
+    downloadFile("/setup/mpn-core-linux.deb", "mpn-core-linux.deb", false);
   };
   const macBackendServiceDownload = () => {
-    downloadFile('setup/mpn-core-mac.pkg', "mpn-core-mac.pkg", false);
+    downloadFile('/setup/mpn-core-mac.pkg', "mpn-core-mac.pkg", false);
   };
 
   const windowsNAPS2Download = (isNewTab = false) => {
