@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import searchImage from "../src/assets/searching.gif";
-import scanImage from "../src/assets/scan.gif";
+import { useState, useEffect, useRef } from "react";
 import DialogBox from "../src/components/DialogBox";
 import axios from "axios";
 import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
-import naps2Icon from "./assets/naps.png";
-import naps2ServiceIcon from "./assets/node.png";
-import correctIcon from "./assets/correct-icon.png";
-import closeIcon from "./assets/close-icon.png";
 
 import winFIle from "./assets/setup/naps2-service-win.exe";
 import linuxFile from "./assets/setup/mpn-core-linux.deb";
+import DeviceLoader from "./components/DeviceLoader";
+import ScannerLoader from "./components/ScannerLoader";
+import InformationCard from "./components/InformationCard";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -26,6 +23,7 @@ export default function ScannerApp() {
   const [imageBase64, setImageBase64] = useState(null);
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
+  const [deviceLoader, setDeviceLoader] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [openDialogBox, setOpenDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
@@ -66,10 +64,6 @@ export default function ScannerApp() {
       "naps2-8.2.0-mac-univ.pkg",
       isNewTab
     );
-  };
-
-  const onClickHandler = (val = false) => {
-    setOpenDialogBox(false);
   };
 
   const windowSetupDownload = () => {
@@ -118,6 +112,7 @@ export default function ScannerApp() {
   };
 
   const getDeviceList = async () => {
+    setDeviceLoader(true);
     try {
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
@@ -127,9 +122,11 @@ export default function ScannerApp() {
           } else {
             setDevices(res.data);
           }
+          setDeviceLoader(false);
         });
     } catch (err) {
       console.error(err);
+      setDeviceLoader(false);
       if (err.request.status === 0 || !isNAPS2ServiceRunning) {
         setIsInstalled(false);
       } else if (err.response.status === 500) {
@@ -190,109 +187,22 @@ export default function ScannerApp() {
 
   return (
     <>
-      {isInstalled && (
-        <DialogBox open={openDialogBox} onClickHandler={onClickHandler} />
-      )}
-
-      <div
-        style={{
-          position: "fixed",
-          opacity: "0.98",
-          top: "0",
-          right: "10px",
-        }}
-        className="px-4 pt-2 pb-4 mt-2 border border-cyan-400"
-      >
-        <h4 className="text-blue-800 mb-2 pb-1 mt-0 border-b border-cyan-200">
-          Information
-        </h4>
-        <div className="flex items-center">
-          <img
-            style={{ height: "20px" }}
-            src={isInstalled ? correctIcon : closeIcon}
-            className="mr-6"
-            alt="naps2-icon"
-          ></img>
-          <h2 className="text-blue-950">NAPS2</h2>
-        </div>
-        <div className="flex items-center pt-2">
-          <img
-            style={{ height: "20px" }}
-            src={isNAPS2ServiceRunning ? correctIcon : closeIcon}
-            className="mr-6"
-            alt="naps2-icon"
-          ></img>
-          <h2 className="text-blue-950">NAPS2 Service</h2>
-        </div>
-      </div>
-      {loader ? (
-        <div
-          style={{
-            background: "white",
-            height: "100vh",
-            width: "100vw",
-            position: "fixed",
-            opacity: "0.98",
-            top: "0",
-          }}
-        >
-          <div
-            className="text-center flex justify-center items-center"
-            style={{
-              height: "100vh",
-              width: "100vw",
-            }}
-          >
-            <div>
-              {/* {devices && devices.length === 0 ? (
-                <>
-                  <div>
-                    <img src={searchImage} />
-                  </div>
-                  <h3 className="text-stone-600 mt-4">getting devices...</h3>
-                </>
-              ) : (
-                ""
-              )} */}
-              {selectedDevice ? (
-                <>
-                  <div>
-                    <img src={scanImage} />
-                  </div>
-                  <h3 className="text-stone-600 mt-4">Scanning...</h3>
-                </>
-              ) : (
-                ""
-              )}
-            </div>
-            <div></div>
-          </div>
-        </div>
-      ) : (
-        ""
-      )}
+      <DialogBox
+        open={openDialogBox}
+        onCloseDialogBox={() => setOpenDialogBox(false)}
+      />
+      <InformationCard
+        isInstalled={isInstalled}
+        isNAPS2ServiceRunning={isNAPS2ServiceRunning}
+      />
+      <ScannerLoader loader={loader} selectedDevice={selectedDevice} />
 
       <>
         <div className="flex h-screen w-screen">
           <div className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center">
             <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1>
 
-            {/* {devices && devices.length === 0 ? (
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
-                onClick={getDeviceList}
-              >
-                Start
-              </button>
-            ) : (
-              ""
-            )} */}
-
-            {devices && devices.length === 0 ? (
-              <h2 className="text-gray-400"> No Scanner detected</h2>
-            ) : (
-              ""
-            )}
+            <DeviceLoader deviceLoader={deviceLoader} devices={devices} />
 
             {devices && devices.length ? (
               <>
