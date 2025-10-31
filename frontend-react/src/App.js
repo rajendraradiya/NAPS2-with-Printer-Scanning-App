@@ -5,9 +5,9 @@ import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
 
-import winFIle from "./assets/setup/mpn-core-win.EXE";
-import linuxFile from "./assets/setup/mpn-core-linux.deb";
-import macFile from "./assets/setup/mpn-core-mac.pkg";
+// import winFIle from "/setup/mpn-core-win.EXE";
+// import linuxFile from "/setup/mpn-core-linux.deb";
+// import macFile from "/setup/mpn-core-mac.pkg";
 import DeviceLoader from "./components/DeviceLoader";
 import ScannerLoader from "./components/ScannerLoader";
 import InformationCard from "./components/InformationCard";
@@ -32,13 +32,13 @@ export default function ScannerApp() {
   // Fetch scanner devices from backend
 
   const windowsBackendServiceDownload = () => {
-    downloadFile(winFIle, "naps2-service-win.exe", false);
+    downloadFile('setup/mpn-core-win.EXE', "naps2-service-win.exe", false);
   };
   const linuxBackendServiceDownload = () => {
-    downloadFile(linuxFile, "mpn-core-linux.deb", false);
+    downloadFile("setup/mpn-core-linux.deb", "mpn-core-linux.deb", false);
   };
   const macBackendServiceDownload = () => {
-    downloadFile(macFile, "mpn-core-mac.pkg", false);
+    downloadFile('setup/mpn-core-mac.pkg', "mpn-core-mac.pkg", false);
   };
 
   const windowsNAPS2Download = (isNewTab = false) => {
@@ -66,17 +66,17 @@ export default function ScannerApp() {
   const windowSetupDownload = () => {
     windowsBackendServiceDownload();
     windowsNAPS2Download(true);
-    openDirectory();
+    // openDirectory();
   };
   const linuxSetupDownload = () => {
     linuxBackendServiceDownload();
     linuxNAPS2Download(true);
-    openDirectory();
+    // openDirectory();
   };
   const macSetupDownload = () => {
     macBackendServiceDownload();
     macNAPS2Download(true);
-    openDirectory();
+    // openDirectory();
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {
