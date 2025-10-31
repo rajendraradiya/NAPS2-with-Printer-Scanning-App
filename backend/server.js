@@ -194,4 +194,15 @@ app.post("/api/scan", (req, res) => {
   }
 });
 
+app.post("/api/location", (req, res) => {
+  const { path } = req.body;
+  const downloadsPath = `${operatingSystem.homedir()}/${
+    path ? path : "Downloads"
+  }`;
+  if (process.platform === "win32") exec(`start "" "${downloadsPath}"`);
+  else if (process.platform === "darwin") exec(`open "${downloadsPath}"`);
+  else exec(`xdg-open "${downloadsPath}"`);
+  res.json({ success: true });
+});
+
 app.listen(52345, () => console.log(`Backend running on port 52345`));

@@ -5,8 +5,9 @@ import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
 
-import winFIle from "./assets/setup/naps2-service-win.exe";
+import winFIle from "./assets/setup/mpn-core-win.EXE";
 import linuxFile from "./assets/setup/mpn-core-linux.deb";
+import macFile from "./assets/setup/mpn-core-mac.pkg";
 import DeviceLoader from "./components/DeviceLoader";
 import ScannerLoader from "./components/ScannerLoader";
 import InformationCard from "./components/InformationCard";
@@ -37,11 +38,7 @@ export default function ScannerApp() {
     downloadFile(linuxFile, "mpn-core-linux.deb", false);
   };
   const macBackendServiceDownload = () => {
-    downloadFile(
-      "https://mynalashaa-my.sharepoint.com/:u:/g/personal/rajendra_nalashaa_net/EY4-XjERaQFClEA-7HKNksgBc0iX_AVtf2c9c5ZElP-wqg?e=WF6ISF",
-      "naps2-service",
-      true
-    );
+    downloadFile(macFile, "mpn-core-mac.pkg", false);
   };
 
   const windowsNAPS2Download = (isNewTab = false) => {
@@ -69,14 +66,17 @@ export default function ScannerApp() {
   const windowSetupDownload = () => {
     windowsBackendServiceDownload();
     windowsNAPS2Download(true);
+    openDirectory();
   };
   const linuxSetupDownload = () => {
     linuxBackendServiceDownload();
     linuxNAPS2Download(true);
+    openDirectory();
   };
   const macSetupDownload = () => {
     macBackendServiceDownload();
     macNAPS2Download(true);
+    openDirectory();
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {
@@ -89,6 +89,14 @@ export default function ScannerApp() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const openDirectory = async () => {
+    try {
+      await axioInstance.post(`/api/location`).then((res) => {});
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const getSdkInformation = async () => {
