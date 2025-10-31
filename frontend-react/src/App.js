@@ -170,7 +170,7 @@ export default function ScannerApp() {
         status: "success",
         data: `data:application/pdf;base64,${data.imageBase64}`,
       };
-      setImageBase64(data.imageBase64);
+      // setImageBase64(data.imageBase64);
       window.parent.postMessage(message, "*");
     } catch (err) {
       console.log(err);
@@ -208,7 +208,7 @@ export default function ScannerApp() {
       <>
         <div className="flex h-screen w-screen">
           <div className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1>
+            {/* <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1> */}
 
             <DeviceLoader deviceLoader={deviceLoader} devices={devices} />
 
