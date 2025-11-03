@@ -1,5 +1,5 @@
 # ==========================================
-# NAPS2 Service Installer Script
+# MPN Service Installer Script
 # ==========================================
 
 $serviceName = "mpn-core"
@@ -46,6 +46,6 @@ New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 Write-Host "Starting service..."
 & $nssmPath start $serviceName
 
-Write-Host "✅ NAPS2 Service installed and running!"
+Write-Host "✅ MPN Service installed and running!"
 Start-Sleep -Seconds 2
 exit

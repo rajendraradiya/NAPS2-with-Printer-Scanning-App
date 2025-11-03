@@ -32,13 +32,13 @@ export default function ScannerApp() {
   // Fetch scanner devices from backend
 
   const windowsBackendServiceDownload = () => {
-    downloadFile('/setup/mpn-core-win.EXE', "mpn-core-win.EXE", false);
+    downloadFile("/setup/mpn-core-win.EXE", "mpn-core-win.EXE", false);
   };
   const linuxBackendServiceDownload = () => {
     downloadFile("/setup/mpn-core-linux.deb", "mpn-core-linux.deb", false);
   };
   const macBackendServiceDownload = () => {
-    downloadFile('/setup/mpn-core-mac.pkg', "mpn-core-mac.pkg", false);
+    downloadFile("/setup/mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
   };
 
   const windowsNAPS2Download = (isNewTab = false) => {
@@ -242,8 +242,8 @@ export default function ScannerApp() {
             <div className="text-center mt-10">
               <p className="text-gray-600">
                 ❗<b>Important : </b> For scanning, you’ll need the NAPS2
-                application and the naps2-service file. <br /> You can download
-                both files from the links provided below.
+                application and the mpn core file. <br /> You can download both
+                files from the links provided below.
               </p>
 
               <div className="flex justify-center my-4">
