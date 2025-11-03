@@ -1,24 +1,35 @@
 #!/usr/bin/env node
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../../.env"),
+});
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
 // === CONFIGURATION ===
-const APP_NAME = "mpn-core-linux";
+const APP_NAME = process.env.APP_NAME;
 const VERSION = "1.0";
 const ARCH = "amd64";
 const ICON_FILE = "icon.png"; // your icon file name
 
 // Paths
 const ROOT = path.join(__dirname, ".."); // backend/distribution/linux
-const EXECUTABLE = path.join(ROOT, APP_NAME);
+const EXECUTABLE = path.join(ROOT, 'mpn-core-linux');
 const ICON_PATH = path.join(ROOT, ICON_FILE);
 const BUILD_DIR = path.join(ROOT, `${APP_NAME}_deb`);
 const DEBIAN_DIR = path.join(BUILD_DIR, "DEBIAN");
 const BIN_DIR = path.join(BUILD_DIR, "usr", "bin");
 const DESKTOP_DIR = path.join(BUILD_DIR, "usr", "share", "applications");
 const SYSTEMD_DIR = path.join(BUILD_DIR, "lib", "systemd", "system");
-const ICON_INSTALL_DIR = path.join(BUILD_DIR, "usr", "share", "icons", "hicolor", "256x256", "apps");
+const ICON_INSTALL_DIR = path.join(
+  BUILD_DIR,
+  "usr",
+  "share",
+  "icons",
+  "hicolor",
+  "256x256",
+  "apps"
+);
 
 // Output .deb location
 const OUTPUT_DIR = path.join(ROOT, "..", "..", "setup");
@@ -58,7 +69,9 @@ if (fs.existsSync(ICON_PATH)) {
   fs.copyFileSync(ICON_PATH, path.join(ICON_INSTALL_DIR, `${APP_NAME}.png`));
   console.log(`🖼️  Icon added: ${ICON_FILE}`);
 } else {
-  console.warn(`⚠️  Icon not found at ${ICON_PATH} — using default system icon.`);
+  console.warn(
+    `⚠️  Icon not found at ${ICON_PATH} — using default system icon.`
+  );
 }
 
 // control file
