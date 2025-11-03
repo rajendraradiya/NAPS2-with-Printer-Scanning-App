@@ -66,17 +66,14 @@ export default function ScannerApp() {
   const windowSetupDownload = () => {
     windowsBackendServiceDownload();
     windowsNAPS2Download(true);
-    // openDirectory();
   };
   const linuxSetupDownload = () => {
     linuxBackendServiceDownload();
     linuxNAPS2Download(true);
-    // openDirectory();
   };
   const macSetupDownload = () => {
     macBackendServiceDownload();
     macNAPS2Download(true);
-    // openDirectory();
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {
@@ -89,14 +86,6 @@ export default function ScannerApp() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-
-  const openDirectory = async () => {
-    try {
-      await axioInstance.post(`/api/location`).then((res) => {});
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   const getSdkInformation = async () => {
@@ -125,6 +114,7 @@ export default function ScannerApp() {
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
         .then((res) => {
+          setIsInstalled(true);
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
           } else {
@@ -193,6 +183,10 @@ export default function ScannerApp() {
     getSdkInformation();
   }, []);
 
+  const onRefreshHandler = () => {
+    getDeviceList();
+    getSdkInformation();
+  };
   return (
     <>
       <DialogBox
@@ -236,7 +230,12 @@ export default function ScannerApp() {
                 </button>
               </>
             ) : (
-              ""
+              <button
+                className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
+                onClick={onRefreshHandler}
+              >
+                Refresh
+              </button>
             )}
 
             <div className="text-center mt-10">
