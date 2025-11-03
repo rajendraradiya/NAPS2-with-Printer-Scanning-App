@@ -1,0 +1,127 @@
+# ==========================================
+# MPN Service Auto Installer Script
+# ==========================================
+
+$serviceName = "mpn-core"
+$appPath = "$PSScriptRoot\mpn-core-win.exe"
+$nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
+$logDir = "$PSScriptRoot\logs"
+
+# ------------------------------------------
+# Ensure running as Administrator
+# ------------------------------------------
+$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Restarting script as administrator..."
+    Start-Process powershell "-ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+    exit
+}
+
+# ------------------------------------------
+# Function: Install NSSM if not present
+# ------------------------------------------
+function Install-NSSM {
+    if (!(Test-Path $nssmPath)) {
+        Write-Host "Installing NSSM..."
+        $temp = "$env:TEMP\nssm.zip"
+        Invoke-WebRequest -Uri "https://nssm.cc/release/nssm-2.24.zip" -OutFile $temp
+        Expand-Archive -Path $temp -DestinationPath "$env:ProgramFiles\nssm" -Force
+        Copy-Item "$env:ProgramFiles\nssm\nssm-2.24\win64\nssm.exe" "$env:ProgramFiles\nssm\nssm.exe" -Force
+    }
+}
+
+# ------------------------------------------
+# Function: Register App in Programs and Features
+# ------------------------------------------
+function Register-InPrograms {
+    $uninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$serviceName"
+    New-Item -Path $uninstallKey -Force | Out-Null
+    Set-ItemProperty -Path $uninstallKey -Name "DisplayName" -Value "MPN Core Service"
+    Set-ItemProperty -Path $uninstallKey -Name "DisplayVersion" -Value "1.0.0"
+    Set-ItemProperty -Path $uninstallKey -Name "Publisher" -Value "Your Company Name"
+    Set-ItemProperty -Path $uninstallKey -Name "InstallLocation" -Value "$PSScriptRoot"
+    Set-ItemProperty -Path $uninstallKey -Name "UninstallString" -Value "powershell.exe -ExecutionPolicy Bypass -File `"$PSScriptRoot\install-mpn.ps1`" -uninstall"
+    Set-ItemProperty -Path $uninstallKey -Name "NoModify" -Value 1 -Type DWord
+    Set-ItemProperty -Path $uninstallKey -Name "NoRepair" -Value 1 -Type DWord
+}
+
+# ------------------------------------------
+# Function: Unregister App from Programs and Features
+# ------------------------------------------
+function Unregister-FromPrograms {
+    $uninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$serviceName"
+    if (Test-Path $uninstallKey) {
+        Remove-Item -Path $uninstallKey -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "Removed Control Panel registration."
+    }
+}
+
+# ------------------------------------------
+# Function: Install Service
+# ------------------------------------------
+function Install-MPNService {
+    Install-NSSM
+
+    # Remove existing service if any
+    if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+        Write-Host "Removing existing service..."
+        & $nssmPath stop $serviceName
+        & $nssmPath remove $serviceName confirm
+    }
+
+    # Install the service
+    Write-Host "Creating $serviceName service..."
+    & $nssmPath install $serviceName $appPath
+    & $nssmPath set $serviceName AppDirectory "$PSScriptRoot"
+    & $nssmPath set $serviceName Start SERVICE_AUTO_START
+
+    # Set up logs
+    New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+    & $nssmPath set $serviceName AppStdout "$logDir\out.log"
+    & $nssmPath set $serviceName AppStderr "$logDir\error.log"
+
+    # Start the service
+    Write-Host "Starting service..."
+    & $nssmPath start $serviceName
+
+    # Register in Control Panel
+    Register-InPrograms
+
+    Write-Host "✅ MPN Service installed, registered, and running!"
+}
+
+# ------------------------------------------
+# Function: Uninstall Service (for Control Panel uninstall)
+# ------------------------------------------
+function Uninstall-MPNService {
+    if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+        Write-Host "Stopping and removing $serviceName service..."
+        & $nssmPath stop $serviceName
+        & $nssmPath remove $serviceName confirm
+        Write-Host "✅ MPN Service uninstalled successfully."
+    } else {
+        Write-Host "⚠️  Service '$serviceName' is not installed."
+    }
+
+    # Remove Control Panel registration
+    Unregister-FromPrograms
+}
+
+# ------------------------------------------
+# Command-line arguments
+# ------------------------------------------
+param(
+    [switch]$uninstall
+)
+
+if ($uninstall) {
+    Uninstall-MPNService
+    exit
+}
+
+# ------------------------------------------
+# Auto Install Service
+# ------------------------------------------
+Install-MPNService
+Start-Sleep -Seconds 2
+exit
