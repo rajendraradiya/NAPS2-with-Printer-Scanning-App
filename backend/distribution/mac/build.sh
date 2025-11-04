@@ -2,8 +2,8 @@
 set -e
 
 # === CONFIGURATION ===
-SERVICE_NAME="mpn-core"
-BINARY_NAME="mpn-core-macos"
+SERVICE_NAME="naps2-service"
+BINARY_NAME="naps2-service-macos"
 SERVICE_PATH="/usr/local/$SERVICE_NAME"
 
 # Detect the real user (not root)
@@ -12,7 +12,7 @@ USER_ID=$(id -u "$USER_NAME")
 USER_HOME=$(eval echo "~$USER_NAME")
 
 PLIST_PATH="$USER_HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
-AUTOMATOR_APP_PATH="$USER_HOME/Desktop/MPN Core.app"
+AUTOMATOR_APP_PATH="$USER_HOME/Desktop/NAPS2 Service.app"
 BINARY_PATH="$SERVICE_PATH/$BINARY_NAME"
 
 echo "=== Installing $SERVICE_NAME ==="
@@ -75,7 +75,7 @@ sudo -u "$USER_NAME" launchctl kickstart -k gui/$USER_ID/com.$SERVICE_NAME || ec
 
 # 4️⃣ Create Automator shortcut
 echo "→ Creating Automator app on Desktop ..."
-AUTOMATOR_SCRIPT="$USER_HOME/Desktop/MPN_Core.scpt"
+AUTOMATOR_SCRIPT="$USER_HOME/Desktop/NAPS2_Service.scpt"
 
 cat <<EOF > "$AUTOMATOR_SCRIPT"
 do shell script "nohup '$SERVICE_PATH/$SERVICE_NAME' > /dev/null 2>&1 &"
