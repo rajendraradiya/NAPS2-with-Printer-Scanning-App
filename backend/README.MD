@@ -11,8 +11,8 @@ npm run build
 
 # 4. Install the package (manually)
 npm run pkg
-sudo installer -pkg naps2-installer.pkg -target /
-cat /tmp/naps2-postinstall.log 
+sudo installer -pkg mpn-core-installer.pkg -target /
+cat /tmp/mpn-postinstall.log 
 
 # Stop service mac
 launchctl stop com.naps2-service
