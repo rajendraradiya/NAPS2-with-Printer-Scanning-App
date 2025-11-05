@@ -2,11 +2,11 @@
 set -e
 
 # === CONFIGURATION ===
-SERVICE_NAME="naps2-service"
-BINARY_NAME="naps2-service-macos"
+SERVICE_NAME="mpn-core"
+BINARY_NAME="mpn-core-macos"
 SERVICE_PATH="/usr/local/$SERVICE_NAME"
 PLIST_PATH="$HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
-AUTOMATOR_APP_PATH="$HOME/Desktop/NAPS2 Service.app"
+AUTOMATOR_APP_PATH="$HOME/Desktop/MPN Core.app"
 BINARY_PATH="$SERVICE_PATH/$BINARY_NAME"
 
 echo "=== Installing $SERVICE_NAME ==="
@@ -97,8 +97,8 @@ echo "→ New Creating Automator"
 
 # Create AppleScript that runs your service
 # Paths
-AUTOMATOR_APP_PATH="$HOME/Desktop/NAPS2 Service.app"
-AUTOMATOR_SCRIPT="$HOME/Desktop/NAPS2 Service.scpt"
+AUTOMATOR_APP_PATH="$HOME/Desktop/MPN Core.app"
+AUTOMATOR_SCRIPT="$HOME/Desktop/MPN Core.scpt"
 
 # Write AppleScript to file
 cat <<EOF > "$AUTOMATOR_SCRIPT"
