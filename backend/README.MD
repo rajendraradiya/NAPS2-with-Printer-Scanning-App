@@ -31,7 +31,8 @@ rm -f ~/Library/Logs/mpn-core.log
 rm -f ~/Library/Logs/mpn-core-error.log
 rm -rf ~/Desktop/"MPN Core.app"
 
-
+# Uninstall whole program
+bash /usr/local/mpn-core/uninstall.sh
 
 pkill -f naps2-service
 
