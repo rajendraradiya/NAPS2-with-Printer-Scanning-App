@@ -4,15 +4,19 @@
 npm install
 
 # 2. build generate linux and .exe
-npm run build
+npm run windows
+npm run linux
+npm run mac
 
-# 3. Build the .pkg
-./build.sh
 
+______| MAC |_____________________________________________________________________________________
 # 4. Install the package (manually)
-npm run pkg
-sudo installer -pkg mpn-core-installer.pkg -target /
+npm run mac
+sudo installer -pkg ./setup/mpn-core-installer.pkg -target /
 cat /tmp/mpn-postinstall.log 
+
+# 5. Uninstall whole program
+bash /usr/local/mpn-core/uninstall.sh
 
 # Stop service mac
 
@@ -31,11 +35,10 @@ rm -f ~/Library/Logs/mpn-core.log
 rm -f ~/Library/Logs/mpn-core-error.log
 rm -rf ~/Desktop/"MPN Core.app"
 
-# Uninstall whole program
-bash /usr/local/mpn-core/uninstall.sh
+
 
 pkill -f naps2-service
-
+__________________________________________________________________________________________________________________
 
 # Stop service Linux
 sudo systemctl stop mpn-core-linux.service
