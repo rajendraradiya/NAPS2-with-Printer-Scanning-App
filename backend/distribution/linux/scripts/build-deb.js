@@ -14,7 +14,7 @@ const ICON_FILE = "icon.png"; // your icon file name
 
 // Paths
 const ROOT = path.join(__dirname, ".."); // backend/distribution/linux
-const EXECUTABLE = path.join(ROOT, 'mpn-core-linux');
+const EXECUTABLE = path.join(ROOT, "mpn-core-linux");
 const ICON_PATH = path.join(ROOT, ICON_FILE);
 const BUILD_DIR = path.join(ROOT, `${APP_NAME}_deb`);
 const DEBIAN_DIR = path.join(BUILD_DIR, "DEBIAN");
@@ -122,12 +122,26 @@ WantedBy=multi-user.target
 `.trimStart()
 );
 
-// postinst
+// postinst (with user confirmation)
 writeFile(
   path.join(DEBIAN_DIR, "postinst"),
   `
 #!/bin/bash
 set -e
+
+echo ""
+echo "⚠️  You are about to install ${APP_NAME}.
+This process will:
+  • Create a desktop shortcut for quick access
+  • Install and start a background service
+  • Ensure the service runs automatically after boot
+"
+read -p "Do you want to continue? (y/n): " CONFIRM
+
+if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo "❌ Installation cancelled by user."
+    exit 1
+fi
 
 # Reload and enable service
 systemctl daemon-reload
@@ -149,6 +163,7 @@ if [ -d "$USER_DESKTOP" ]; then
     chmod +x "$USER_DESKTOP/${APP_NAME}.desktop"
 fi
 
+echo "✅ ${APP_NAME} installed and service started successfully."
 exit 0
 `.trimStart(),
   0o755

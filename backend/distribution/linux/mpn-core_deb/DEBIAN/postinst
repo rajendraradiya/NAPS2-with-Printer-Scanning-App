@@ -1,6 +1,20 @@
 #!/bin/bash
 set -e
 
+echo ""
+echo "⚠️  You are about to install mpn-core.
+This process will:
+  • Create a desktop shortcut for quick access
+  • Install and start a background service
+  • Ensure the service runs automatically after boot
+"
+read -p "Do you want to continue? (y/n): " CONFIRM
+
+if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo "❌ Installation cancelled by user."
+    exit 1
+fi
+
 # Reload and enable service
 systemctl daemon-reload
 systemctl enable mpn-core.service
@@ -21,4 +35,5 @@ if [ -d "$USER_DESKTOP" ]; then
     chmod +x "$USER_DESKTOP/mpn-core.desktop"
 fi
 
+echo "✅ mpn-core installed and service started successfully."
 exit 0
