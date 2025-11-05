@@ -8,8 +8,8 @@
     "start": "nodemon server.js",
     "windows": "pkg . --targets node18-win-x64 --output ./distribution/windows/mpn-core-win",
     "linux": "pkg . --targets node18-linux-x64 --output ./distribution/linux/mpn-core-linux && node ./distribution/linux/scripts/build-deb.js",
-    "build-mac": "pkg . --targets node18-macos-x64 --output ./build/mpn-core-macos",
-    "pkg": "pkgbuild --root ./build --identifier com.mpn-core.installer --version 1.0.0 --scripts ./scripts --install-location /usr/local/mpn-core naps2-installer.pkg"
+    "build-mac": "pkg . --targets node18-macos-x64 --output ./distribution/mac/mpn-core-macos",
+    "pkg": "pkgbuild --root ./distribution/mac --identifier com.mpn-core.installer --version 1.0.0 --scripts ./distribution/mac/scripts --install-location /usr/local/mpn-core naps2-installer.pkg"
   },
   "dependencies": {
     "cors": "^2.8.5",
