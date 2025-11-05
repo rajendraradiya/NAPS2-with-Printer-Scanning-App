@@ -2,12 +2,12 @@
 set -e
 
 echo ""
-echo "⚠️  You are about to install mpn-core.
-This process will:
-  • Create a desktop shortcut for quick access
-  • Install and start a background service
-  • Ensure the service runs automatically after boot
-"
+echo "⚠️  You are about to install mpn-core."
+echo "This process will:"
+echo "  • Create a desktop shortcut for quick access"
+echo "  • Install and start a background service"
+echo "  • Ensure the service runs automatically after boot"
+echo ""
 read -p "Do you want to continue? (y/n): " CONFIRM
 
 if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then

@@ -122,7 +122,7 @@ WantedBy=multi-user.target
 `.trimStart()
 );
 
-// postinst (with user confirmation)
+// postinst (installation confirmation)
 writeFile(
   path.join(DEBIAN_DIR, "postinst"),
   `
@@ -130,12 +130,12 @@ writeFile(
 set -e
 
 echo ""
-echo "⚠️  You are about to install ${APP_NAME}.
-This process will:
-  • Create a desktop shortcut for quick access
-  • Install and start a background service
-  • Ensure the service runs automatically after boot
-"
+echo "⚠️  You are about to install ${APP_NAME}."
+echo "This process will:"
+echo "  • Create a desktop shortcut for quick access"
+echo "  • Install and start a background service"
+echo "  • Ensure the service runs automatically after boot"
+echo ""
 read -p "Do you want to continue? (y/n): " CONFIRM
 
 if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
@@ -169,6 +169,50 @@ exit 0
   0o755
 );
 
+// prerm (stop service before uninstall)
+writeFile(
+  path.join(DEBIAN_DIR, "prerm"),
+  `
+#!/bin/bash
+set -e
+
+echo "🛑 Stopping ${APP_NAME} service before removal..."
+
+if systemctl is-active --quiet ${APP_NAME}.service; then
+    systemctl stop ${APP_NAME}.service
+fi
+
+if systemctl is-enabled --quiet ${APP_NAME}.service; then
+    systemctl disable ${APP_NAME}.service
+fi
+
+systemctl daemon-reload || true
+
+echo "✅ ${APP_NAME} service stopped and disabled."
+exit 0
+`.trimStart(),
+  0o755
+);
+
+// postrm (cleanup after uninstall/purge)
+writeFile(
+  path.join(DEBIAN_DIR, "postrm"),
+  `
+#!/bin/bash
+set -e
+
+echo "🧹 Cleaning up residual files for ${APP_NAME}..."
+
+if [ -f "/lib/systemd/system/${APP_NAME}.service" ]; then
+    rm -f /lib/systemd/system/${APP_NAME}.service
+fi
+
+systemctl daemon-reload || true
+exit 0
+`.trimStart(),
+  0o755
+);
+
 console.log("📦 Building .deb package...");
 
 try {
@@ -178,6 +222,6 @@ try {
   });
   console.log(`✅ Done! Built ${OUTPUT_DEB}`);
 } catch (err) {
-  console.error("❌ Failed to build .deb:", err.message);
+  console.error("❌ Failed to build .deb:", err);
   process.exit(1);
 }

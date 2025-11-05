@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+echo "🛑 Stopping mpn-core service before removal..."
+
+if systemctl is-active --quiet mpn-core.service; then
+    systemctl stop mpn-core.service
+fi
+
+if systemctl is-enabled --quiet mpn-core.service; then
+    systemctl disable mpn-core.service
+fi
+
+systemctl daemon-reload || true
+
+echo "✅ mpn-core service stopped and disabled."
+exit 0
