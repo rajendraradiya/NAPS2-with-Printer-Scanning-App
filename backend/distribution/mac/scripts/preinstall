@@ -1,0 +1,15 @@
+#!/bin/bash
+SERVICE_NAME="mpn-core"
+
+echo "→ Stopping and removing $SERVICE_NAME ..."
+
+launchctl stop com.$SERVICE_NAME 2>/dev/null || true
+launchctl unload ~/Library/LaunchAgents/com.$SERVICE_NAME.plist 2>/dev/null || true
+
+rm -f ~/Library/LaunchAgents/com.$SERVICE_NAME.plist
+sudo rm -rf /usr/local/$SERVICE_NAME
+rm -f ~/Library/Logs/$SERVICE_NAME.log
+rm -f ~/Library/Logs/$SERVICE_NAME-error.log
+rm -rf ~/Desktop/"MPN Core.app"
+
+echo "✅ $SERVICE_NAME fully stopped and removed!"

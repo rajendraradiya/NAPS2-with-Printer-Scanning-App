@@ -60,27 +60,30 @@ cat <<EOF > "$PLIST_PATH"
 </plist>
 EOF
 
-# 3️⃣ Load LaunchAgent in user context
-echo "→ Loading LaunchAgent as the real user..."
+# 3️⃣ Install LaunchAgent for the real user
+echo "→ Setting up LaunchAgent for $USER_NAME ..."
 USER_NAME="${SUDO_USER:-$USER}"
 USER_ID=$(id -u "$USER_NAME")
-TARGET_PLIST="$HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
+USER_HOME=$(eval echo "~$USER_NAME")
+TARGET_PLIST="$USER_HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
 
+sudo -u "$USER_NAME" mkdir -p "$USER_HOME/Library/LaunchAgents"
+sudo -u "$USER_NAME" cp "$PLIST_PATH" "$TARGET_PLIST"
+sudo chown "$USER_NAME":staff "$TARGET_PLIST"
 
-
-# Copy plist if different
-if ! cmp -s "$PLIST_PATH" "$TARGET_PLIST"; then
-    sudo -u "$USER_NAME" cp "$PLIST_PATH" "$TARGET_PLIST"
+# Try to detect if we are in an installer or interactive shell
+if [ -z "$SSH_TTY" ] && [ "$(tty)" = "not a tty" ]; then
+    echo "⚠️ Running from .pkg installer (non-GUI)."
+    echo "ℹ️ LaunchAgent installed but will start at next login."
+    echo "   To start manually later, run:"
+    echo "   launchctl bootstrap gui/$USER_ID ~/Library/LaunchAgents/com.$SERVICE_NAME.plist"
+else
+    echo "→ GUI session detected, trying to load LaunchAgent ..."
+    sudo -u "$USER_NAME" launchctl bootout gui/$USER_ID "com.$SERVICE_NAME" 2>/dev/null || true
+    sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$TARGET_PLIST" || echo "⚠️ LaunchAgent load failed"
+    sudo -u "$USER_NAME" launchctl kickstart -k gui/$USER_ID/com.$SERVICE_NAME || echo "⚠️ LaunchAgent start failed"
 fi
 
-# Unload old LaunchAgent (if running) and load new one
-sudo -u "$USER_NAME" launchctl bootout gui/$USER_ID "$TARGET_PLIST" 2>/dev/null || true
-sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$TARGET_PLIST" || \
-    echo "⚠️ LaunchAgent load failed"
-
-# ✅ Force the service to start immediately
-sudo -u "$USER_NAME" launchctl kickstart -k gui/$USER_ID/com.$SERVICE_NAME || \
-    echo "⚠️ LaunchAgent start failed"
 
 
 # 4️⃣ Create Automator app shortcut

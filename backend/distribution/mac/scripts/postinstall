@@ -1,63 +1,66 @@
 #!/bin/bash
 
-LOG_FILE="/tmp/mpn-postinstall.log"
-SERVICE_NAME="mpn-core"
-SERVICE_PATH="/usr/local/$SERVICE_NAME"
-BUILD_SCRIPT="$SERVICE_PATH/build.sh"
-USER_NAME="${SUDO_USER:-$USER}"
-USER_ID=$(id -u "$USER_NAME")
-USER_HOME=$(eval echo "~$USER_NAME")
+# -------------------------------
+# Postinstall script for mpn-core
+# -------------------------------
 
+LOG_FILE="/tmp/mpn-postinstall.log"
+BUILD_SCRIPT="/usr/local/mpn-core/build.sh"
+SERVICE_NAME="mpn-core"
+
+# Ensure the log exists and is writable
 touch "$LOG_FILE"
 chmod 666 "$LOG_FILE"
 
 {
-  echo "=== Postinstall started at $(date) ==="
-  echo "Running as $(whoami)"
-  echo "User context: $USER_NAME ($USER_ID)"
+  echo "=== Postinstall started at $(/bin/date) ==="
+  echo "Script running as user: $(whoami)"
+  echo "Working directory: $(pwd)"
+  echo "Environment PATH: $PATH"
   echo "-----------------------------------------"
 
-  echo "→ Stopping running service..."
-  launchctl stop com.$SERVICE_NAME 2>/dev/null || true
-  launchctl bootout gui/$USER_ID "$USER_HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist" 2>/dev/null || true
-  pkill -f "$SERVICE_NAME" 2>/dev/null || true
+  # -------------------------------
+  # Run build.sh safely
+  # -------------------------------
+  if [ -f "$BUILD_SCRIPT" ]; then
+      echo "→ Running build.sh..."
+      /bin/chmod +x "$BUILD_SCRIPT"
+      /bin/bash "$BUILD_SCRIPT" >> "$LOG_FILE" 2>&1 || echo "⚠️ build.sh failed" >> "$LOG_FILE"
+  else
+      echo "❌ build.sh not found at $BUILD_SCRIPT"
+  fi
 
-  echo "→ Cleaning old installation..."
-  rm -f "$USER_HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist" 2>/dev/null || true
-  rm -rf "$USER_HOME/Desktop/MPN Core.app" 2>/dev/null || true
-  sudo rm -f /Library/LaunchAgents/com.$SERVICE_NAME.plist 2>/dev/null || true
-  sudo rm -f /Library/LaunchDaemons/com.$SERVICE_NAME.plist 2>/dev/null || true
-  echo "✅ Old service cleaned up"
   echo "-----------------------------------------"
+  echo "→ Attempting to start LaunchAgent for logged-in user (if any)..."
 
-  echo "→ Waiting for new payload to be ready..."
-  for i in {1..20}; do
-    if [ -f "$BUILD_SCRIPT" ]; then
-      echo "✅ Found build.sh at $BUILD_SCRIPT"
-      break
-    fi
-    sleep 0.5
-  done
-
-  if [ ! -f "$BUILD_SCRIPT" ]; then
-    echo "❌ build.sh not found after waiting. Check your pkg payload."
+  # -------------------------------
+  # Detect logged-in console user
+  # -------------------------------
+  CONSOLE_USER=$(stat -f "%Su" /dev/console)
+  if [ -z "$CONSOLE_USER" ] || [ "$CONSOLE_USER" = "root" ]; then
+      echo "⚠️ No logged-in GUI user detected. Service will start at next login."
   else
-    chmod +x "$BUILD_SCRIPT"
-    echo "→ Running build.sh..."
-    /bin/bash "$BUILD_SCRIPT" >> "$LOG_FILE" 2>&1 || echo "⚠️ build.sh execution failed"
+      USER_ID=$(id -u "$CONSOLE_USER")
+      USER_HOME=$(eval echo "~$CONSOLE_USER")
+      AGENT_PLIST="$USER_HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
+
+      echo "→ Detected GUI user: $CONSOLE_USER ($USER_ID)"
+      echo "→ LaunchAgent path: $AGENT_PLIST"
+
+      if [ -f "$AGENT_PLIST" ]; then
+          echo "→ Bootstrapping LaunchAgent..."
+          sudo -u "$CONSOLE_USER" launchctl bootout gui/$USER_ID "com.$SERVICE_NAME" 2>/dev/null || true
+          sudo -u "$CONSOLE_USER" launchctl bootstrap gui/$USER_ID "$AGENT_PLIST" 2>/dev/null || true
+          sudo -u "$CONSOLE_USER" launchctl kickstart -k gui/$USER_ID/com.$SERVICE_NAME 2>/dev/null || true
+          echo "✅ LaunchAgent started for $CONSOLE_USER"
+      else
+          echo "⚠️ LaunchAgent plist not found for $CONSOLE_USER"
+      fi
   fi
 
-  PLIST_PATH="$USER_HOME/Library/LaunchAgents/com.$SERVICE_NAME.plist"
-  if [ -f "$PLIST_PATH" ]; then
-    echo "→ Loading new LaunchAgent..."
-    sudo -u "$USER_NAME" launchctl bootstrap gui/$USER_ID "$PLIST_PATH" 2>/dev/null || true
-    sudo -u "$USER_NAME" launchctl kickstart -k gui/$USER_ID/com.$SERVICE_NAME 2>/dev/null || true
-    echo "✅ Service started successfully"
-  else
-    echo "⚠️ LaunchAgent not found after build"
-  fi
-
-  echo "=== Postinstall finished at $(date) ==="
+  echo "=== Postinstall finished at $(/bin/date) ==="
+  echo "Logs written to: $LOG_FILE"
 } >> "$LOG_FILE" 2>&1
 
+# Always exit 0 so installer does not fail
 exit 0

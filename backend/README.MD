@@ -15,8 +15,23 @@ sudo installer -pkg mpn-core-installer.pkg -target /
 cat /tmp/mpn-postinstall.log 
 
 # Stop service mac
+
+launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.mpn-core.plist
+
+# Remove
+
 launchctl stop com.naps2-service
 launchctl unload ~/Library/LaunchAgents/com.naps2-service.plist
+
+# Remove completely
+
+rm -f ~/Library/LaunchAgents/com.mpn-core.plist
+sudo rm -rf /usr/local/mpn-core
+rm -f ~/Library/Logs/mpn-core.log
+rm -f ~/Library/Logs/mpn-core-error.log
+rm -rf ~/Desktop/"MPN Core.app"
+
+
 
 pkill -f naps2-service
 
