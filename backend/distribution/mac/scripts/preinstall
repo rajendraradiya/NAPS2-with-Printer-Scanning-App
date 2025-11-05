@@ -1,15 +1,66 @@
 #!/bin/bash
+
+# -------------------------------
+# Preinstall script for mpn-core
+# -------------------------------
+
 SERVICE_NAME="mpn-core"
+LOG_FILE="/tmp/mpn-preinstall.log"
 
-echo "→ Stopping and removing $SERVICE_NAME ..."
+# Ensure log file exists and is writable
+touch "$LOG_FILE"
+chmod 666 "$LOG_FILE"
 
-launchctl stop com.$SERVICE_NAME 2>/dev/null || true
-launchctl unload ~/Library/LaunchAgents/com.$SERVICE_NAME.plist 2>/dev/null || true
+{
+  echo "=== Preinstall started at $(/bin/date) ==="
+  echo "Running as: $(whoami)"
+  echo "Working directory: $(pwd)"
+  echo "-----------------------------------------"
 
-rm -f ~/Library/LaunchAgents/com.$SERVICE_NAME.plist
-sudo rm -rf /usr/local/$SERVICE_NAME
-rm -f ~/Library/Logs/$SERVICE_NAME.log
-rm -f ~/Library/Logs/$SERVICE_NAME-error.log
-rm -rf ~/Desktop/"MPN Core.app"
+  # -------------------------------
+  # Detect logged-in GUI user
+  # -------------------------------
+  CONSOLE_USER=$(stat -f "%Su" /dev/console)
+  if [ "$CONSOLE_USER" != "root" ] && [ -n "$CONSOLE_USER" ]; then
+      echo "→ Asking $CONSOLE_USER for installation confirmation..."
+      RESPONSE=$(sudo -u "$CONSOLE_USER" osascript -e 'button returned of (display dialog "mpn-core will automatically create a shortcut on your desktop and start the service in the background. The service will also automatically start on system reboot. Continue?" buttons {"Cancel", "Install"} default button "Install" with title "mpn-core Installer")')
+  else
+      echo "⚠️ No GUI user detected — skipping confirmation dialog."
+      RESPONSE="Install"
+  fi
 
-echo "✅ $SERVICE_NAME fully stopped and removed!"
+  # -------------------------------
+  # Handle user response
+  # -------------------------------
+  if [ "$RESPONSE" != "Install" ]; then
+      echo "❌ Installation canceled by user."
+      if [ "$CONSOLE_USER" != "root" ] && [ -n "$CONSOLE_USER" ]; then
+          sudo -u "$CONSOLE_USER" osascript -e 'display dialog "mpn-core installation canceled." buttons {"OK"} default button "OK" with title "Installation Canceled"'
+      fi
+      exit 1
+  fi
+
+  echo "✅ User confirmed installation. Proceeding..."
+  echo "→ Stopping and removing $SERVICE_NAME ..."
+
+  # -------------------------------
+  # Stop and remove old service
+  # -------------------------------
+  launchctl stop com.$SERVICE_NAME 2>/dev/null || true
+  launchctl unload ~/Library/LaunchAgents/com.$SERVICE_NAME.plist 2>/dev/null || true
+
+  rm -f ~/Library/LaunchAgents/com.$SERVICE_NAME.plist
+  sudo rm -rf /usr/local/$SERVICE_NAME
+  rm -f ~/Library/Logs/$SERVICE_NAME.log
+  rm -f ~/Library/Logs/$SERVICE_NAME-error.log
+  rm -rf ~/Desktop/"MPN Core.app"
+
+  echo "✅ $SERVICE_NAME fully stopped and removed!"
+
+  echo "=== Preinstall finished at $(/bin/date) ==="
+  echo "Logs written to: $LOG_FILE"
+
+} >> "$LOG_FILE" 2>&1
+
+# Exit success
+exit 0
