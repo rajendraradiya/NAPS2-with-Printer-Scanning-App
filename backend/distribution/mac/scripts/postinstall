@@ -7,6 +7,7 @@
 LOG_FILE="/tmp/mpn-postinstall.log"
 BUILD_SCRIPT="/usr/local/mpn-core/build.sh"
 SERVICE_NAME="mpn-core"
+APP_NAME="MPN Core"
 
 # Ensure the log exists and is writable
 touch "$LOG_FILE"
@@ -17,6 +18,28 @@ chmod 666 "$LOG_FILE"
   echo "Script running as user: $(whoami)"
   echo "Working directory: $(pwd)"
   echo "Environment PATH: $PATH"
+  echo "-----------------------------------------"
+} >> "$LOG_FILE" 2>&1
+
+# -------------------------------
+# Display confirmation message
+# -------------------------------
+echo "⚠️  You are about to install ${APP_NAME}."
+echo "This process will:"
+echo "  • Create a desktop shortcut for quick access"
+echo "  • Install and start a background service"
+echo "  • Ensure the service runs automatically after boot"
+echo ""
+read -p "Do you want to continue? (y/N): " CONFIRM
+
+if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo "❌ Installation cancelled by user."
+    echo "Installation cancelled by user at $(/bin/date)" >> "$LOG_FILE"
+    exit 1
+fi
+
+{
+  echo "✅ User confirmed installation, proceeding..."
   echo "-----------------------------------------"
 
   # -------------------------------
