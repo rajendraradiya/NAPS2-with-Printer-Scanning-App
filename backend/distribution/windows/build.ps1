@@ -46,6 +46,6 @@ New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 Write-Host "Starting service..."
 & $nssmPath start $serviceName
 
-Write-Host "✅ MPN Service installed and running!"
+Write-Host "✅ MPN Core installed and running!"
 Start-Sleep -Seconds 2
 exit

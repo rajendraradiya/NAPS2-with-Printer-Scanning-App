@@ -36,9 +36,9 @@ function Install-NSSM {
 function Register-InPrograms {
     $uninstallKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$serviceName"
     New-Item -Path $uninstallKey -Force | Out-Null
-    Set-ItemProperty -Path $uninstallKey -Name "DisplayName" -Value "MPN Core Service"
+    Set-ItemProperty -Path $uninstallKey -Name "DisplayName" -Value "MPN Core"
     Set-ItemProperty -Path $uninstallKey -Name "DisplayVersion" -Value "1.0.0"
-    Set-ItemProperty -Path $uninstallKey -Name "Publisher" -Value "Your Company Name"
+    Set-ItemProperty -Path $uninstallKey -Name "Publisher" -Value "MPN"
     Set-ItemProperty -Path $uninstallKey -Name "InstallLocation" -Value "$PSScriptRoot"
     Set-ItemProperty -Path $uninstallKey -Name "UninstallString" -Value "powershell.exe -ExecutionPolicy Bypass -File `"$PSScriptRoot\install-mpn.ps1`" -uninstall"
     Set-ItemProperty -Path $uninstallKey -Name "NoModify" -Value 1 -Type DWord
