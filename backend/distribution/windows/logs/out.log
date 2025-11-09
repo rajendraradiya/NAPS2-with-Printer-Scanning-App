@@ -14,3 +14,5 @@ Backend running on port 52345
 Backend running on port 52345
 [dotenv@17.2.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
 Backend running on port 52345
+[dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+Backend running on port 52345

@@ -126,7 +126,15 @@ if (!(Test-Path $uninstallRegPath)) {
 # Paths
 $nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
 $serviceFilesPath = "$PSScriptRoot\mpn-core"
-$iconPath = "$PSScriptRoot\icon.ico"
+# Correct icon path
+$iconPath = Resolve-Path (Join-Path $PSScriptRoot "..\..\images\icon.ico")
+
+# Use it if it exists, fallback to exe
+if (Test-Path $iconPath) {
+    Set-ItemProperty -Path $uninstallRegPath -Name "DisplayIcon" -Value $iconPath
+} else {
+    Set-ItemProperty -Path $uninstallRegPath -Name "DisplayIcon" -Value "$PSScriptRoot\mpn-core-win.exe"
+}
 
 # ==========================================
 # Build uninstall script
