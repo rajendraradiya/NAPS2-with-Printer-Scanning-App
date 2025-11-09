@@ -4,7 +4,7 @@ SEDVersion=3
 [Options]
 PackagePurpose=InstallApp
 ShowInstallProgramWindow=0
-HideExtractAnimation=0
+HideExtractAnimation=1
 UseLongFileName=0
 InsideCompressed=0
 CAB_FixedSize=0
@@ -21,19 +21,21 @@ AdminQuietInstCmd=%AdminQuietInstCmd%
 UserQuietInstCmd=%UserQuietInstCmd%
 SourceFiles=SourceFiles
 [Strings]
-InstallPrompt=MPN Core Service has started automatically.
+InstallPrompt=MPN Core and NAPS2 services automatically start after installation and run in the background.
 DisplayLicense=
 FinishMessage=Installation completed successfully.
 TargetName=D:\NAPS2-with-Printer-Scanning-App\backend\setup\mpn-core-win.EXE
-FriendlyName=mpn-core
-AppLaunched=powershell.exe -ExecutionPolicy Bypass -File   build.ps1
+FriendlyName=mpn-core-win
+AppLaunched=powershell.exe -ExecutionPolicy Bypass -File build.ps1
 PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
 FILE0="build.ps1"
 FILE1="mpn-core-win.exe"
+FILE2="naps2-8.2.1-win-x64.exe"
 [SourceFiles]
 SourceFiles0=D:\NAPS2-with-Printer-Scanning-App\backend\distribution\windows\
 [SourceFiles0]
 %FILE0%=
 %FILE1%=
+%FILE2%=
