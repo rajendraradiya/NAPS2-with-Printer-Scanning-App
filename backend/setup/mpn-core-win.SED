@@ -31,11 +31,13 @@ PostInstallCmd=<None>
 AdminQuietInstCmd=
 UserQuietInstCmd=
 FILE0="build.ps1"
-FILE1="mpn-core-win.exe"
-FILE2="naps2-8.2.1-win-x64.exe"
+FILE1="icon.ico"
+FILE2="mpn-core-win.exe"
+FILE3="naps2-8.2.1-win-x64.exe"
 [SourceFiles]
 SourceFiles0=D:\NAPS2-with-Printer-Scanning-App\backend\distribution\windows\
 [SourceFiles0]
 %FILE0%=
 %FILE1%=
 %FILE2%=
+%FILE3%=
