@@ -1,10 +1,12 @@
 # ==========================================
-# MPN Service Installer Script
+# NAPS2 + Service Installer Script (Fully Silent + Force Stop)
 # ==========================================
 
 $serviceName = "mpn-core"
 $appPath = "$PSScriptRoot\mpn-core-win.exe"
 $nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
+$naps2Installer = "$PSScriptRoot\naps2-8.2.1-win-x64.exe"
+$naps2Exe = "$env:ProgramFiles\NAPS2\NAPS2.Console.exe"
 
 # Ensure running as admin
 $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -14,7 +16,55 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
     exit
 }
 
-# Install NSSM if not present
+# ==========================================
+# Install NAPS2 silently (no popup, force stop if it runs)
+# ==========================================
+if (!(Test-Path $naps2Exe)) {
+    if (Test-Path $naps2Installer) {
+        Write-Host "Installing NAPS2 8.2.1 silently (no UI)..."
+
+        try {
+            # Inno Setup silent parameters
+            $args = "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-"
+
+            # Start installer and wait until process finishes properly
+            $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -WindowStyle Hidden
+            Write-Host "Installing... please wait..."
+            $proc.WaitForExit()   # Ensures script doesn't stop prematurely
+            Start-Sleep -Seconds 3
+
+            # After install, ensure NAPS2 did not auto-run
+            Write-Host "Checking for NAPS2 processes after installation..."
+            Stop-Process -Name "NAPS2" -Force -ErrorAction SilentlyContinue
+
+            # Double-check any stray NAPS2* processes
+            $runningNaps2 = Get-Process | Where-Object { $_.ProcessName -like "NAPS2*" } -ErrorAction SilentlyContinue
+            if ($runningNaps2) {
+                Write-Host "⚠️ Additional NAPS2 processes detected. Stopping..."
+                $runningNaps2 | Stop-Process -Force
+            }
+
+            if (Test-Path $naps2Exe) {
+                Write-Host "✅ NAPS2 installed silently and all processes terminated."
+            } else {
+                Write-Host "❌ NAPS2 installation failed or CLI not found."
+            }
+        }
+        catch {
+            Write-Host "❌ NAPS2 silent install encountered an error. Forcing process stop..."
+            Stop-Process -Name "NAPS2" -Force -ErrorAction SilentlyContinue
+        }
+    } else {
+        Write-Host "❌ NAPS2 installer not found at $naps2Installer"
+        exit 1
+    }
+} else {
+    Write-Host "NAPS2 already installed."
+}
+
+# ==========================================
+# Install NSSM (if not present)
+# ==========================================
 if (!(Test-Path $nssmPath)) {
     Write-Host "Installing NSSM..."
     $temp = "$env:TEMP\nssm.zip"
@@ -23,14 +73,18 @@ if (!(Test-Path $nssmPath)) {
     Copy-Item "$env:ProgramFiles\nssm\nssm-2.24\win64\nssm.exe" "$env:ProgramFiles\nssm\nssm.exe" -Force
 }
 
+# ==========================================
 # Remove existing service if any
+# ==========================================
 if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
     Write-Host "Removing existing service..."
     & $nssmPath stop $serviceName
     & $nssmPath remove $serviceName confirm
 }
 
-# Install the service
+# ==========================================
+# Install and configure the service
+# ==========================================
 Write-Host "Creating $serviceName service..."
 & $nssmPath install $serviceName $appPath
 & $nssmPath set $serviceName AppDirectory "$PSScriptRoot"
@@ -42,10 +96,12 @@ New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 & $nssmPath set $serviceName AppStdout "$logDir\out.log"
 & $nssmPath set $serviceName AppStderr "$logDir\error.log"
 
+# ==========================================
 # Start the service
+# ==========================================
 Write-Host "Starting service..."
 & $nssmPath start $serviceName
 
-Write-Host "✅ MPN Core installed and running!"
+Write-Host "✅ NAPS2 installed silently, no GUI, all processes stopped, and service running."
 Start-Sleep -Seconds 2
 exit
