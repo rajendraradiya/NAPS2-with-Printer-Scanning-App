@@ -43,14 +43,16 @@ ________________________________________________________________________________
 # Stop service Linux
 sudo systemctl stop mpn-core-linux.service
 
-
+______| windows |______________________________________________________________________________________--________
 #Stop service windows
 
 $nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
 & $nssmPath stop mpn-core
 & $nssmPath remove mpn-core confirm
 
-Stop-Process -Name "NAPS2" -Force
+or
+
+ & "$env:ProgramFiles\nssm\nssm.exe" stop mpn-core; & "$env:ProgramFiles\nssm\nssm.exe" remove mpn-core confirm
 
 <pre>
 # iexpress run command need
