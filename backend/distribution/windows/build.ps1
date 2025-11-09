@@ -1,5 +1,5 @@
 # ==========================================
-# NAPS2 + Service Installer Script (Fully Silent + Force Stop)
+# NAPS2 + Service Installer Script (Fully Silent + Force Stop + Uninstall Entry)
 # ==========================================
 
 $serviceName = "mpn-core"
@@ -7,6 +7,13 @@ $appPath = "$PSScriptRoot\mpn-core-win.exe"
 $nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
 $naps2Installer = "$PSScriptRoot\naps2-8.2.1-win-x64.exe"
 $naps2Exe = "$env:ProgramFiles\NAPS2\NAPS2.Console.exe"
+$iconPath = Join-Path $PSScriptRoot "..\..\images\icon.ico"
+try {
+    $iconPath = (Resolve-Path $iconPath).Path
+} catch {
+    Write-Host "⚠️ Icon file not found at expected location: $iconPath"
+    $iconPath = "$PSScriptRoot\mpn-core-win.exe"  # fallback
+}
 
 # Ensure running as admin
 $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -30,7 +37,7 @@ if (!(Test-Path $naps2Exe)) {
             # Start installer and wait until process finishes properly
             $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -WindowStyle Hidden
             Write-Host "Installing... please wait..."
-            $proc.WaitForExit()   # Ensures script doesn't stop prematurely
+            $proc.WaitForExit()
             Start-Sleep -Seconds 3
 
             # After install, ensure NAPS2 did not auto-run
@@ -104,4 +111,36 @@ Write-Host "Starting service..."
 
 Write-Host "✅ NAPS2 installed silently, no GUI, all processes stopped, and service running."
 Start-Sleep -Seconds 2
+
+# ==========================================
+# Create Control Panel Uninstall Entry
+# ==========================================
+Write-Host "Registering uninstall entry in Control Panel..."
+
+$uninstallRegPath = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\mpn-core"
+if (!(Test-Path $uninstallRegPath)) {
+    New-Item -Path $uninstallRegPath -Force | Out-Null
+}
+
+# Uninstall command (stops and removes service, deletes registry entry)
+$uninstallCmd = "`"$nssmPath`" stop mpn-core; `"$nssmPath`" remove mpn-core confirm; Remove-Item -Recurse -Force `"$uninstallRegPath`""
+
+Set-ItemProperty -Path $uninstallRegPath -Name "DisplayName" -Value "MPN Core"
+Set-ItemProperty -Path $uninstallRegPath -Name "DisplayVersion" -Value "1.0.0"
+Set-ItemProperty -Path $uninstallRegPath -Name "Publisher" -Value "Your Company Name"
+Set-ItemProperty -Path $uninstallRegPath -Name "InstallLocation" -Value "$PSScriptRoot"
+Set-ItemProperty -Path $uninstallRegPath -Name "UninstallString" -Value "powershell.exe -ExecutionPolicy Bypass -Command $uninstallCmd"
+Set-ItemProperty -Path $uninstallRegPath -Name "QuietUninstallString" -Value "powershell.exe -ExecutionPolicy Bypass -Command $uninstallCmd"
+
+# Use .ico file if exists, otherwise fallback to .exe
+if (Test-Path $iconPath) {
+    Set-ItemProperty -Path $uninstallRegPath -Name "DisplayIcon" -Value $iconPath
+} else {
+    Set-ItemProperty -Path $uninstallRegPath -Name "DisplayIcon" -Value "$PSScriptRoot\mpn-core-win.exe"
+}
+
+Set-ItemProperty -Path $uninstallRegPath -Name "NoModify" -Value 1 -Type DWord
+Set-ItemProperty -Path $uninstallRegPath -Name "NoRepair" -Value 1 -Type DWord
+
+Write-Host "✅ Uninstall entry created in Control Panel as 'MPN Core'."
 exit
