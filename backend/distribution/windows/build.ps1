@@ -9,7 +9,7 @@ $appPath = Join-Path $PSScriptRoot "mpn-core-win.exe"
 $nssmPath = Join-Path $env:ProgramFiles "nssm\nssm.exe"
 $naps2Installer = Join-Path $PSScriptRoot "naps2-8.2.1-win-x64.exe"
 $naps2Exe = Join-Path $env:ProgramFiles "NAPS2\NAPS2.Console.exe"
-$iconPath = Join-Path $PSScriptRoot "icon.ico"
+$iconPath = "$PSScriptRoot\icon.ico"
 
 # Resolve icon path with fallback
 try {
@@ -34,7 +34,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 # ==========================================
 if (!(Test-Path $naps2Exe)) {
     if (Test-Path $naps2Installer) {
-        Write-Host "Installing NAPS2..."
+        Write-Host "Installing NAPS2 silently..."
         $args = "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/SP-"
         $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -WindowStyle Hidden
         $proc.WaitForExit()
