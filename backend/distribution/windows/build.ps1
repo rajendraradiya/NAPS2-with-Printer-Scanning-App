@@ -11,9 +11,7 @@ $naps2Installer = Join-Path $PSScriptRoot "naps2-8.2.1-win-x64.exe"
 $naps2Exe = Join-Path $env:ProgramFiles "NAPS2\NAPS2.Console.exe"
 $iconPath = Join-Path $PSScriptRoot "icon.ico"
 
-# ==========================================
 # Resolve icon path with fallback
-# ==========================================
 try {
     $iconPath = (Resolve-Path $iconPath).Path
 } catch {
@@ -140,23 +138,4 @@ Set-ItemProperty -Path $uninstallRegPath -Name "NoModify" -Value 1 -Type DWord
 Set-ItemProperty -Path $uninstallRegPath -Name "NoRepair" -Value 1 -Type DWord
 
 Write-Host "✅ Uninstall entry created in Control Panel as 'MPN Core'."
-
-# ==========================================
-# Show completion message (safe + icon)
-# ==========================================
-try {
-    Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
-    [System.Windows.MessageBox]::Show(
-        "Installation completed successfully!",
-        "MPN Core Installer",
-        [System.Windows.MessageBoxButton]::OK,
-        [System.Windows.MessageBoxImage]::Information
-    ) | Out-Null
-} catch {
-    Write-Host ""
-    Write-Host "============================================"
-    Write-Host "✅ Installation completed successfully!"
-    Write-Host "============================================"
-}
-
 exit
