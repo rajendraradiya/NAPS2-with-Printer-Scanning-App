@@ -4,12 +4,14 @@
 
 $ErrorActionPreference = "Stop"
 
+Add-Type -AssemblyName System.Windows.Forms
+
 $serviceName = "mpn-core"
 $appPath = Join-Path $PSScriptRoot "mpn-core-win.exe"
 $nssmPath = Join-Path $env:ProgramFiles "nssm\nssm.exe"
 $naps2Installer = Join-Path $PSScriptRoot "naps2-8.2.1-win-x64.exe"
 $naps2Exe = Join-Path $env:ProgramFiles "NAPS2\NAPS2.Console.exe"
-$iconPath = "$PSScriptRoot\icon.ico"
+$iconPath = Join-Path $PSScriptRoot "icon.ico"
 
 # Resolve icon path with fallback
 try {
@@ -34,7 +36,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 # ==========================================
 if (!(Test-Path $naps2Exe)) {
     if (Test-Path $naps2Installer) {
-        Write-Host "Installing NAPS2 silently..."
+        Write-Host "Installing NAPS2..."
         $args = "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/SP-"
         $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -WindowStyle Hidden
         $proc.WaitForExit()
@@ -138,4 +140,15 @@ Set-ItemProperty -Path $uninstallRegPath -Name "NoModify" -Value 1 -Type DWord
 Set-ItemProperty -Path $uninstallRegPath -Name "NoRepair" -Value 1 -Type DWord
 
 Write-Host "✅ Uninstall entry created in Control Panel as 'MPN Core'."
+
+# ==========================================
+# Show completion message dialog box
+# ==========================================
+[System.Windows.Forms.MessageBox]::Show(
+    "Installation completed successfully!",
+    "MPN Core Installer",
+    [System.Windows.Forms.MessageBoxButtons]::OK,
+    [System.Windows.Forms.MessageBoxIcon]::Information
+) | Out-Null
+
 exit
