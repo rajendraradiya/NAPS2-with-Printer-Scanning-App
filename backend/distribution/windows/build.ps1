@@ -1,9 +1,6 @@
 # ==========================================
 # NAPS2 + Service Installer Script (Fully Silent + Force Stop + Uninstall Entry)
 # ==========================================
-
-$ErrorActionPreference = "Stop"
-
 $serviceName = "mpn-core"
 $appPath = Join-Path $PSScriptRoot "mpn-core-win.exe"
 $nssmPath = Join-Path $env:ProgramFiles "nssm\nssm.exe"
