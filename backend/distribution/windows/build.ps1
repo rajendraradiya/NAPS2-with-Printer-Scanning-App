@@ -19,7 +19,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 
         $psi = New-Object System.Diagnostics.ProcessStartInfo
         $psi.FileName = "powershell.exe"
-        $psi.Arguments = "-ExecutionPolicy Bypass -NoExit -File `"$PSCommandPath`""
+        $psi.Arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
         $psi.Verb = "runas"
         $psi.UseShellExecute = $true
         $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Normal
@@ -49,14 +49,17 @@ try {
 # ==========================================
 if (!(Test-Path $naps2Exe)) {
     if (Test-Path $naps2Installer) {
-        Write-Host "Installing NAPS2 8.2.1 silently..."
+        Write-Host "Installing NAPS2 silently..."
         $args = "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/SP-"
-        $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -Wait
-        Start-Sleep -Seconds 2
+        $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -WindowStyle Hidden
+        $proc.WaitForExit()
+        Start-Sleep -Seconds 1
+
+        # Kill any NAPS2 processes
         Get-Process | Where-Object { $_.ProcessName -like "NAPS2*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
         if (Test-Path $naps2Exe) {
-            Write-Host "✅ NAPS2 installed successfully at $($naps2Exe)"
+            Write-Host "✅ NAPS2 installed successfully."
         } else {
             Write-Host "❌ NAPS2 installation failed."
         }
@@ -129,7 +132,7 @@ Write-Host 'Deleting service files...'
 Remove-Item -Recurse -Force `"$PSScriptRoot`" -ErrorAction SilentlyContinue
 Write-Host 'Removing uninstall registry entry...'
 Remove-Item -Recurse -Force `"$uninstallRegPath`" -ErrorAction SilentlyContinue
-Write-Host '✅ Uninstallation completed.'
+Write-Host 'Uninstallation completed.'
 "@
 
 $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($uninstallScript))
