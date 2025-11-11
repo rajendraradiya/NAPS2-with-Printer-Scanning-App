@@ -10,18 +10,22 @@ $naps2Exe = Join-Path $env:ProgramFiles "NAPS2\NAPS2.Console.exe"
 $iconPath = Join-Path $PSScriptRoot "icon.ico"
 
 # ==========================================
-# Elevate once — ensure running as Administrator
+# Ensure running as Administrator (silent elevation)
 # ==========================================
 $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     try {
         Write-Host "Requesting administrator privileges..." -ForegroundColor Yellow
 
+        # Resolve full path of the current script safely
+        $scriptPath = (Get-Item -Path $MyInvocation.MyCommand.Definition).FullName
+
         $psi = New-Object System.Diagnostics.ProcessStartInfo
         $psi.FileName = "powershell.exe"
-        $psi.Arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
+        $psi.Arguments = "-ExecutionPolicy Bypass -NoProfile -File `"$scriptPath`""
         $psi.Verb = "runas"
         $psi.UseShellExecute = $true
+        $psi.WorkingDirectory = Split-Path $scriptPath
         $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Normal
 
         [System.Diagnostics.Process]::Start($psi) | Out-Null
@@ -136,7 +140,7 @@ Write-Host 'Uninstallation completed.'
 "@
 
 $encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($uninstallScript))
-$uninstallCmd = "powershell.exe -ExecutionPolicy Bypass -NoExit -EncodedCommand $encoded"
+$uninstallCmd = "powershell.exe -ExecutionPolicy Bypass -EncodedCommand $encoded"
 
 Set-ItemProperty -Path $uninstallRegPath -Name "DisplayName" -Value "MPN Core"
 Set-ItemProperty -Path $uninstallRegPath -Name "DisplayVersion" -Value "1.0.0"
