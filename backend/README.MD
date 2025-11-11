@@ -58,6 +58,9 @@ or
 # iexpress run command need
 powershell.exe -ExecutionPolicy Bypass -File build.ps1
 
+powershell.exe -ExecutionPolicy Bypass -NoExit -File "build.ps1"
+
+
 Message
 MPN Core and NAPS2 services automatically start after installation and run in the background.
 
