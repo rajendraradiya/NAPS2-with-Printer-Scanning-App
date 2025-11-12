@@ -12,31 +12,23 @@ $iconPath = Join-Path $PSScriptRoot "icon.ico"
 # ==========================================
 # Ensure running as Administrator (silent elevation)
 # ==========================================
+
 $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Restarting script as administrator..."
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = "powershell.exe"
+    $psi.Arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
+    $psi.Verb = "runas"
     try {
-        Write-Host "Requesting administrator privileges..." -ForegroundColor Yellow
-
-        # Resolve full path of the current script safely
-        $scriptPath = (Get-Item -Path $MyInvocation.MyCommand.Definition).FullName
-
-        $psi = New-Object System.Diagnostics.ProcessStartInfo
-        $psi.FileName = "powershell.exe"
-        $psi.Arguments = "-ExecutionPolicy Bypass -NoProfile -File `"$scriptPath`""
-        $psi.Verb = "runas"
-        $psi.UseShellExecute = $true
-        $psi.WorkingDirectory = Split-Path $scriptPath
-        $psi.WindowStyle = [System.Diagnostics.ProcessWindowStyle]::Normal
-
         [System.Diagnostics.Process]::Start($psi) | Out-Null
-        exit
-    }
-    catch {
-        $wshell = New-Object -ComObject WScript.Shell
-        $wshell.Popup("❌ Administrator privileges are required to continue.`nInstallation cancelled.", 5, "Installation Aborted", 48)
+    } catch {
+        Write-Host "⚠️ Administrator rights required. Exiting."
         exit 1
     }
+    exit
 }
+
 
 # ==========================================
 # Resolve icon path (fallback to app)
@@ -57,7 +49,7 @@ if (!(Test-Path $naps2Exe)) {
         $args = "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/SP-"
         $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -WindowStyle Hidden
         $proc.WaitForExit()
-        Start-Sleep -Seconds 1
+        Start-Sleep -Seconds 3
 
         # Kill any NAPS2 processes
         Get-Process | Where-Object { $_.ProcessName -like "NAPS2*" } | Stop-Process -Force -ErrorAction SilentlyContinue
