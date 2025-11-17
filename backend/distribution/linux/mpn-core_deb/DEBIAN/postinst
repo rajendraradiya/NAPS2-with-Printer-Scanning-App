@@ -1,32 +1,39 @@
 #!/bin/bash
 set -e
 
-echo "📦 Installing NAPS2 (safe apt install)..."
+echo ""
+echo "⚠️  You are about to install mpn-core."
+echo "This process will:"
+echo "  • Create a desktop shortcut for quick access"
+echo "  • Install and start a background service"
+echo "  • Ensure the service runs automatically after boot"
+echo ""
+read -p "Do you want to continue? (y/n): " CONFIRM
 
-NAPS2_DEB="/usr/share/mpn-core/naps2-8.2.0-linux-x64.deb"
-
-if [ -f "$NAPS2_DEB" ]; then
-    apt-get update -y
-    apt-get install -y "$NAPS2_DEB"
-    echo "✅ NAPS2 installed successfully."
-else
-    echo "❌ ERROR: NAPS2 installer not found at $NAPS2_DEB"
+if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo "❌ Installation cancelled by user."
     exit 1
 fi
 
-echo "⚠️ Installing main application (mpn-core)..."
+# Reload and enable service
 systemctl daemon-reload
 systemctl enable mpn-core.service
 systemctl start mpn-core.service
 
-update-desktop-database || true
-gtk-update-icon-cache /usr/share/icons/hicolor || true
+# Update desktop and icon caches
+if command -v update-desktop-database &>/dev/null; then
+    update-desktop-database
+fi
+if command -v gtk-update-icon-cache &>/dev/null; then
+    gtk-update-icon-cache /usr/share/icons/hicolor || true
+fi
 
+# Copy desktop shortcut to user's Desktop
 USER_DESKTOP="/home/$SUDO_USER/Desktop"
 if [ -d "$USER_DESKTOP" ]; then
     cp /usr/share/applications/mpn-core.desktop "$USER_DESKTOP/"
     chmod +x "$USER_DESKTOP/mpn-core.desktop"
 fi
 
-echo "✅ Installation complete."
+echo "✅ mpn-core installed and service started successfully."
 exit 0

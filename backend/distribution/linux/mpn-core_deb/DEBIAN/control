@@ -4,4 +4,4 @@ Section: utils
 Priority: optional
 Architecture: amd64
 Maintainer: Your Name <you@example.com>
-Description: mpn-core – Includes automatic NAPS2 installation
+Description: mpn-core – Linux service with desktop shortcut

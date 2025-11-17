@@ -1,5 +1,11 @@
 #!/bin/bash
 set -e
-rm -f /lib/systemd/system/mpn-core.service || true
+
+echo "🧹 Cleaning up residual files for mpn-core..."
+
+if [ -f "/lib/systemd/system/mpn-core.service" ]; then
+    rm -f /lib/systemd/system/mpn-core.service
+fi
+
 systemctl daemon-reload || true
 exit 0
