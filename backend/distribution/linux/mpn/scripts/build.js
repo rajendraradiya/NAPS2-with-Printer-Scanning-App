@@ -21,8 +21,6 @@ const DEBIAN_DIR = path.join(BUILD_DIR, "DEBIAN");
 const BIN_DIR = path.join(BUILD_DIR, "usr", "bin");
 const DESKTOP_DIR = path.join(BUILD_DIR, "usr", "share", "applications");
 const SYSTEMD_DIR = path.join(BUILD_DIR, "lib", "systemd", "system");
-const INSTALLER_PATH = path.join(ROOT, "installer.sh");
-const NAPS2_EXECUTABLE = path.join(ROOT, "naps2-8.2.0-linux-x64.deb");
 const ICON_INSTALL_DIR = path.join(
   BUILD_DIR,
   "usr",
@@ -33,7 +31,7 @@ const ICON_INSTALL_DIR = path.join(
   "apps"
 );
 
-const OUTPUT_DIR = path.join(ROOT, "..");
+const OUTPUT_DIR = path.join(ROOT,"..");
 const OUTPUT_DEB = path.join(OUTPUT_DIR, `${APP_NAME}.deb`);
 
 // ---------- NEW CLEANUP SECTION ----------
@@ -67,22 +65,6 @@ ensureDir(DESKTOP_DIR);
 ensureDir(SYSTEMD_DIR);
 ensureDir(ICON_INSTALL_DIR);
 ensureDir(OUTPUT_DIR);
-
-// Ensure bin dir exists
-ensureDir(BIN_DIR);
-
-// Copy main executable
-fs.copyFileSync(EXECUTABLE, path.join(BIN_DIR, APP_NAME));
-fs.chmodSync(path.join(BIN_DIR, APP_NAME), 0o755);
-
-// Copy NAPS2 deb inside the package
-if (!fs.existsSync(NAPS2_EXECUTABLE)) {
-  console.error(`❌ NAPS2_EXECUTABLE not found at: ${NAPS2_EXECUTABLE}`);
-  process.exit(1);
-}
-const PACKAGE_NAPS2_PATH = path.join(BIN_DIR, "naps2-8.2.0-linux-x64.deb");
-fs.copyFileSync(NAPS2_EXECUTABLE, PACKAGE_NAPS2_PATH);
-fs.chmodSync(PACKAGE_NAPS2_PATH, 0o644);
 
 // verify executable exists
 if (!fs.existsSync(EXECUTABLE)) {
@@ -189,11 +171,6 @@ if [ -d "$USER_DESKTOP" ]; then
 fi
 
 echo "✅ ${APP_NAME} installed."
-
-echo "To complete setup, run:"
-echo "sudo /usr/share/mpn-core/installer.sh"
-echo ""
-
 exit 0
 `.trimStart(),
   0o755
