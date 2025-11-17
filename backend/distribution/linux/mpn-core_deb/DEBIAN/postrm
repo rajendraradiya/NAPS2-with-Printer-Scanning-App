@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🧹 Cleaning up residual files for mpn-core..."
+echo "🧹 Cleaning files..."
 
 if [ -f "/lib/systemd/system/mpn-core.service" ]; then
     rm -f /lib/systemd/system/mpn-core.service

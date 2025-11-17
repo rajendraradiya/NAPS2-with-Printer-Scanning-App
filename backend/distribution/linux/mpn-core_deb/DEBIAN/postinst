@@ -4,23 +4,21 @@ set -e
 echo ""
 echo "⚠️  You are about to install mpn-core."
 echo "This process will:"
-echo "  • Create a desktop shortcut for quick access"
-echo "  • Install and start a background service"
-echo "  • Ensure the service runs automatically after boot"
+echo "  • Create desktop shortcut"
+echo "  • Install and start service"
 echo ""
+
 read -p "Do you want to continue? (y/n): " CONFIRM
 
 if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
-    echo "❌ Installation cancelled by user."
+    echo "❌ Installation cancelled."
     exit 1
 fi
 
-# Reload and enable service
 systemctl daemon-reload
 systemctl enable mpn-core.service
 systemctl start mpn-core.service
 
-# Update desktop and icon caches
 if command -v update-desktop-database &>/dev/null; then
     update-desktop-database
 fi
@@ -28,12 +26,11 @@ if command -v gtk-update-icon-cache &>/dev/null; then
     gtk-update-icon-cache /usr/share/icons/hicolor || true
 fi
 
-# Copy desktop shortcut to user's Desktop
 USER_DESKTOP="/home/$SUDO_USER/Desktop"
 if [ -d "$USER_DESKTOP" ]; then
     cp /usr/share/applications/mpn-core.desktop "$USER_DESKTOP/"
     chmod +x "$USER_DESKTOP/mpn-core.desktop"
 fi
 
-echo "✅ mpn-core installed and service started successfully."
+echo "✅ mpn-core installed."
 exit 0
