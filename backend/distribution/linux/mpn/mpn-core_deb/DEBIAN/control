@@ -1,0 +1,7 @@
+Package: mpn-core
+Version: 1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Your Name <you@example.com>
+Description: mpn-core – Linux service with desktop shortcut
