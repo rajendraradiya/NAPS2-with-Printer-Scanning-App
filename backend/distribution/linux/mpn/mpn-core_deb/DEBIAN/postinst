@@ -33,9 +33,4 @@ if [ -d "$USER_DESKTOP" ]; then
 fi
 
 echo "✅ mpn-core installed."
-
-echo "To complete setup, run:"
-echo "sudo /usr/share/mpn-core/installer.sh"
-echo ""
-
 exit 0

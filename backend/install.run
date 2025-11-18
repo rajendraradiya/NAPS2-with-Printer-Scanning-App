@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+echo "Starting installation of mpn-core and NAPS2..."
+
+# Wait until dpkg lock is free
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+    echo "dpkg is busy, waiting 2 seconds..."
+    sleep 2
+done
+
+# Create temporary folder
+TMPDIR=$(mktemp -d)
+
+# Extract embedded archive
+ARCHIVE_LINE=$(awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' "$0")
+tail -n +$ARCHIVE_LINE "$0" | tar -xz -C "$TMPDIR"
+
+# Install .deb files
+sudo dpkg -i "$TMPDIR"/mpn-core.deb "$TMPDIR"/naps2-8.2.0-linux-x64.deb || true
+sudo apt-get -f install -y
+
+echo "Installation complete!"
+
+# Cleanup
+rm -rf "$TMPDIR"
+exit 0
+
+__ARCHIVE_BELOW__

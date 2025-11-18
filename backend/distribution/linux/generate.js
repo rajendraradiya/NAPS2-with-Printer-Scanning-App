@@ -3,7 +3,12 @@ const { execSync } = require('child_process');
 const path = require('path');
 
 const INSTALLER_NAME = 'install.run';
-const DEB_FILES = ['mpn-core.deb', 'naps2-8.2.0-linux-x64.deb'];
+
+const DEB_FILES = [
+  path.join(__dirname, 'mpn-core.deb'),
+  path.join(__dirname, 'naps2-8.2.0-linux-x64.deb')
+];
+
 
 const SCRIPT_HEADER = `#!/bin/bash
 set -e
