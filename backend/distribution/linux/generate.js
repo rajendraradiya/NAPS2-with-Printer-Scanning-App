@@ -4,11 +4,11 @@ const path = require('path');
 
 const INSTALLER_NAME = 'install.run';
 
+// Paths to .deb files in the same folder as this script
 const DEB_FILES = [
   path.join(__dirname, 'mpn-core.deb'),
   path.join(__dirname, 'naps2-8.2.0-linux-x64.deb')
 ];
-
 
 const SCRIPT_HEADER = `#!/bin/bash
 set -e
@@ -44,7 +44,7 @@ __ARCHIVE_BELOW__
 // 1. Check .deb files exist in current directory
 const missingFiles = DEB_FILES.filter(f => !fs.existsSync(f));
 if (missingFiles.length) {
-  console.error(`Error: Missing .deb files in current folder: ${missingFiles.join(', ')}`);
+  console.error(`Error: Missing .deb files in current folder:\n${missingFiles.join('\n')}`);
   process.exit(1);
 }
 
@@ -60,12 +60,25 @@ console.log('Created new install.run header');
 
 // 4. Create tar.gz archive of the .deb files
 const TAR_NAME = 'packages.tar.gz';
-execSync(`tar czf ${TAR_NAME} ${DEB_FILES.join(' ')}`);
-console.log('Created packages.tar.gz archive');
+
+// Quote each file to handle spaces
+const tarCommand = `tar czf "${TAR_NAME}" ${DEB_FILES.map(f => `"${f}"`).join(' ')}`;
+try {
+  execSync(tarCommand, { stdio: 'inherit' });
+  console.log('Created packages.tar.gz archive');
+} catch (err) {
+  console.error('Error creating tar.gz archive:', err);
+  process.exit(1);
+}
 
 // 5. Append archive to install.run
-execSync(`cat ${TAR_NAME} >> ${INSTALLER_NAME}`);
-console.log('Appended archive to install.run');
+try {
+  execSync(`cat "${TAR_NAME}" >> "${INSTALLER_NAME}"`, { stdio: 'inherit' });
+  console.log('Appended archive to install.run');
+} catch (err) {
+  console.error('Error appending archive:', err);
+  process.exit(1);
+}
 
 // 6. Make install.run executable
 fs.chmodSync(INSTALLER_NAME, 0o755);
