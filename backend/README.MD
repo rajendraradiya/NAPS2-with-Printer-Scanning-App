@@ -37,11 +37,16 @@ rm -rf ~/Desktop/"MPN Core.app"
 
 
 
-pkill -f naps2-service
-__________________________________________________________________________________________________________________
 
-# Stop service Linux
-sudo systemctl stop mpn-core-linux.service
+_______|   Linux  |___________________________________________________________________________________________________________
+
+
+
+sudo dpkg --purge mpn-core
+sudo dpkg --purge naps2
+dpkg -l | grep -E 'mpn-core|naps2'
+sudo rm -rf /opt/dual-installer
+sudo apt-get remove  mpn-core naps2
 
 ______| windows |______________________________________________________________________________________--________
 #Stop service windows
@@ -67,9 +72,3 @@ MPN Core and NAPS2 services automatically start after installation and run in th
 Installation completed successfully.
 </pre>
 </pre>
-
-
-
-
-
-
