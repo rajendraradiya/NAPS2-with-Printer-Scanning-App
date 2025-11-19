@@ -13,21 +13,21 @@ $iconPath = Join-Path $PSScriptRoot "icon.ico"
 # Ensure running as Administrator (silent elevation)
 # ==========================================
 
-$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "Restarting script as administrator..."
-    $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = "powershell.exe"
-    $psi.Arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    $psi.Verb = "runas"
-    try {
-        [System.Diagnostics.Process]::Start($psi) | Out-Null
-    } catch {
-        Write-Host "⚠️ Administrator rights required. Exiting."
-        exit 1
-    }
-    exit
-}
+# $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+# if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+#     Write-Host "Restarting script as administrator..."
+#     $psi = New-Object System.Diagnostics.ProcessStartInfo
+#     $psi.FileName = "powershell.exe"
+#     $psi.Arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
+#     $psi.Verb = "runas"
+#     try {
+#         [System.Diagnostics.Process]::Start($psi) | Out-Null
+#     } catch {
+#         Write-Host "⚠️ Administrator rights required. Exiting."
+#         exit 1
+#     }
+#     exit
+# }
 
 
 # ==========================================

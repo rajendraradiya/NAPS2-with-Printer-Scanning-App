@@ -1,2 +1,0 @@
-[dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
-Backend running on port 52345
