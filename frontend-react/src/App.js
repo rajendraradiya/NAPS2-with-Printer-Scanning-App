@@ -6,7 +6,7 @@ import LinuxIcon from "./assets/linux-icon.png";
 import macIcon from "./assets/mac-icon.png";
 
 // import winFIle from "/setup/mpn-core-win.EXE";
-// import linuxFile from "/setup/mpn-core-linux.deb";
+// import linuxFile from "/setup/mpn-core-linux.run";
 // import macFile from "/setup/mpn-core-mac.pkg";
 import DeviceLoader from "./components/DeviceLoader";
 import ScannerLoader from "./components/ScannerLoader";
@@ -35,7 +35,7 @@ export default function ScannerApp() {
     downloadFile("/setup/mpn-core-win.EXE", "mpn-core-win.EXE", false);
   };
   const linuxBackendServiceDownload = () => {
-    downloadFile("/setup/mpn-core-linux.deb", "mpn-core-linux.deb", false);
+    downloadFile("/setup/mpn-core-linux.run", "mpn-core-linux.run", false);
   };
   const macBackendServiceDownload = () => {
     downloadFile("/setup/mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
