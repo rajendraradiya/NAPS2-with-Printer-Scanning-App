@@ -1,4 +1,9 @@
-const PrintPreview = ({ imageBase64 = null, onNext, onSave }) => {
+const PrintPreview = ({
+  imageBase64 = null,
+  onNext,
+  onSave,
+  isNewScanCopy = false,
+}) => {
   return (
     <>
       <div
@@ -31,15 +36,19 @@ const PrintPreview = ({ imageBase64 = null, onNext, onSave }) => {
               className="flex justify-center items-center"
               style={{ height: "10vh" }}
             >
-              <button
-                className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
+              {/* <button
+                className={`${
+                  !isNewScanCopy ? "bg-gray-600" : "bg-blue-600"
+                } px-4  h-8 rounded-lg mr-2`}
                 onClick={() => onSave(imageBase64)}
+                disabled={!isNewScanCopy}
               >
                 Save Page
-              </button>
+              </button> */}
               <button
                 className="bg-blue-600 px-4  h-8 rounded-lg"
-                onClick={onNext}
+                onClick={() => onNext(imageBase64)}
+                disabled={!isNewScanCopy}
               >
                 Next Page Scan
               </button>

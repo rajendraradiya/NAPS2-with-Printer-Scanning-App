@@ -14,6 +14,7 @@ import InformationCard from "./components/InformationCard";
 import PrintPreview from "./components/PrintPreview";
 import { file } from "./components/temp";
 import MiniPrintPreview from "./components/MiniPrintPreview";
+import MpnDownloadGuide from "./components/MpnDownloadGuide";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -30,6 +31,7 @@ export default function ScannerApp() {
   const [deviceLoader, setDeviceLoader] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [openDialogBox, setOpenDialogBox] = useState(false);
+  const [openGuidelineDialogBox, setOpenGuidelineDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
   const [printList, setPrintList] = useState([]);
   const [isNewScanCopy, setIsNewScanCopy] = useState(false);
@@ -130,6 +132,7 @@ export default function ScannerApp() {
       // };
       setImageBase64(data.imageBase64);
       setIsNewScanCopy(true);
+      setPrintList((prev) => [...prev, data.imageBase64]);
       // window.parent.postMessage(message, "*");
     } catch (err) {
       console.log(err);
@@ -158,15 +161,18 @@ export default function ScannerApp() {
   };
 
   const onSave = (base64File = null) => {
-    console.log("calling", base64File);
-    if (!base64File || !isNewScanCopy) return;
-    setIsNewScanCopy(false);
-    setPrintList((prev) => [...prev, base64File]);
+    // if (!base64File || !isNewScanCopy) return;
+    // setIsNewScanCopy(false);
+    startScan();
   };
 
   const onPreview = (base64File = null) => {
     if (!base64File) return;
     setImageBase64(base64File);
+  };
+
+  const onSendToBackend = () => {
+    window.parent.postMessage(printList, "*");
   };
   return (
     <>
@@ -180,6 +186,10 @@ export default function ScannerApp() {
       />
       <ScannerLoader loader={loader} selectedDevice={selectedDevice} />
 
+      <MpnDownloadGuide
+        open={openGuidelineDialogBox}
+        onCloseDialogBox={() => setOpenGuidelineDialogBox(false)}
+      />
       <>
         <div className="h-screen w-screen flex flex-row">
           <div
@@ -206,12 +216,22 @@ export default function ScannerApp() {
                     ))}
                   </select>
                 </div>
-                <button
-                  className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
-                  onClick={startScan}
-                >
-                  Scan Now
-                </button>
+                <div>
+                  <button
+                    className="bg-blue-600 px-5  h-10 rounded-2xl mt-6 mr-4"
+                    onClick={startScan}
+                  >
+                    Scan Now
+                  </button>
+                  {printList && printList.length && (
+                    <button
+                      className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
+                      onClick={onSendToBackend}
+                    >
+                      Submit
+                    </button>
+                  )}
+                </div>
               </>
             ) : (
               <button
@@ -224,9 +244,16 @@ export default function ScannerApp() {
 
             <div className="text-center mt-10">
               <p className="text-gray-600">
-                ❗<b>Important : </b> For scanning, you’ll need the NAPS2
-                application and the mpn core file. <br /> You can download both
-                files from the links provided below.
+                ❗<b>Important : </b> For scanning, you’ll need both the NAPS2
+                application and the MPN Core file. <br /> You can download both
+                files from the links provided below and <br /> follow the
+                installation and setup instructions —{" "}
+                <b
+                  onClick={() => setOpenGuidelineDialogBox(true)}
+                  className="text-blue-500"
+                >
+                  click here.
+                </b>
               </p>
 
               <div className="flex justify-center my-4">
@@ -278,9 +305,8 @@ export default function ScannerApp() {
           >
             <PrintPreview
               imageBase64={imageBase64}
-              onSave={onSave}
+              onNext={onSave}
               isNewScanCopy={isNewScanCopy}
-              onNext={startScan}
             />
           </div>
         </div>
