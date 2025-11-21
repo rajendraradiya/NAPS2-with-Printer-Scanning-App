@@ -11,6 +11,9 @@ import macIcon from "./assets/mac-icon.png";
 import DeviceLoader from "./components/DeviceLoader";
 import ScannerLoader from "./components/ScannerLoader";
 import InformationCard from "./components/InformationCard";
+import PrintPreview from "./components/PrintPreview";
+import { file } from "./components/temp";
+import MiniPrintPreview from "./components/MiniPrintPreview";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -28,52 +31,17 @@ export default function ScannerApp() {
   const [isInstalled, setIsInstalled] = useState(false);
   const [openDialogBox, setOpenDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
-
-  // Fetch scanner devices from backend
-
-  const windowsBackendServiceDownload = () => {
-    downloadFile("/setup/mpn-core-win.EXE", "mpn-core-win.EXE", false);
-  };
-  const linuxBackendServiceDownload = () => {
-    downloadFile("/setup/mpn-core-linux.run", "mpn-core-linux.run", false);
-  };
-  const macBackendServiceDownload = () => {
-    downloadFile("/setup/mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
-  };
-
-  const windowsNAPS2Download = (isNewTab = false) => {
-    downloadFile(
-      "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-win-x64.exe",
-      "naps2-8.2.0-win-x64.exe",
-      isNewTab
-    );
-  };
-  const linuxNAPS2Download = (isNewTab = false) => {
-    downloadFile(
-      "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-linux-x64.deb",
-      "naps2-8.2.0-linux-x64.deb",
-      isNewTab
-    );
-  };
-  const macNAPS2Download = (isNewTab = false) => {
-    downloadFile(
-      "https://github.com/cyanfish/naps2/releases/download/v8.2.0/naps2-8.2.0-mac-univ.pkg",
-      "naps2-8.2.0-mac-univ.pkg",
-      isNewTab
-    );
-  };
+  const [printList, setPrintList] = useState([]);
+  const [isNewScanCopy, setIsNewScanCopy] = useState(false);
 
   const windowSetupDownload = () => {
-    windowsBackendServiceDownload();
-    windowsNAPS2Download(true);
+    downloadFile("/setup/mpn-core-win.EXE", "mpn-core-win.EXE", false);
   };
   const linuxSetupDownload = () => {
-    linuxBackendServiceDownload();
-    linuxNAPS2Download(true);
+    downloadFile("/setup/mpn-core.run", "mpn-core.run", false);
   };
   const macSetupDownload = () => {
-    macBackendServiceDownload();
-    macNAPS2Download(true);
+    downloadFile("/setup/mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {
@@ -156,12 +124,13 @@ export default function ScannerApp() {
       setCount(0);
       clearInterval(timer);
 
-      let message = {
-        status: "success",
-        data: `data:application/pdf;base64,${data.imageBase64}`,
-      };
-      // setImageBase64(data.imageBase64);
-      window.parent.postMessage(message, "*");
+      // let message = {
+      //   status: "success",
+      //   data: `data:application/pdf;base64,${data.imageBase64}`,
+      // };
+      setImageBase64(data.imageBase64);
+      setIsNewScanCopy(true);
+      // window.parent.postMessage(message, "*");
     } catch (err) {
       console.log(err);
       setLoader(false);
@@ -187,6 +156,18 @@ export default function ScannerApp() {
     getDeviceList();
     getSdkInformation();
   };
+
+  const onSave = (base64File = null) => {
+    console.log("calling", base64File);
+    if (!base64File || !isNewScanCopy) return;
+    setIsNewScanCopy(false);
+    setPrintList((prev) => [...prev, base64File]);
+  };
+
+  const onPreview = (base64File = null) => {
+    if (!base64File) return;
+    setImageBase64(base64File);
+  };
   return (
     <>
       <DialogBox
@@ -200,8 +181,11 @@ export default function ScannerApp() {
       <ScannerLoader loader={loader} selectedDevice={selectedDevice} />
 
       <>
-        <div className="flex h-screen w-screen">
-          <div className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center">
+        <div className="h-screen w-screen flex flex-row">
+          <div
+            className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center"
+            style={{ width: "80%" }}
+          >
             {/* <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1> */}
 
             <DeviceLoader deviceLoader={deviceLoader} devices={devices} />
@@ -285,45 +269,22 @@ export default function ScannerApp() {
               </div>
             </div>
           </div>
+
+          <MiniPrintPreview printList={printList} onPreview={onPreview} />
+
+          <div
+            className="w-full bg-white shadow-md flex flex-col items-center justify-center col-4"
+            style={{ width: "50%" }}
+          >
+            <PrintPreview
+              imageBase64={imageBase64}
+              onSave={onSave}
+              isNewScanCopy={isNewScanCopy}
+              onNext={startScan}
+            />
+          </div>
         </div>
       </>
-
-      {imageBase64 ? (
-        <div className="w-full h-screen p-6 bg-gray-100 shadow-md">
-          {imageBase64 ? (
-            <div className="mt-6 p-4">
-              <iframe
-                src={`data:application/pdf;base64,${imageBase64}`}
-                width="100%"
-                title="preview of pdf"
-                height="100%"
-                style={{ height: "100vh" }}
-              >
-                <p>
-                  Your browser does not support iframes. You can{" "}
-                  <a
-                    href={`data:application/pdf;base64,${imageBase64}`}
-                    download="your_document.pdf"
-                  >
-                    download the PDF
-                  </a>{" "}
-                  instead.
-                </p>
-              </iframe>
-            </div>
-          ) : (
-            <div className="w-full h-full border border-gray-300 flex justify-center items-center bg-gray-100">
-              <h6 className="text-gray-950">
-                <b>
-                  This section displays a live preview of the scanned document.
-                </b>
-              </h6>
-            </div>
-          )}
-        </div>
-      ) : (
-        ""
-      )}
     </>
   );
 }

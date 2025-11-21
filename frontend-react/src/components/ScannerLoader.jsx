@@ -10,8 +10,9 @@ const ScannerLoader = ({ loader, selectedDevice }) => {
             height: "100vh",
             width: "100vw",
             position: "fixed",
-            opacity: "0.98",
+            opacity: "1",
             top: "0",
+            zIndex: "1",
           }}
         >
           <div
