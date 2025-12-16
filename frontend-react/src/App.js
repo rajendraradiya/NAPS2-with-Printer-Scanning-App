@@ -20,6 +20,8 @@ const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
 });
 
+
+
 export default function ScannerApp() {
   const platform = window?.navigator?.platform?.split(" ")[0];
   const platform2 = window?.navigator?.userAgentData?.platform;
