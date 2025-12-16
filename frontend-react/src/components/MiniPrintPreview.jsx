@@ -3,14 +3,17 @@ const MiniPrintPreview = ({ printList = null, onPreview }) => {
     <>
       {printList && printList.length > 0 ? (
         <>
-          <div style={{ width: "200px" }} className="pt-4 px-4 scroll-auto">
+          <div
+            style={{ width: "200px", height: "100vh", overflow: "auto" }}
+            className="pt-4 px-4 scroll-auto"
+          >
             {printList.map((v, index) => (
               <>
                 <div className="relative">
                   <iframe
                     src={`data:application/pdf;base64,${v}#toolbar=0`}
                     title="preview of pdf"
-                    style={{ height: "160px", width: "100%" }}
+                    style={{ height: "180px", width: "100%" }}
                   >
                     <p>
                       Your browser does not support iframes. You can{" "}

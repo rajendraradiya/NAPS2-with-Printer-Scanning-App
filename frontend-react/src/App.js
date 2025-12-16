@@ -33,11 +33,12 @@ export default function ScannerApp() {
   const [openDialogBox, setOpenDialogBox] = useState(false);
   const [openGuidelineDialogBox, setOpenGuidelineDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(false);
   const [printList, setPrintList] = useState([]);
   const [isNewScanCopy, setIsNewScanCopy] = useState(false);
 
   const windowSetupDownload = () => {
-    downloadFile("/setup/mpn-core-win.EXE", "mpn-core-win.EXE", false);
+    downloadFile("/setup/mpn-core-win.exe", "mpn-core-win.exe", false);
   };
   const linuxSetupDownload = () => {
     downloadFile("/setup/mpn-core.run", "mpn-core.run", false);
@@ -59,10 +60,12 @@ export default function ScannerApp() {
   };
 
   const getSdkInformation = async () => {
+    setIsFirstTime(true);
     try {
       await axioInstance
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
+          setIsFirstTime(false);
           if (res.data.installed) {
             setIsInstalled(true);
           } else {
@@ -133,13 +136,16 @@ export default function ScannerApp() {
       setImageBase64(data.imageBase64);
       setIsNewScanCopy(true);
       setPrintList((prev) => [...prev, data.imageBase64]);
-      // window.parent.postMessage(message, "*");
     } catch (err) {
       console.log(err);
       setLoader(false);
       setCount(0);
       clearInterval(timer);
-      setImageBase64(null);
+      if (printList && printList.length > 1) {
+        setImageBase64(printList[printList.length - 1]);
+      } else {
+        setImageBase64(null);
+      }
       console.log(err);
       if (err.status === 500) {
         alert("Please scan again.");
@@ -161,6 +167,10 @@ export default function ScannerApp() {
   };
 
   const onSave = (base64File = null) => {
+    startScan();
+  };
+
+  const scanNexPage = (base64File = null) => {
     // if (!base64File || !isNewScanCopy) return;
     // setIsNewScanCopy(false);
     startScan();
@@ -192,123 +202,133 @@ export default function ScannerApp() {
       />
       <>
         <div className="h-screen w-screen flex flex-row">
-          <div
-            className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center"
-            style={{ width: "80%" }}
-          >
-            {/* <h1 className="text-2xl font-bold text-gray-800 mb-4">Scan PDF</h1> */}
+          {printList && printList.length === 0 ? (
+            <>
+              <div
+                className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center"
+                style={{ width: "100%" }}
+              >
+                <DeviceLoader deviceLoader={deviceLoader} devices={devices} />
 
-            <DeviceLoader deviceLoader={deviceLoader} devices={devices} />
+                {devices && devices.length ? (
+                  <>
+                    <div>
+                      <select
+                        style={{ minWidth: "340px" }}
+                        className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                        onChange={(e) => setSelectedDevice(e.target.value)}
+                      >
+                        <option value="">Select Device</option>
+                        {devices.map((d, i) => (
+                          <option key={i} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <button
+                        className="bg-blue-600 px-5  h-10 rounded-2xl mt-6 mr-4"
+                        onClick={startScan}
+                      >
+                        Scan Now
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <></>
+                )}
 
-            {devices && devices.length ? (
-              <>
-                <div>
-                  <select
-                    style={{ minWidth: "340px" }}
-                    className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                    onChange={(e) => setSelectedDevice(e.target.value)}
-                  >
-                    <option value="">Select Device</option>
-                    {devices.map((d, i) => (
-                      <option key={i} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <button
-                    className="bg-blue-600 px-5  h-10 rounded-2xl mt-6 mr-4"
-                    onClick={startScan}
-                  >
-                    Scan Now
-                  </button>
-                  {printList && printList.length && (
+                {isFirstTime ? (
+                  <>
                     <button
                       className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
-                      onClick={onSendToBackend}
+                      onClick={onRefreshHandler}
                     >
-                      Submit
+                      Refresh
                     </button>
-                  )}
+                  </>
+                ) : (
+                  <></>
+                )}
+
+                <div className="text-center mt-10">
+                  <p className="text-gray-600">
+                    ❗<b>Important : </b> To enable scanning, please download
+                    and install the MPN Core file using the link below and{" "}
+                    <br /> follow the installation and setup instructions —{" "}
+                    <b
+                      onClick={() => setOpenGuidelineDialogBox(true)}
+                      className="text-blue-500"
+                    >
+                      click here.
+                    </b>
+                  </p>
+
+                  <div className="flex justify-center my-4">
+                    <button
+                      className="text-blue-500 flex flex-col items-center"
+                      onClick={windowSetupDownload}
+                    >
+                      <img
+                        src={windowsIcon}
+                        alt="Windows Icon"
+                        className="h-10 w-10 object-contain"
+                        title="Windows"
+                      />
+                      <span className="mt-1"> Windows</span>
+                    </button>
+                    <button
+                      className="text-blue-500 flex flex-col items-center"
+                      onClick={linuxSetupDownload}
+                    >
+                      <img
+                        src={LinuxIcon}
+                        alt="Linux Icon"
+                        className="h-10 w-10 object-contain mx-8"
+                        title="Linux"
+                      />
+                      <span className="mt-1"> Linux</span>
+                    </button>
+                    <button
+                      className="text-blue-500 flex flex-col items-center"
+                      onClick={macSetupDownload}
+                    >
+                      <img
+                        src={macIcon}
+                        alt="Mac Icon"
+                        className="h-10 w-10 object-contain"
+                        title="Mac"
+                      />
+                      <span className="mt-1"> Mac</span>
+                    </button>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <button
-                className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
-                onClick={onRefreshHandler}
-              >
-                Refresh
-              </button>
-            )}
-
-            <div className="text-center mt-10">
-              <p className="text-gray-600">
-                ❗<b>Important : </b> For scanning, you’ll need both the NAPS2
-                application and the MPN Core file. <br /> You can download both
-                files from the links provided below and <br /> follow the
-                installation and setup instructions —{" "}
-                <b
-                  onClick={() => setOpenGuidelineDialogBox(true)}
-                  className="text-blue-500"
-                >
-                  click here.
-                </b>
-              </p>
-
-              <div className="flex justify-center my-4">
-                <button
-                  className="text-blue-500 flex flex-col items-center"
-                  onClick={windowSetupDownload}
-                >
-                  <img
-                    src={windowsIcon}
-                    alt="Windows Icon"
-                    className="h-10 w-10 object-contain"
-                    title="Windows"
-                  />
-                  <span className="mt-1"> Windows</span>
-                </button>
-                <button
-                  className="text-blue-500 flex flex-col items-center"
-                  onClick={linuxSetupDownload}
-                >
-                  <img
-                    src={LinuxIcon}
-                    alt="Linux Icon"
-                    className="h-10 w-10 object-contain mx-8"
-                    title="Linux"
-                  />
-                  <span className="mt-1"> Linux</span>
-                </button>
-                <button
-                  className="text-blue-500 flex flex-col items-center"
-                  onClick={macSetupDownload}
-                >
-                  <img
-                    src={macIcon}
-                    alt="Mac Icon"
-                    className="h-10 w-10 object-contain"
-                    title="Mac"
-                  />
-                  <span className="mt-1"> Mac</span>
-                </button>
               </div>
-            </div>
-          </div>
+            </>
+          ) : (
+            <></>
+          )}
 
-          <MiniPrintPreview printList={printList} onPreview={onPreview} />
-
-          <div
-            className="w-full bg-white shadow-md flex flex-col items-center justify-center col-4"
-            style={{ width: "50%" }}
-          >
-            <PrintPreview
-              imageBase64={imageBase64}
-              onNext={onSave}
-              isNewScanCopy={isNewScanCopy}
-            />
-          </div>
+          {printList && printList.length >= 1 && (
+            <>
+              <MiniPrintPreview printList={printList} onPreview={onPreview} />
+              <div
+                className="w-full bg-white shadow-md flex flex-col items-center justify-center col-4"
+                style={{
+                  width: "100%",
+                }}
+              >
+                <PrintPreview
+                  printList={printList}
+                  imageBase64={imageBase64}
+                  onNext={scanNexPage}
+                  onSave={onSave}
+                  isNewScanCopy={isNewScanCopy}
+                />
+              </div>
+            </>
+          )}
         </div>
       </>
     </>

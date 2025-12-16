@@ -10,7 +10,7 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
         title: "Download mpn-core.exe",
         desc: "Click the download button to save mpn-core.exe to your Downloads folder.",
         btnText: "Download mpn-core.exe",
-        href: "/setup/mpn-core-win.EXE",
+        href: "/setup/mpn-core-win.exe",
       },
       {
         title: "Go to folder of download",
