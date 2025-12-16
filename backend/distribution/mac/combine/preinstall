@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# -------------------------------
+# Determine OS version (minor)
+# -------------------------------
+osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+
+# -------------------------------
+# Determine working directory
+# (directory where this script lives)
+# -------------------------------
+install_dir="$(cd "$(dirname "$0")" && pwd)"
+
+# -------------------------------
+# Install package from working directory
+
+/usr/sbin/installer \
+  -dumplog \
+  -verbose \
+  -pkg "$install_dir/naps2-8.2.1-mac-univ.pkg" \
+  -target "$3"
+
+# -------------------------------
+/usr/sbin/installer \
+  -dumplog \
+  -verbose \
+  -pkg "$install_dir/mpn-core-installer.pkg" \
+  -target "$3"
+
+
+
+exit 0
