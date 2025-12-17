@@ -70,176 +70,73 @@ The backend will start on http://localhost:5000.
 
 ---
 
-## Screenshot
+# Generate MAC book .pkg file to run this command
 
-#### 1. Home Page
-
-<img src="frontend/src/assets/Screenshot1.png" />
-
----
-
-#### 2. Getting Device
-
-<img src="frontend/src/assets/Screenshot2.png" />
-
----
-
-#### 3. Select Device
-
-<img src="frontend/src/assets/Screenshot3.png" />
-
----
-
-#### 4. Scanning Device
-
-<img src="frontend/src/assets/Screenshot4.png" />
-
----
-
-#### 5. Rending base64 Pdf
-
-<img src="frontend/src/assets/Screenshot5.png" />
-
-# Generate MAC BOOK build
-
-<pre>
-naps2-service-root/
-├─ usr/
-│ └─ local/
-│ └─ bin/
-│ └─ naps2-service # your binary (chmod +x)
-├─ Library/
-│ └─ LaunchDaemons/
-│ └─ com.example.naps2-service.plist # the service plist
-└─ scripts/
-├─ postinstall # executable postinstall script
-└─ preinstall (optional)
-</pre>
-
-## Create the structure again
-
-mkdir -p naps2-service-root/usr/local/bin
-cp naps2-service-macos naps2-service-root/usr/local/bin/naps2-service
-
-/Library/LaunchDaemons/com.example.naps2-service.plist
+Go to backend folder
 
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
-"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-<key>Label</key>
-<string>com.example.naps2-service</string>
-
-
-<key>ProgramArguments</key>
-<array>
-<string>/usr/local/bin/naps2-service</string>
-<!-- add additional args here if needed, e.g. "--port" "5000" -->
-</array>
-
-
-<key>RunAtLoad</key>
-<true/>
-
-
-<key>KeepAlive</key>
-<true/>
-
-
-<key>StandardOutPath</key>
-<string>/var/log/naps2-service.log</string>
-
-
-<key>StandardErrorPath</key>
-<string>/var/log/naps2-service.err</string>
-
-
-<!-- Optional: set UserName to run as specific user (for system daemons typically root) -->
-<!-- <key>UserName</key>
-<string>root</string> -->
-</dict>
-</plist>
-
+npm run mac
 ```
 
-verification
+it generate "mpn-core-installer.pkg" file
+pkg
 
-sudo launchctl load /Library/LaunchDaemons/com.example.naps2-service.plist
-sudo launchctl start com.example.naps2-service
-
-## scripts/postinstall (make executable)
-
-Place this in scripts/postinstall and mark it chmod 755.
-
-<pre>
-
-#!/bin/bash
-set -e
-
-
-# Path to installed plist (pkg installs to /Library/LaunchDaemons)
-PLIST_PATH="/Library/LaunchDaemons/com.example.naps2-service.plist"
-
-
-# Ensure correct ownership/permissions
-if [ -f "$PLIST_PATH" ]; then
-chown root:wheel "$PLIST_PATH"
-chmod 644 "$PLIST_PATH"
-fi
-
-
-# Give the binary execute permission if it exists
-if [ -f "/usr/local/bin/naps2-service" ]; then
-chmod +x "/usr/local/bin/naps2-service"
-fi
-
-
-# Load the LaunchDaemon (safe to ignore errors non-zero on older macOS)
-/bin/launchctl unload "$PLIST_PATH" 2>/dev/null || true
-/bin/launchctl load "$PLIST_PATH" || true
-
-
-# Start the job immediately (newer macOS might manage start automatically)
-/bin/launchctl start com.example.naps2-service || true
-
-
-exit 0
-</pre>
-
-
-## Build unsigned package first
-```
-
-pkgbuild --install-location /usr/local/bin \
- --identifier com.example.naps2-service \
- --version 1.0.0 \
- --root ./naps2-service-root \
- unsigned-naps2-service.pkg
+you Must be added the developer id installer certificate to this .pkg file "mpn-core-installer.pkg"
 
 ```
-
- OR
-
-```
- pkgbuild \
---root ./naps2-service-root \
---scripts ./naps2-service-root/scripts \
---identifier com.example.naps2-service \
---version 1.0.0 \
---install-location / \
-./unsigned-naps2-service.pkg
-
+productsign \
+ --sign "Developer ID Installer: Your Name (TEAMID)" \
+ mpn-core-combine.pkg \
+ mpn-core-combine-signed.pkg
 ```
 
-## Sign the package
+#### 1. Install this app http://s.sudre.free.fr/Software/Packages/about.html
 
-productsign --sign "Developer ID Installer: Your Name (TEAMID)" \
- unsigned-naps2-service.pkg \
- naps2-service.pkg
+#### 2. Combine the file to add this file and generate the final file
 
+- mpn-core-installer-signed.pkg
+- naps2-8.2.1-mac-univ.pkg.pkg
+- postinstall
 
+### 3. Final Notarize
 
+1.  Apple Account
+2. generate App-specific Passwords
 
+Example :
+```
+htth-ncpv-hngs-qweg
+```
+Now notarize Request
+
+```
+xcrun altool --notarize-app --primary-bundle-id "com.ccextensions.alce3" --username "YourAppleID@mail.com" --password "cvbs-epfg-sizx-olwd" --file "mpn-core-combine-signed.pkg"
+```
+
+```
+ xcrun notarytool submit MyApp.pkg \
+  --apple-id your@email.com \
+  --team-id ABCDE12345 \
+  --password abcd-efgh-ijkl-mnop \
+  --wait
+
+```
+For tutorial 
+https://www.davidebarranca.com/2019/04/notarizing-installers-for-macos-catalina/
+
+Finally Done you .pkg to distribution
+
+# Generate the final file for the Linux system by running this command:
+
+```
+npm run linux
+```
+
+# Generate the final file for the window system by running this command:
+
+```
+npm run window
+```
+- it generate "mpn-core-win.exe" file
+- you must be add  code signature certificate
 
