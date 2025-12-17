@@ -20,8 +20,6 @@ const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
 });
 
-
-
 export default function ScannerApp() {
   const platform = window?.navigator?.platform?.split(" ")[0];
   const platform2 = window?.navigator?.userAgentData?.platform;
@@ -168,10 +166,6 @@ export default function ScannerApp() {
     getSdkInformation();
   };
 
-  const onSave = (base64File = null) => {
-    startScan();
-  };
-
   const scanNexPage = (base64File = null) => {
     // if (!base64File || !isNewScanCopy) return;
     // setIsNewScanCopy(false);
@@ -186,6 +180,8 @@ export default function ScannerApp() {
   const onSendToBackend = () => {
     window.parent.postMessage(printList, "*");
   };
+  const resetForScan = () => {};
+
   return (
     <>
       <DialogBox
@@ -325,8 +321,9 @@ export default function ScannerApp() {
                   printList={printList}
                   imageBase64={imageBase64}
                   onNext={scanNexPage}
-                  onSave={onSave}
+                  onSave={onSendToBackend}
                   isNewScanCopy={isNewScanCopy}
+                  backToHamePage={resetForScan}
                 />
               </div>
             </>

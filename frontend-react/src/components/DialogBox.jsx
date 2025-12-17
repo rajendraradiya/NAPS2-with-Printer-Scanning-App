@@ -8,7 +8,7 @@ export default function MessageDialog({ open = false, onCloseDialogBox }) {
               Please complete one-time setup
             </h2>
             <p className="mt-2 text-gray-600">
-              For this scanning process, NAPS2 SDK and mpn-core service is
+              For this scanning process, MPN Core service is
               required. Please download and install.
             </p>
 

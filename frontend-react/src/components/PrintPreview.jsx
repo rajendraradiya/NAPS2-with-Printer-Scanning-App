@@ -4,6 +4,7 @@ const PrintPreview = ({
   onSave,
   printList = null,
   isNewScanCopy = false,
+  backToHamePage,
 }) => {
   return (
     <>
@@ -37,7 +38,6 @@ const PrintPreview = ({
               className="flex justify-center items-center"
               style={{ height: "10vh" }}
             >
-
               <button
                 className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
                 onClick={() => onNext(imageBase64)}
@@ -56,10 +56,36 @@ const PrintPreview = ({
             </div>
           </>
         ) : (
-          <div className="w-full h-full border border-gray-300 flex justify-center items-center bg-gray-100">
+          <div className="w-full h-full border border-gray-300 flex flex-col justify-center items-center bg-gray-100">
             <h6 className="text-gray-500 text-center">
               This section displays a live preview of the scanned document.
             </h6>
+            <div
+              className="flex justify-center items-center"
+              style={{ height: "10vh" }}
+            >
+              <button
+                className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
+                onClick={() => onNext(imageBase64)}
+                disabled={!isNewScanCopy}
+              >
+                Scan Again
+              </button>
+              {/* <button
+                className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
+                onClick={backToHamePage}
+              >
+                Home Page
+              </button> */}
+              {printList && printList.length && (
+                <button
+                  className="bg-blue-600 px-4  h-8 rounded-lg"
+                  onClick={onSave}
+                >
+                  Save
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
