@@ -178,8 +178,13 @@ export default function ScannerApp() {
   };
 
   const onSendToBackend = () => {
-    window.parent.postMessage(printList, "*");
+    let message = {
+      status: "success",
+      data: printList,
+    };
+    window.parent.postMessage(message, "*");
   };
+
   const resetForScan = () => {};
 
   return (

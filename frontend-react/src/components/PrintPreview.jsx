@@ -23,13 +23,13 @@ const PrintPreview = ({
                 style={{ height: "90vh" }}
               >
                 <p>
-                  Your browser does not support iframes. You can{" "}
+                  Your browser does not support iframes. You can
                   <a
                     href={`data:application/pdf;base64,${imageBase64}`}
                     download="your_document.pdf"
                   >
                     download the PDF
-                  </a>{" "}
+                  </a>
                   instead.
                 </p>
               </iframe>
@@ -38,13 +38,13 @@ const PrintPreview = ({
               className="flex justify-center items-center"
               style={{ height: "10vh" }}
             >
-              <button
+              {/* <button
                 className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
                 onClick={() => onNext(imageBase64)}
                 disabled={!isNewScanCopy}
               >
                 Next Page Scan
-              </button>
+              </button> */}
               {printList && printList.length && (
                 <button
                   className="bg-blue-600 px-4  h-8 rounded-lg"
