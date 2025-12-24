@@ -136,7 +136,7 @@ $uninstallCmd = "powershell.exe -ExecutionPolicy Bypass -EncodedCommand $encoded
 
 Set-ItemProperty -Path $uninstallRegPath -Name "DisplayName" -Value "MPN Core"
 Set-ItemProperty -Path $uninstallRegPath -Name "DisplayVersion" -Value "1.0.0"
-Set-ItemProperty -Path $uninstallRegPath -Name "Publisher" -Value "Your Company"
+Set-ItemProperty -Path $uninstallRegPath -Name "Publisher" -Value "MPN Software System,Inc."
 Set-ItemProperty -Path $uninstallRegPath -Name "InstallLocation" -Value $PSScriptRoot
 Set-ItemProperty -Path $uninstallRegPath -Name "UninstallString" -Value $uninstallCmd
 Set-ItemProperty -Path $uninstallRegPath -Name "QuietUninstallString" -Value $uninstallCmd
