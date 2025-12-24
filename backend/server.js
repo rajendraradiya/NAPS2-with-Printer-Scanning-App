@@ -11,6 +11,28 @@ app.use(cors());
 app.use(express.json());
 dotenv.config();
 
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  res.setHeader("Access-Control-Allow-Origin", origin || "*");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, Content-Type, Authorization"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+
 // Show installed successfully notification (cross-platform)
 function showSuccessNotification() {
   if (process.platform === "win32") {
