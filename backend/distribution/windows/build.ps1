@@ -10,33 +10,32 @@ $naps2Exe = Join-Path $env:ProgramFiles "NAPS2\NAPS2.Console.exe"
 $iconPath = Join-Path $PSScriptRoot "icon.ico"
 
 # ==========================================
-# Ensure running as Administrator (silent elevation)
+# NEW: Permanent install directory (ONLY ADDITION)
 # ==========================================
-
-# $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-# if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-#     Write-Host "Restarting script as administrator..."
-#     $psi = New-Object System.Diagnostics.ProcessStartInfo
-#     $psi.FileName = "powershell.exe"
-#     $psi.Arguments = "-ExecutionPolicy Bypass -File `"$PSCommandPath`""
-#     $psi.Verb = "runas"
-#     try {
-#         [System.Diagnostics.Process]::Start($psi) | Out-Null
-#     } catch {
-#         Write-Host "⚠️ Administrator rights required. Exiting."
-#         exit 1
-#     }
-#     exit
-# }
-
+$installDir = Join-Path $env:ProgramFiles "MPN Core"
+$iconDest   = Join-Path $installDir "icon.ico"
+$uninstallPs1 = Join-Path $installDir "uninstall.ps1"
 
 # ==========================================
-# Resolve icon path (fallback to app)
+# Ensure install directory exists (ONLY ADDITION)
 # ==========================================
-try {
-    $iconPath = (Resolve-Path $iconPath).Path
-} catch {
-    Write-Host "⚠️ Icon file not found, falling back to executable."
+if (-not (Test-Path $installDir)) {
+    New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+}
+
+# ==========================================
+# Copy icon to permanent location (ONLY ADDITION)
+# ==========================================
+if (Test-Path $iconPath) {
+    Copy-Item $iconPath $iconDest -Force
+}
+
+# ==========================================
+# Resolve icon path (UPDATED – minimal)
+# ==========================================
+if (Test-Path $iconDest) {
+    $iconPath = $iconDest
+} else {
     $iconPath = $appPath
 }
 
@@ -119,31 +118,37 @@ if (!(Test-Path $uninstallRegPath)) {
     New-Item -Path $uninstallRegPath -Force | Out-Null
 }
 
+# ==========================================
+# NEW: Create uninstall.ps1 (ONLY ADDITION)
+# ==========================================
 $uninstallScript = @"
-Write-Host 'Stopping $serviceName service...'
+Write-Host 'Stopping service...'
 & `"$nssmPath`" stop $serviceName -ErrorAction SilentlyContinue
-Write-Host 'Removing $serviceName service...'
 & `"$nssmPath`" remove $serviceName confirm -ErrorAction SilentlyContinue
-Write-Host 'Deleting service files...'
-Remove-Item -Recurse -Force `"$PSScriptRoot`" -ErrorAction SilentlyContinue
+
+Write-Host 'Removing install directory...'
+Remove-Item -Path `"$installDir`" -Recurse -Force -ErrorAction SilentlyContinue
+
 Write-Host 'Removing uninstall registry entry...'
-Remove-Item -Recurse -Force `"$uninstallRegPath`" -ErrorAction SilentlyContinue
-Write-Host 'Uninstallation completed.'
+Remove-Item -Path `"$uninstallRegPath`" -Recurse -Force -ErrorAction SilentlyContinue
 "@
 
-$encoded = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($uninstallScript))
-$uninstallCmd = "powershell.exe -ExecutionPolicy Bypass -EncodedCommand $encoded"
+Set-Content -Path $uninstallPs1 -Value $uninstallScript -Encoding UTF8
 
-Set-ItemProperty -Path $uninstallRegPath -Name "DisplayName" -Value "MPN Core"
-Set-ItemProperty -Path $uninstallRegPath -Name "DisplayVersion" -Value "1.0.0"
-Set-ItemProperty -Path $uninstallRegPath -Name "Publisher" -Value "MPN Software System,Inc."
-Set-ItemProperty -Path $uninstallRegPath -Name "InstallLocation" -Value $PSScriptRoot
-Set-ItemProperty -Path $uninstallRegPath -Name "UninstallString" -Value $uninstallCmd
-Set-ItemProperty -Path $uninstallRegPath -Name "QuietUninstallString" -Value $uninstallCmd
-Set-ItemProperty -Path $uninstallRegPath -Name "DisplayIcon" -Value $iconPath
-Set-ItemProperty -Path $uninstallRegPath -Name "NoModify" -Value 1 -Type DWord
-Set-ItemProperty -Path $uninstallRegPath -Name "NoRepair" -Value 1 -Type DWord
-Write-Host "✅ Added uninstall entry in Control Panel."
+# ==========================================
+# UPDATED uninstall command (ONLY CHANGE)
+# ==========================================
+$uninstallCmd = "powershell.exe -ExecutionPolicy Bypass -File `"$uninstallPs1`""
+
+Set-ItemProperty $uninstallRegPath DisplayName "MPN Core"
+Set-ItemProperty $uninstallRegPath DisplayVersion "1.0.0"
+Set-ItemProperty $uninstallRegPath Publisher "MPN Software System,Inc."
+Set-ItemProperty $uninstallRegPath InstallLocation $installDir
+Set-ItemProperty $uninstallRegPath UninstallString $uninstallCmd
+Set-ItemProperty $uninstallRegPath QuietUninstallString $uninstallCmd
+Set-ItemProperty $uninstallRegPath DisplayIcon $iconPath
+Set-ItemProperty $uninstallRegPath NoModify 1 -Type DWord
+Set-ItemProperty $uninstallRegPath NoRepair 1 -Type DWord
 
 # ==========================================
 # Final Message
