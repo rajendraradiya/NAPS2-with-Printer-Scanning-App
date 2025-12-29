@@ -2,13 +2,21 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const path = require('path');
 
-const INSTALLER_NAME = 'install.run';
+// ─────────────────────────────────────────────
+// PATH CONFIGURATION (IMPORTANT PART)
+// ─────────────────────────────────────────────
+const PROJECT_ROOT = path.resolve(__dirname, '../../');
+const SETUP_DIR = path.join(PROJECT_ROOT, 'setup');
+const INSTALLER_NAME = path.join(SETUP_DIR, 'mpn-core-linux.run');
 
-// Paths to .deb files in the same folder as this script
+// .deb files must be in the same directory as this script
 const DEB_FILES = [
-  path.join(__dirname, 'mpn-core.deb'),
-  path.join(__dirname, 'naps2-8.2.0-linux-x64.deb')
+  'mpn-core.deb',
+  'naps2-8.2.0-linux-x64.deb'
 ];
+
+// Absolute paths for validation
+const DEB_PATHS = DEB_FILES.map(f => path.join(__dirname, f));
 
 const SCRIPT_HEADER = `#!/bin/bash
 set -e
@@ -21,7 +29,7 @@ while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
     sleep 2
 done
 
-# Create temporary folder
+# Create temporary directory
 TMPDIR=$(mktemp -d)
 
 # Extract embedded archive
@@ -29,7 +37,7 @@ ARCHIVE_LINE=$(awk '/^__ARCHIVE_BELOW__/ {print NR + 1; exit 0; }' "$0")
 tail -n +$ARCHIVE_LINE "$0" | tar -xz -C "$TMPDIR"
 
 # Install .deb files
-sudo dpkg -i "$TMPDIR"/mpn-core.deb "$TMPDIR"/naps2-8.2.0-linux-x64.deb || true
+sudo dpkg -i "$TMPDIR"/*.deb || true
 sudo apt-get -f install -y
 
 echo "Installation complete!"
@@ -41,51 +49,50 @@ exit 0
 __ARCHIVE_BELOW__
 `;
 
-// 1. Check .deb files exist in current directory
-const missingFiles = DEB_FILES.filter(f => !fs.existsSync(f));
+// 1. Validate .deb files exist
+const missingFiles = DEB_PATHS.filter(f => !fs.existsSync(f));
 if (missingFiles.length) {
-  console.error(`Error: Missing .deb files in current folder:\n${missingFiles.join('\n')}`);
+  console.error('Error: Missing .deb files:\n' + missingFiles.join('\n'));
   process.exit(1);
 }
 
-// 2. Remove existing install.run if exists
+// 2. Remove existing installer
 if (fs.existsSync(INSTALLER_NAME)) {
   fs.unlinkSync(INSTALLER_NAME);
-  console.log('Removed existing install.run');
+  console.log('Removed existing mpn-core-linux.run');
 }
 
-// 3. Write the install.run header
+// 3. Write installer header
 fs.writeFileSync(INSTALLER_NAME, SCRIPT_HEADER);
-console.log('Created new install.run header');
+console.log('Created mpn-core-linux.run header');
 
-// 4. Create tar.gz archive of the .deb files
+// 4. Create tar.gz archive (NO absolute paths)
 const TAR_NAME = 'packages.tar.gz';
+const tarCommand = `tar czf "${TAR_NAME}" -C "${__dirname}" ${DEB_FILES.join(' ')}`;
 
-// Quote each file to handle spaces
-const tarCommand = `tar czf "${TAR_NAME}" ${DEB_FILES.map(f => `"${f}"`).join(' ')}`;
 try {
   execSync(tarCommand, { stdio: 'inherit' });
-  console.log('Created packages.tar.gz archive');
+  console.log('Created packages.tar.gz');
 } catch (err) {
-  console.error('Error creating tar.gz archive:', err);
+  console.error('Failed to create tar archive');
   process.exit(1);
 }
 
-// 5. Append archive to install.run
+// 5. Append archive to installer
 try {
   execSync(`cat "${TAR_NAME}" >> "${INSTALLER_NAME}"`, { stdio: 'inherit' });
-  console.log('Appended archive to install.run');
+  console.log('Embedded archive into mpn-core-linux.run');
 } catch (err) {
-  console.error('Error appending archive:', err);
+  console.error('Failed to append archive');
   process.exit(1);
 }
 
-// 6. Make install.run executable
+// 6. Make installer executable
 fs.chmodSync(INSTALLER_NAME, 0o755);
-console.log('install.run is now executable');
+console.log('Marked mpn-core-linux.run as executable');
 
-// 7. Remove temporary tar.gz
+// 7. Cleanup
 fs.unlinkSync(TAR_NAME);
-console.log('Removed temporary packages.tar.gz');
+console.log('Removed temporary archive');
 
-console.log('install.run has been successfully created in the root directory!');
+console.log('\n✅ mpn-core-linux.run created successfully!');
