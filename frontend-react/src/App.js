@@ -36,15 +36,16 @@ export default function ScannerApp() {
   const [isFirstTime, setIsFirstTime] = useState(false);
   const [printList, setPrintList] = useState([]);
   const [isNewScanCopy, setIsNewScanCopy] = useState(false);
+  const [isLoadedPage, setIsLoadedPage] = useState(false);
 
   const windowSetupDownload = () => {
-    downloadFile("/setup/mpn-core-win.exe", "mpn-core-win.exe", false);
+    downloadFile("./setup/mpn-core-win.exe", "mpn-core-win.exe", false);
   };
   const linuxSetupDownload = () => {
-    downloadFile("/setup/mpn-core.run", "mpn-core.run", false);
+    downloadFile("./setup/mpn-core.run", "mpn-core.run", false);
   };
   const macSetupDownload = () => {
-    downloadFile("/setup/mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
+    downloadFile("./setup/mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {
@@ -66,6 +67,7 @@ export default function ScannerApp() {
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
           setIsFirstTime(false);
+          setIsLoadedPage(true);
           if (res.data.installed) {
             setIsInstalled(true);
           } else {
@@ -76,6 +78,7 @@ export default function ScannerApp() {
         });
     } catch (err) {
       console.error(err);
+      setIsLoadedPage(true);
       setIsNAPS2ServiceRunning(false);
       setOpenDialogBox(true);
     }
@@ -193,10 +196,13 @@ export default function ScannerApp() {
         open={openDialogBox}
         onCloseDialogBox={() => setOpenDialogBox(false)}
       />
-      <InformationCard
-        isInstalled={isInstalled}
-        isNAPS2ServiceRunning={isNAPS2ServiceRunning}
-      />
+      {isLoadedPage && (
+        <InformationCard
+          isInstalled={isInstalled}
+          isNAPS2ServiceRunning={isNAPS2ServiceRunning}
+        />
+      )}
+
       <ScannerLoader loader={loader} selectedDevice={selectedDevice} />
 
       <MpnDownloadGuide
