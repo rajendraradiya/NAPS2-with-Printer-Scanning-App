@@ -3,16 +3,11 @@ import DialogBox from "../src/components/DialogBox";
 import axios from "axios";
 import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
-import macIcon from "./assets/mac-icon.png";
-
-// import winFIle from "/setup/mpn-core-win.EXE";
-// import linuxFile from "/setup/mpn-core-linux.run";
-// import macFile from "/setup/mpn-core-mac.pkg";
+import MacIcon from "./assets/macos-icon.jpg";
 import DeviceLoader from "./components/DeviceLoader";
 import ScannerLoader from "./components/ScannerLoader";
 import InformationCard from "./components/InformationCard";
 import PrintPreview from "./components/PrintPreview";
-import { file } from "./components/temp";
 import MiniPrintPreview from "./components/MiniPrintPreview";
 import MpnDownloadGuide from "./components/MpnDownloadGuide";
 
@@ -304,10 +299,10 @@ export default function ScannerApp() {
                       onClick={macSetupDownload}
                     >
                       <img
-                        src={macIcon}
+                        src={MacIcon}
                         alt="Mac Icon"
                         className="h-10 w-10 object-contain"
-                        title="Mac"
+                        title="Mac Icon"
                       />
                       <span className="mt-1"> Mac</span>
                     </button>
