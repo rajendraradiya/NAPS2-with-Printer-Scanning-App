@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import DialogBox from "../src/components/DialogBox";
+import DialogBox from "./components/DialogBox";
 import axios from "axios";
 import windowsIcon from "./assets/windows-icon.png";
 import LinuxIcon from "./assets/linux-icon.png";
