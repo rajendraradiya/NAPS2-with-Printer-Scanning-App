@@ -10,7 +10,7 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
         title: "Download mpn-core.exe",
         desc: "Click the download button to save mpn-core.exe to your Downloads folder.",
         btnText: "Download mpn-core.exe",
-        href: "/setup/mpn-core-win.exe",
+        href: "mpn-core-win.exe",
       },
       {
         title: "Go to folder of download",
@@ -27,20 +27,20 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
     ],
     linux: [
       {
-        title: "Download mpn-core.run",
-        desc: "Save mpn-core.run to a folder (usually Downloads).",
-        btnText: "Download mpn-core.run",
-        href: "/setup/mpn-core.run",
+        title: "Download mpn-core-linux.run",
+        desc: "Save mpn-core-linux.run to a folder (usually Downloads).",
+        btnText: "Download mpn-core-linux.run",
+        href: "mpn-core-linux.run",
       },
       {
         title: "Make it executable",
         desc: "Run the chmod command so the file can be executed.",
-        cmd: "sudo chmod +x mpn-core.run",
+        cmd: "sudo chmod +x mpn-core-linux.run",
       },
       {
         title: "Run the installer",
         desc: "Execute the file with sudo to perform the install.",
-        cmd: "sudo ./mpn-core.run",
+        cmd: "sudo ./mpn-core-linux.run",
       },
       {
         title: "Scan now",

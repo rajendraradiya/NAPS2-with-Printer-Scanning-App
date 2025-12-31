@@ -34,13 +34,13 @@ export default function ScannerApp() {
   const [isLoadedPage, setIsLoadedPage] = useState(false);
 
   const windowSetupDownload = () => {
-    downloadFile("./setup/mpn-core-win.exe", "mpn-core-win.exe", false);
+    downloadFile("./mpn-core-win.exe", "mpn-core-win.exe", false);
   };
   const linuxSetupDownload = () => {
-    downloadFile("./setup/mpn-core.run", "mpn-core.run", false);
+    downloadFile("./mpn-core-linux.run", "mpn-core-linux.run", false);
   };
   const macSetupDownload = () => {
-    downloadFile("./setup/mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
+    downloadFile("./mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {

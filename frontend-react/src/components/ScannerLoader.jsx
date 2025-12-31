@@ -1,4 +1,4 @@
-import scanImage from "../assets/scan.gif";
+
 
 const ScannerLoader = ({ loader, selectedDevice }) => {
   return (
@@ -26,7 +26,7 @@ const ScannerLoader = ({ loader, selectedDevice }) => {
               {selectedDevice ? (
                 <>
                   <div>
-                    <img src={scanImage} alt="scanner loader" />
+                    <img src="scan.gif" alt="scanner loader" />
                   </div>
                   <h3 className="text-stone-600 mt-4">Scanning...</h3>
                 </>
