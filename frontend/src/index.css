@@ -31,3 +31,25 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+
+
+/* For Firefox and Edge (standard properties) */
+.custom-scrollbar {
+  scrollbar-width: thin; /* Can be 'auto', 'thin', or 'none' */
+  scrollbar-color: #90A4AE #CFD8DC; /* thumb color track color */
+}
+
+/* For Chrome, Safari, and Opera (WebKit pseudo-elements) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px; /* Specific width for vertical scrollbar */
+  height: 10px; /* Specific height for horizontal scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #CFD8DC; /* Light grey track color */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #90A4AE; /* Medium grey thumb color */
+  border-radius: 5px; /* Optional: rounded corners */
+}
