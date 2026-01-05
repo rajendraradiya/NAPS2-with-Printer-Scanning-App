@@ -21,6 +21,11 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
         desc: "Right‑click mpn-core.exe and choose ‘Run as administrator’ to allow installer permissions.",
       },
       {
+        title: "Allow local network access",
+        desc: "When Windows Security prompts you, allow “Local network access” and click Allow to continue.",
+        image: "step-four.gif",
+      },
+      {
         title: "Scan now",
         desc: "When the installer finishes, open the app and click ‘Scan now’ to begin.",
       },
@@ -42,6 +47,7 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
         desc: "Execute the file with sudo to perform the install.",
         cmd: "sudo ./mpn-core-linux.run",
       },
+
       {
         title: "Scan now",
         desc: "Open the installed app and click ‘Scan now’ to begin.",
@@ -150,6 +156,11 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
                               >
                                 {copied === `${tab}-${i}` ? "Copied" : "Copy"}
                               </button>
+                            </div>
+                          )}
+                          {s.image && (
+                            <div className="mt-3">
+                              <img src={s.image} alt={s.title} />
                             </div>
                           )}
 
