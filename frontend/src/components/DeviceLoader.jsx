@@ -19,7 +19,7 @@ const DeviceLoader = ({ deviceLoader, devices }) => {
               fill="currentFill"
             />
           </svg>
-          <h3 className="text-stone-600">Devices detecting...</h3>
+          <h3 className="text-stone-600">Detecting scanners...</h3>
         </div>
       ) : (
         ""

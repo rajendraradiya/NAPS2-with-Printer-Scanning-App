@@ -258,9 +258,10 @@ export default function ScannerApp() {
 
                 <div className="text-center mt-10">
                   <p className="text-gray-600">
-                    ❗<b>Important : </b> To enable scanning, please download
-                    and install the MPN Core file using the link below and{" "}
-                    <br /> follow the installation and setup instructions —{" "}
+                    ❗<b>Important : </b> To enable scanning, please download &
+                    install the ECLIPSE EHR Cloud Scanning Utility using the
+                    appropriate link (e.g. Windows) below. <br /> For more
+                    detailed instructions, please{" "}
                     <b
                       onClick={() => setOpenGuidelineDialogBox(true)}
                       className="text-blue-500"

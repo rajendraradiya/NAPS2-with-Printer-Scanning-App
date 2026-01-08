@@ -5,21 +5,21 @@ export default function MessageDialog({ open = false, onCloseDialogBox }) {
 
   const steps = [
     {
-      text: "Download and install MPN Core to enable scanning.",
+      text: "Download & install the ECLIPSE EHR Cloud Scanning Utility.",
     },
     ...(isWindows
       ? [
           {
-            text: "When prompted by Windows Security, allow Local Network Access.",
+            text: "When prompted, allow the installation to have access to your network.",
             showGif: true,
           },
         ]
       : []),
     {
-      text: "Close this window once installation is complete.",
+      text: "Close any remaining windows once installation is complete.",
     },
     {
-      text: "Open the scan again to continue.",
+      text: "Start scanning.",
     },
   ];
 
