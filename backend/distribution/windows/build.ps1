@@ -1,7 +1,7 @@
 # ==========================================
-# MPN-Core Full Installer Script
+# MPN-Software Full Installer Script
 # ==========================================
-$serviceName = "mpn-core"
+$serviceName = "mpn-software"
 $appPath = Join-Path $PSScriptRoot "mpn-core-win.exe"
 $nssmBase = Join-Path $env:ProgramFiles "nssm"
 $nssmPath = Join-Path $nssmBase "nssm.exe"
@@ -14,16 +14,31 @@ $installDir = Join-Path $env:ProgramFiles "MPN Software"
 $iconDest   = Join-Path $installDir "icon.ico"
 $uninstallPs1 = Join-Path $installDir "uninstall.ps1"
 
+# ==========================================
+#  Source icon (MUST EXIST before popup)
+# ==========================================
+
+$scriptDir  = Split-Path -Parent $PSCommandPath
+$iconSource = Join-Path $scriptDir "icon.ico"
+
+if (-not (Test-Path $iconSource)) {
+    Write-Error "icon.ico not found in script directory: $scriptDir"
+    exit 1
+}
 
 # ==========================================
-#  Confirmation Popup Function
+#  Confirmation Popup Function (WPF)
 # ==========================================
+
 Add-Type -AssemblyName PresentationFramework
 
 function Show-YesNoPopup {
     param (
+        [Parameter(Mandatory)]
         [string]$Message,
+
         [string]$Title = "Confirmation",
+
         [string]$IconPath
     )
 
@@ -48,7 +63,6 @@ function Show-YesNoPopup {
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- ICON -->
         <Image Name="IconImage"
                Width="64"
                Height="64"
@@ -56,7 +70,6 @@ function Show-YesNoPopup {
                Grid.Row="0"
                Grid.Column="0"/>
 
-        <!-- MESSAGE -->
         <TextBlock Grid.Row="0"
                    Grid.Column="1"
                    VerticalAlignment="Center"
@@ -64,7 +77,6 @@ function Show-YesNoPopup {
                    FontSize="14"
                    Text="$Message"/>
 
-        <!-- BUTTONS -->
         <StackPanel Grid.Row="1"
                     Grid.ColumnSpan="2"
                     Orientation="Horizontal"
@@ -74,12 +86,14 @@ function Show-YesNoPopup {
             <Button Name="YesButton"
                     Content="Yes"
                     Width="90"
-                    Margin="5"/>
+                    Margin="5"
+                    IsDefault="True"/>
 
             <Button Name="NoButton"
                     Content="No"
                     Width="90"
-                    Margin="5"/>
+                    Margin="5"
+                    IsCancel="True"/>
         </StackPanel>
     </Grid>
 </Window>
@@ -88,16 +102,18 @@ function Show-YesNoPopup {
     $reader = New-Object System.Xml.XmlNodeReader ([xml]$xaml)
     $window = [Windows.Markup.XamlReader]::Load($reader)
 
-    # Set icon (.ico)
-    if (Test-Path $IconPath) {
-        $iconUri = [Uri]::new($IconPath)
-        $bitmap = New-Object System.Windows.Media.Imaging.BitmapImage $iconUri
+    # -------------------------------
+    # Set icon correctly
+    # -------------------------------
+    if ($IconPath -and (Test-Path $IconPath)) {
+        $iconUri   = New-Object System.Uri($IconPath, [System.UriKind]::Absolute)
+        $iconFrame = [System.Windows.Media.Imaging.BitmapFrame]::Create($iconUri)
 
-        $window.Icon = $bitmap
-        $window.FindName("IconImage").Source = $bitmap
+        $window.Icon = $iconFrame
+        $window.FindName("IconImage").Source = $iconFrame
     }
 
-    $result = $false
+    $script:result = $false
 
     $window.FindName("YesButton").Add_Click({
         $script:result = $true
@@ -110,24 +126,31 @@ function Show-YesNoPopup {
     })
 
     $window.ShowDialog() | Out-Null
-    return $result
+    return $script:result
 }
 
-# =========================
-# USAGE
-# =========================
+# ==========================================
+#  SHOW CONFIRMATION POPUP
+# ==========================================
 
 $confirm = Show-YesNoPopup `
     -Title "MPN Software" `
     -Message "MPN Software and NAPS2 services automatically start after installation and run in the background." `
-    -IconPath $iconPath
+    -IconPath $iconSource
 
 if (-not $confirm) {
-    # Write-Host "User selected NO. Terminating script."
     exit 1
 }
 
-# Write-Host "User selected YES. Continuing execution..."
+# ==========================================
+#  INSTALL PHASE
+# ==========================================
+
+New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+Copy-Item $iconSource $iconDest -Force
+
+# Continue installation logic here
+
 
 
 # ==========================================
@@ -140,7 +163,7 @@ if (-not (Test-Path $installDir)) {
 # ==========================================
 # Copy icon to permanent location (ONLY ADDITION)
 # ==========================================
-if (Test-Path $iconPath) {
+if ($iconPath -and (Test-Path $iconPath)) {
     Copy-Item $iconPath $iconDest -Force
 }
 
@@ -168,12 +191,12 @@ if (!(Test-Path $naps2Exe)) {
         Get-Process | Where-Object { $_.ProcessName -like "NAPS2*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
         if (Test-Path $naps2Exe) {
-            Write-Host "✅ NAPS2 installed successfully."
+            Write-Host "NAPS2 installed successfully."
         } else {
-            Write-Host "❌ NAPS2 installation failed."
+            Write-Host "NAPS2 installation failed."
         }
     } else {
-        Write-Host "❌ NAPS2 installer not found at $naps2Installer"
+        Write-Host "NAPS2 installer not found at $naps2Installer"
         exit 1
     }
 } else {
@@ -190,7 +213,7 @@ if (!(Test-Path $nssmPath)) {
     Expand-Archive -Path $tempZip -DestinationPath $nssmBase -Force
     Copy-Item "$nssmBase\nssm-2.24\win64\nssm.exe" $nssmPath -Force
     Remove-Item $tempZip -Force -ErrorAction SilentlyContinue
-    Write-Host "✅ NSSM installed successfully."
+    Write-Host "NSSM installed successfully."
     # Write-Host "✅ NSSM installed at $nssmPath"
 } else {
     Write-Host "NSSM already installed."
@@ -268,8 +291,8 @@ Set-ItemProperty $uninstallRegPath NoRepair 1 -Type DWord
 # ==========================================
 # Final Message
 # ==========================================
-$wshell = New-Object -ComObject WScript.Shell
-$wshell.Popup("MPN Software installed successfully.`nService is running and ready to use.", 5, "Installation Complete", 64)
+# $wshell = New-Object -ComObject WScript.Shell
+# $wshell.Popup("MPN Software installed successfully.`nService is running and ready to use.", 5, "Installation Complete", 64)
 
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
