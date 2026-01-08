@@ -12,7 +12,7 @@ $iconPath = Join-Path $PSScriptRoot "icon.ico"
 # ==========================================
 # NEW: Permanent install directory (ONLY ADDITION)
 # ==========================================
-$installDir = Join-Path $env:ProgramFiles "MPN Core"
+$installDir = Join-Path $env:ProgramFiles "MPN Software"
 $iconDest   = Join-Path $installDir "icon.ico"
 $uninstallPs1 = Join-Path $installDir "uninstall.ps1"
 
@@ -44,7 +44,7 @@ if (Test-Path $iconDest) {
 # ==========================================
 if (!(Test-Path $naps2Exe)) {
     if (Test-Path $naps2Installer) {
-        Write-Host "Installing NAPS2 silently..."
+        Write-Host "Installing NAPS2..."
         $args = "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/SP-"
         $proc = Start-Process -FilePath $naps2Installer -ArgumentList $args -PassThru -WindowStyle Hidden
         $proc.WaitForExit()
@@ -76,7 +76,8 @@ if (!(Test-Path $nssmPath)) {
     Expand-Archive -Path $tempZip -DestinationPath $nssmBase -Force
     Copy-Item "$nssmBase\nssm-2.24\win64\nssm.exe" $nssmPath -Force
     Remove-Item $tempZip -Force -ErrorAction SilentlyContinue
-    Write-Host "✅ NSSM installed at $nssmPath"
+    Write-Host "✅ NSSM installed successfully."
+    # Write-Host "✅ NSSM installed at $nssmPath"
 } else {
     Write-Host "NSSM already installed."
 }
@@ -93,7 +94,7 @@ if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
 # ==========================================
 # Install and configure service
 # ==========================================
-Write-Host "Creating Windows service '$serviceName'..."
+# Write-Host "Creating Windows service '$serviceName'..."
 & $nssmPath install $serviceName $appPath
 & $nssmPath set $serviceName AppDirectory $PSScriptRoot
 & $nssmPath set $serviceName Start SERVICE_AUTO_START
@@ -105,10 +106,10 @@ New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 & $nssmPath set $serviceName AppStderr (Join-Path $logDir "error.log")
 
 # Start the service
-Write-Host "Starting service..."
+# Write-Host "Starting service..."
 & $nssmPath start $serviceName
 Start-Sleep -Seconds 2
-Write-Host "✅ Service '$serviceName' is running."
+# Write-Host "✅ Service '$serviceName' is running."
 
 # ==========================================
 # Create Control Panel Uninstall Entry
@@ -140,7 +141,7 @@ Set-Content -Path $uninstallPs1 -Value $uninstallScript -Encoding UTF8
 # ==========================================
 $uninstallCmd = "powershell.exe -ExecutionPolicy Bypass -File `"$uninstallPs1`""
 
-Set-ItemProperty $uninstallRegPath DisplayName "MPN Core"
+Set-ItemProperty $uninstallRegPath DisplayName "MPN Software"
 Set-ItemProperty $uninstallRegPath DisplayVersion "1.0.0"
 Set-ItemProperty $uninstallRegPath Publisher "MPN Software System,Inc."
 Set-ItemProperty $uninstallRegPath InstallLocation $installDir
@@ -154,7 +155,7 @@ Set-ItemProperty $uninstallRegPath NoRepair 1 -Type DWord
 # Final Message
 # ==========================================
 $wshell = New-Object -ComObject WScript.Shell
-$wshell.Popup("MPN Core installed successfully.`nService is running and ready to use.", 5, "Installation Complete", 64)
+$wshell.Popup("MPN Software installed successfully.`nService is running and ready to use.", 5, "Installation Complete", 64)
 
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
