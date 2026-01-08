@@ -7,14 +7,128 @@ $nssmBase = Join-Path $env:ProgramFiles "nssm"
 $nssmPath = Join-Path $nssmBase "nssm.exe"
 $naps2Installer = Join-Path $PSScriptRoot "naps2-8.2.1-win-x64.exe"
 $naps2Exe = Join-Path $env:ProgramFiles "NAPS2\NAPS2.Console.exe"
-$iconPath = Join-Path $PSScriptRoot "icon.ico"
-
 # ==========================================
 # NEW: Permanent install directory (ONLY ADDITION)
 # ==========================================
 $installDir = Join-Path $env:ProgramFiles "MPN Software"
 $iconDest   = Join-Path $installDir "icon.ico"
 $uninstallPs1 = Join-Path $installDir "uninstall.ps1"
+
+
+# ==========================================
+#  Confirmation Popup Function
+# ==========================================
+Add-Type -AssemblyName PresentationFramework
+
+function Show-YesNoPopup {
+    param (
+        [string]$Message,
+        [string]$Title = "Confirmation",
+        [string]$IconPath
+    )
+
+    $xaml = @"
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        Title="$Title"
+        Height="220"
+        Width="480"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="SingleBorderWindow"
+        Topmost="True">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ICON -->
+        <Image Name="IconImage"
+               Width="64"
+               Height="64"
+               Margin="10"
+               Grid.Row="0"
+               Grid.Column="0"/>
+
+        <!-- MESSAGE -->
+        <TextBlock Grid.Row="0"
+                   Grid.Column="1"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   FontSize="14"
+                   Text="$Message"/>
+
+        <!-- BUTTONS -->
+        <StackPanel Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,10,0,0">
+
+            <Button Name="YesButton"
+                    Content="Yes"
+                    Width="90"
+                    Margin="5"/>
+
+            <Button Name="NoButton"
+                    Content="No"
+                    Width="90"
+                    Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>
+"@
+
+    $reader = New-Object System.Xml.XmlNodeReader ([xml]$xaml)
+    $window = [Windows.Markup.XamlReader]::Load($reader)
+
+    # Set icon (.ico)
+    if (Test-Path $IconPath) {
+        $iconUri = [Uri]::new($IconPath)
+        $bitmap = New-Object System.Windows.Media.Imaging.BitmapImage $iconUri
+
+        $window.Icon = $bitmap
+        $window.FindName("IconImage").Source = $bitmap
+    }
+
+    $result = $false
+
+    $window.FindName("YesButton").Add_Click({
+        $script:result = $true
+        $window.Close()
+    })
+
+    $window.FindName("NoButton").Add_Click({
+        $script:result = $false
+        $window.Close()
+    })
+
+    $window.ShowDialog() | Out-Null
+    return $result
+}
+
+# =========================
+# USAGE
+# =========================
+
+$confirm = Show-YesNoPopup `
+    -Title "MPN Software" `
+    -Message "MPN Software and NAPS2 services automatically start after installation and run in the background." `
+    -IconPath $iconPath
+
+if (-not $confirm) {
+    # Write-Host "User selected NO. Terminating script."
+    exit 1
+}
+
+# Write-Host "User selected YES. Continuing execution..."
+
 
 # ==========================================
 # Ensure install directory exists (ONLY ADDITION)
