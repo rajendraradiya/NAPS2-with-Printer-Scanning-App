@@ -7,18 +7,18 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
   const steps = {
     windows: [
       {
-        title: "Download mpn-core.exe",
-        desc: "Click the download button to save mpn-core.exe to your Downloads folder.",
-        btnText: "Download mpn-core.exe",
-        href: "mpn-core-win.exe",
+        title: "Download mpn-software-win.exe",
+        desc: "Click the download button to save mpn-software-win.exe to your Downloads folder.",
+        btnText: "Download mpn-software-win.exe",
+        href: "mpn-software-win.EXE",
       },
       {
         title: "Go to folder of download",
-        desc: "Open File Explorer and navigate to the folder where you saved mpn-core.exe (usually Downloads).",
+        desc: "Open File Explorer and navigate to the folder where you saved mpn-software-win.exe (usually Downloads).",
       },
       {
         title: "Run as administrator",
-        desc: "Right‑click mpn-core.exe and choose ‘Run as administrator’ to allow installer permissions.",
+        desc: "Right‑click mpn-software-win.exe and choose ‘Run as administrator’ to allow installer permissions.",
       },
       {
         title: "Allow local network access",

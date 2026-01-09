@@ -34,7 +34,7 @@ export default function ScannerApp() {
   const [isLoadedPage, setIsLoadedPage] = useState(false);
 
   const windowSetupDownload = () => {
-    downloadFile("./mpn-core-win.exe", "mpn-core-win.exe", false);
+    downloadFile("./mpn-software-win.EXE", "mpn-software-win.EXE", false);
   };
   const linuxSetupDownload = () => {
     downloadFile("./mpn-core-linux.run", "mpn-core-linux.run", false);
