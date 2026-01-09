@@ -135,7 +135,7 @@ function Show-YesNoPopup {
 
 $confirm = Show-YesNoPopup `
     -Title "MPN Software" `
-    -Message "To scan documents to this device, we need to install 3rd party software. In the future, the NAPS2 software will load automatically to help facilitate scanning. Select “Yes” to continue or “No” if you don’t need the ability to scan documents on this device." `
+    -Message "To scan documents to this device, we need to install 3rd party software. In the future, the NAPS2 software will load automatically to help facilitate scanning. Select 'Yes' to continue or 'No' if you don’t need the ability to scan documents on this device." `
     -IconPath $iconSource
 
 if (-not $confirm) {
