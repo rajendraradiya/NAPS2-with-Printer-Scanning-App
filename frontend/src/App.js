@@ -10,6 +10,8 @@ import InformationCard from "./components/InformationCard";
 import PrintPreview from "./components/PrintPreview";
 import MiniPrintPreview from "./components/MiniPrintPreview";
 import MpnDownloadGuide from "./components/MpnDownloadGuide";
+import { PDFDocument } from "pdf-lib";
+import { file } from "./components/temp";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -54,6 +56,35 @@ export default function ScannerApp() {
     link.click();
     document.body.removeChild(link);
   };
+
+  function uint8ToBase64(uint8Array) {
+    let binary = "";
+    const chunkSize = 0x8000; // 32KB chunks
+
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      binary += String.fromCharCode(...uint8Array.subarray(i, i + chunkSize));
+    }
+
+    return btoa(binary);
+  }
+
+  async function mergeMultipleBase64Pdfs(base64Pdfs) {
+    const mergedPdf = await PDFDocument.create();
+
+    for (const base64 of base64Pdfs) {
+      const cleaned = base64.replace(/^data:application\/pdf;base64,/, "");
+      const pdfBytes = Uint8Array.from(atob(cleaned), (c) => c.charCodeAt(0));
+
+      const pdf = await PDFDocument.load(pdfBytes);
+      const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+      pages.forEach((page) => mergedPdf.addPage(page));
+    }
+
+    const mergedBytes = await mergedPdf.save();
+
+    // ✅ SAFE conversion
+    return uint8ToBase64(mergedBytes);
+  }
 
   const getSdkInformation = async () => {
     setIsFirstTime(true);
@@ -127,10 +158,6 @@ export default function ScannerApp() {
       setCount(0);
       clearInterval(timer);
 
-      // let message = {
-      //   status: "success",
-      //   data: `data:application/pdf;base64,${data.imageBase64}`,
-      // };
       setImageBase64(data.imageBase64);
       setIsNewScanCopy(true);
       setPrintList((prev) => [...prev, data.imageBase64]);
@@ -175,10 +202,11 @@ export default function ScannerApp() {
     setImageBase64(base64File);
   };
 
-  const onSendToBackend = () => {
+  const onSendToBackend = async () => {
+    const mergedBase64Pdf = await mergeMultipleBase64Pdfs(printList);
     let message = {
       status: "success",
-      data: printList,
+      data: mergedBase64Pdf,
     };
     window.parent.postMessage(message, "*");
   };
