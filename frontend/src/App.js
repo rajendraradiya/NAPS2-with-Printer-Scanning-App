@@ -11,7 +11,6 @@ import PrintPreview from "./components/PrintPreview";
 import MiniPrintPreview from "./components/MiniPrintPreview";
 import MpnDownloadGuide from "./components/MpnDownloadGuide";
 import { PDFDocument } from "pdf-lib";
-import { file } from "./components/temp";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -111,7 +110,14 @@ export default function ScannerApp() {
   };
 
   const getDeviceList = async () => {
-    setDeviceLoader(true);
+    const savedDevice = localStorage.getItem("selectedDevice");
+    if (savedDevice) {
+      setSelectedDevice(savedDevice);
+      setDevices([savedDevice]);
+    } else {
+      setDeviceLoader(true);
+    }
+
     try {
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
@@ -144,6 +150,7 @@ export default function ScannerApp() {
       setCount((prev) => prev + 1);
     }, 1000);
     try {
+      localStorage.setItem("selectedDevice", selectedDevice.trim());
       const res = await axioInstance.post(`/api/scan`, {
         device: selectedDevice.trim(),
         os: platform2 || platform,
@@ -246,6 +253,7 @@ export default function ScannerApp() {
                   <>
                     <div>
                       <select
+                        value={selectedDevice}
                         style={{ minWidth: "340px" }}
                         className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                         onChange={(e) => setSelectedDevice(e.target.value)}
