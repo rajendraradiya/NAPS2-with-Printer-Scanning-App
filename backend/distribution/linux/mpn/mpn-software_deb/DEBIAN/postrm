@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+echo "🧹 Cleaning files..."
+
+if [ -f "/lib/systemd/system/mpn-software.service" ]; then
+    rm -f /lib/systemd/system/mpn-software.service
+fi
+
+systemctl daemon-reload || true
+exit 0

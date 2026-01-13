@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+echo "🛑 Stopping mpn-software..."
+
+if systemctl is-active --quiet mpn-software.service; then
+    systemctl stop mpn-software.service
+fi
+if systemctl is-enabled --quiet mpn-software.service; then
+    systemctl disable mpn-software.service
+fi
+
+systemctl daemon-reload || true
+exit 0

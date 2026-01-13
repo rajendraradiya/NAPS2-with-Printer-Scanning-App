@@ -7,11 +7,11 @@ const path = require('path');
 // ─────────────────────────────────────────────
 const PROJECT_ROOT = path.resolve(__dirname, '../../');
 const SETUP_DIR = path.join(PROJECT_ROOT, 'setup');
-const INSTALLER_NAME = path.join(SETUP_DIR, 'mpn-core-linux.run');
+const INSTALLER_NAME = path.join(SETUP_DIR, 'mpn-software-linux.run');
 
 // .deb files must be in the same directory as this script
 const DEB_FILES = [
-  'mpn-core.deb',
+  'mpn-software.deb',
   'naps2-8.2.0-linux-x64.deb'
 ];
 
@@ -21,7 +21,7 @@ const DEB_PATHS = DEB_FILES.map(f => path.join(__dirname, f));
 const SCRIPT_HEADER = `#!/bin/bash
 set -e
 
-echo "Starting installation of mpn-core and NAPS2..."
+echo "Starting installation of mpn-software and NAPS2..."
 
 # Wait until dpkg lock is free
 while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
@@ -59,12 +59,12 @@ if (missingFiles.length) {
 // 2. Remove existing installer
 if (fs.existsSync(INSTALLER_NAME)) {
   fs.unlinkSync(INSTALLER_NAME);
-  console.log('Removed existing mpn-core-linux.run');
+  console.log('Removed existing mpn-software-linux.run');
 }
 
 // 3. Write installer header
 fs.writeFileSync(INSTALLER_NAME, SCRIPT_HEADER);
-console.log('Created mpn-core-linux.run header');
+console.log('Created mpn-software-linux.run header');
 
 // 4. Create tar.gz archive (NO absolute paths)
 const TAR_NAME = 'packages.tar.gz';
@@ -81,7 +81,7 @@ try {
 // 5. Append archive to installer
 try {
   execSync(`cat "${TAR_NAME}" >> "${INSTALLER_NAME}"`, { stdio: 'inherit' });
-  console.log('Embedded archive into mpn-core-linux.run');
+  console.log('Embedded archive into mpn-software-linux.run');
 } catch (err) {
   console.error('Failed to append archive');
   process.exit(1);
@@ -89,10 +89,10 @@ try {
 
 // 6. Make installer executable
 fs.chmodSync(INSTALLER_NAME, 0o755);
-console.log('Marked mpn-core-linux.run as executable');
+console.log('Marked mpn-software-linux.run as executable');
 
 // 7. Cleanup
 fs.unlinkSync(TAR_NAME);
 console.log('Removed temporary archive');
 
-console.log('\n✅ mpn-core-linux.run created successfully!');
+console.log('\n✅ mpn-software-linux.run created successfully!');

@@ -1,0 +1,7 @@
+Package: mpn-software
+Version: 1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Your Name <you@example.com>
+Description: mpn-software – Linux service with desktop shortcut

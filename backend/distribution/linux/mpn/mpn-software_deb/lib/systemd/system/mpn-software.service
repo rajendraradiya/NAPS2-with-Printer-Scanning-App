@@ -1,0 +1,11 @@
+[Unit]
+Description=mpn-software Background Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/mpn-software
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

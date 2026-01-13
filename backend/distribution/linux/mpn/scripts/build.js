@@ -14,7 +14,7 @@ const ICON_FILE = "icon.png";
 
 // Paths
 const ROOT = path.join(__dirname, "..");
-const EXECUTABLE = path.join(ROOT, "mpn-core-linux");
+const EXECUTABLE = path.join(ROOT, "mpn-software-linux");
 const ICON_PATH = path.join(ROOT, ICON_FILE);
 const BUILD_DIR = path.join(ROOT, `${APP_NAME}_deb`);
 const DEBIAN_DIR = path.join(BUILD_DIR, "DEBIAN");

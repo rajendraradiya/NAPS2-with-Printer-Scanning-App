@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=mpn-software
+Comment=Start mpn-software Service
+Exec=systemctl start mpn-software.service
+Icon=mpn-software
+Terminal=true
+Type=Application
+Categories=Utility;

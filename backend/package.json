@@ -7,7 +7,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "windows": "pkg . --targets node18-win-x64 --output ./distribution/windows/mpn-core-win",
-    "linux": "pkg . --targets node18-linux-x64 --output ./distribution/linux/mpn/mpn-core-linux && node ./distribution/linux/mpn/scripts/build.js && node ./distribution/linux/generate.js",
+    "linux": "pkg . --targets node18-linux-x64 --output ./distribution/linux/mpn/mpn-software-linux && node ./distribution/linux/mpn/scripts/build.js && node ./distribution/linux/generate.js",
     "mac": "pkg . --targets node18-macos-x64 --output ./distribution/mac/build/mpn-core-macos &&  pkgbuild --root ./distribution/mac/build --identifier com.mpn-core.installer --version 1.0.0 --scripts ./distribution/mac/scripts --install-location /usr/local/mpn-core ./setup/mpn-core-installer.pkg"
   },
   "dependencies": {
