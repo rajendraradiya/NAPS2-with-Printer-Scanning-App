@@ -1,9 +1,3 @@
-[Desktop Entry]
-Version=1.0
-Name=mpn-software
-Comment=Start mpn-software Service
-Exec=systemctl start mpn-software.service
-Icon=mpn-software
-Terminal=true
-Type=Application
-Categories=Utility;
+version https://git-lfs.github.com/spec/v1
+oid sha256:269d334d064748ffe726cb00eb43946448cd95d819b0291ea466b1e073e1db57
+size 192
