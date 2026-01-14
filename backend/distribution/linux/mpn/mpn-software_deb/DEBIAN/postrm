@@ -1,11 +1,3 @@
-#!/bin/bash
-set -e
-
-echo "🧹 Cleaning files..."
-
-if [ -f "/lib/systemd/system/mpn-software.service" ]; then
-    rm -f /lib/systemd/system/mpn-software.service
-fi
-
-systemctl daemon-reload || true
-exit 0
+version https://git-lfs.github.com/spec/v1
+oid sha256:7912f6620640cad802a15955380294fca2cb03493be6f0d9e8f785e53373aad4
+size 204

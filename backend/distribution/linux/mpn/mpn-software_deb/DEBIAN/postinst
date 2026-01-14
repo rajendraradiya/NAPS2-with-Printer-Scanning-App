@@ -1,36 +1,3 @@
-#!/bin/bash
-set -e
-
-echo ""
-echo "⚠️  You are about to install mpn-software."
-echo "This process will:"
-echo "  • Create desktop shortcut"
-echo "  • Install and start service"
-echo ""
-
-read -p "Do you want to continue? (y/n): " CONFIRM
-
-if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
-    echo "❌ Installation cancelled."
-    exit 1
-fi
-
-systemctl daemon-reload
-systemctl enable mpn-software.service
-systemctl start mpn-software.service
-
-if command -v update-desktop-database &>/dev/null; then
-    update-desktop-database
-fi
-if command -v gtk-update-icon-cache &>/dev/null; then
-    gtk-update-icon-cache /usr/share/icons/hicolor || true
-fi
-
-USER_DESKTOP="/home/$SUDO_USER/Desktop"
-if [ -d "$USER_DESKTOP" ]; then
-    cp /usr/share/applications/mpn-software.desktop "$USER_DESKTOP/"
-    chmod +x "$USER_DESKTOP/mpn-software.desktop"
-fi
-
-echo "✅ mpn-software installed."
-exit 0
+version https://git-lfs.github.com/spec/v1
+oid sha256:3383c6d987d659f452c71f39be8cdeabf0813788cd4fe502108b3a001edc1b86
+size 878

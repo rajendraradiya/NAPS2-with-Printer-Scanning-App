@@ -1,11 +1,3 @@
-[Unit]
-Description=mpn-software Background Service
-After=network.target
-
-[Service]
-ExecStart=/usr/bin/mpn-software
-Restart=always
-User=root
-
-[Install]
-WantedBy=multi-user.target
+version https://git-lfs.github.com/spec/v1
+oid sha256:04bb04b02275c5481c28ce1ac49dd1e4e79eed6e6b590b7e540976e5681066ca
+size 178

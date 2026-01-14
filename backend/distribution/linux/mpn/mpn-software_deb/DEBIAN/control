@@ -1,7 +1,3 @@
-Package: mpn-software
-Version: 1.0
-Section: utils
-Priority: optional
-Architecture: amd64
-Maintainer: Your Name <you@example.com>
-Description: mpn-software – Linux service with desktop shortcut
+version https://git-lfs.github.com/spec/v1
+oid sha256:0b3b0e07fa43e8d0c45aacbe6d8eabd60efbe97d2570a0c8175696d976f63ae3
+size 195
