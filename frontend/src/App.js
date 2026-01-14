@@ -38,21 +38,21 @@ export default function ScannerApp() {
 
   const windowSetupDownload = () => {
     downloadFile(
-      "mpn-software-win.EXE",
-      `${downloadFileName}-Windows.EXE`,
+      "MPN-Scanner-Library-For-Windows.EXE",
+      `MPN-Scanner-Library-For-Windows.EXE`,
       false
     );
   };
   const linuxSetupDownload = () => {
     downloadFile(
-      "mpn-software-linux.run",
-      `${downloadFileName}-Linux.run`,
+      "MPN-Scanner-Library-For-Linux.run",
+      `MPN-Scanner-Library-For-Linux.run`,
       false
     );
   };
 
   const macSetupDownload = () => {
-    downloadFile("mpn-core-mac.pkg", `${downloadFileName}-MacOS.pkg`, false);
+    downloadFile("MPN-Scanner-Library-For-MacOS.pkg", `MPN-Scanner-Library-For-MacOS.pkg`, false);
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {
