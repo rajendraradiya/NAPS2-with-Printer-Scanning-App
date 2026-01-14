@@ -62,9 +62,9 @@ export default function MpnDownloadGuide({
     ],
     macos: [
       {
-        title: `Download ${downloadName}.pkg`,
-        desc: `Save ${downloadName}.pkg to a folder (usually Downloads).`,
-        btnText: `Download ${downloadName}.pkg`,
+        title: `Download ${downloadName}-MacOS.pkg`,
+        desc: `Save ${downloadName}-MacOS.pkg to a folder (usually Downloads).`,
+        btnText: `Download ${downloadName}-MacOS.pkg`,
         type: "macos",
       },
       {
