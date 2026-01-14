@@ -39,20 +39,20 @@ export default function MpnDownloadGuide({
     ],
     linux: [
       {
-        title: `Download ${downloadName}-linux.run`,
-        desc: `Save ${downloadName}-linux.run to a folder (usually Downloads).`,
-        btnText: `Download ${downloadName}-linux.run`,
+        title: `Download ${downloadName}-Linux.run`,
+        desc: `Save ${downloadName}-Linux.run to a folder (usually Downloads).`,
+        btnText: `Download ${downloadName}-Linux.run`,
         type: "linux",
       },
       {
         title: "Make it executable",
         desc: "Run the chmod command so the file can be executed.",
-        cmd: `sudo chmod +x ${downloadName}-linux.run`,
+        cmd: `sudo chmod +x ${downloadName}-Linux.run`,
       },
       {
         title: "Run the installer",
         desc: "Execute the file with sudo to perform the install.",
-        cmd: `sudo ./${downloadName}-linux.run`,
+        cmd: `sudo ./${downloadName}-Linux.run`,
       },
 
       {

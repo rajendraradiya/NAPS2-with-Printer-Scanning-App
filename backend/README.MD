@@ -42,11 +42,11 @@ _______|   Linux  |_____________________________________________________________
 
 
 
-sudo dpkg --purge mpn-core
+sudo dpkg --purge mpn-software
 sudo dpkg --purge naps2
-dpkg -l | grep -E 'mpn-core|naps2'
+dpkg -l | grep -E 'mpn-software|naps2'
 sudo rm -rf /opt/dual-installer
-sudo apt-get remove  mpn-core naps2
+sudo apt-get remove  mpn-software naps2
 
 ______| windows |______________________________________________________________________________________--________
 #Stop service windows
