@@ -1,24 +1,31 @@
 import React, { useState } from "react";
 
-export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
+export default function MpnDownloadGuide({
+  open = false,
+  onCloseDialogBox,
+  onWindows,
+  onLinux,
+  onMac,
+  downloadName,
+}) {
   const [tab, setTab] = useState("windows");
   const [copied, setCopied] = useState("");
 
   const steps = {
     windows: [
       {
-        title: "Download mpn-software-win.exe",
-        desc: "Click the download button to save mpn-software-win.exe to your Downloads folder.",
-        btnText: "Download mpn-software-win.exe",
-        href: "mpn-software-win.EXE",
+        title: `Download ${downloadName}-Windows.exe`,
+        desc: `Click the download button to save ${downloadName}-Windows.exe to your Downloads folder.`,
+        btnText: `Download ${downloadName}-Windows.exe`,
+        type: "windows",
       },
       {
         title: "Go to folder of download",
-        desc: "Open File Explorer and navigate to the folder where you saved mpn-software-win.exe (usually Downloads).",
+        desc: `Open File Explorer and navigate to the folder where you saved ${downloadName}-Windows.exe (usually Downloads).`,
       },
       {
         title: "Run as administrator",
-        desc: "Right‑click mpn-software-win.exe and choose ‘Run as administrator’ to allow installer permissions.",
+        desc: `Right‑click ${downloadName}-Windows.exe and choose ‘Run as administrator’ to allow installer permissions.`,
       },
       {
         title: "Allow local network access",
@@ -27,30 +34,50 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
       },
       {
         title: "Scan now",
-        desc: "When the installer finishes, open the app and click ‘Scan now’ to begin.",
+        desc: "After installation finishes, open the EHR portal, navigate to the Documents section, and click ‘Scan now’ to restart the scan.",
       },
     ],
     linux: [
       {
-        title: "Download mpn-core-linux.run",
-        desc: "Save mpn-core-linux.run to a folder (usually Downloads).",
-        btnText: "Download mpn-core-linux.run",
-        href: "mpn-core-linux.run",
+        title: `Download ${downloadName}-linux.run`,
+        desc: `Save ${downloadName}-linux.run to a folder (usually Downloads).`,
+        btnText: `Download ${downloadName}-linux.run`,
+        type: "linux",
       },
       {
         title: "Make it executable",
         desc: "Run the chmod command so the file can be executed.",
-        cmd: "sudo chmod +x mpn-core-linux.run",
+        cmd: `sudo chmod +x ${downloadName}-linux.run`,
       },
       {
         title: "Run the installer",
         desc: "Execute the file with sudo to perform the install.",
-        cmd: "sudo ./mpn-core-linux.run",
+        cmd: `sudo ./${downloadName}-linux.run`,
       },
 
       {
         title: "Scan now",
-        desc: "Open the installed app and click ‘Scan now’ to begin.",
+        desc: "After installation finishes, open the EHR portal, navigate to the Documents section, and click ‘Scan now’ to restart the scan.",
+      },
+    ],
+    macos: [
+      {
+        title: `Download ${downloadName}.pkg`,
+        desc: `Save ${downloadName}.pkg to a folder (usually Downloads).`,
+        btnText: `Download ${downloadName}.pkg`,
+        type: "macos",
+      },
+      {
+        title: "Install the application",
+        desc: "Double-click the downloaded file and follow the installation steps.",
+      },
+      {
+        title: "Installation completed",
+        desc: "The application has been successfully installed on your Mac.",
+      },
+      {
+        title: "Scan now",
+        desc: "After installation finishes, open the EHR portal, navigate to the Documents section, and click ‘Scan now’ to restart the scan.",
       },
     ],
   };
@@ -74,7 +101,7 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
         <>
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
             <div className=" flex items-start justify-center">
-              <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-6 md:p-10 ">
+              <div className="w-[60vw] w-full bg-white rounded-2xl shadow-lg p-6 md:p-10 ">
                 <header className="flex items-center justify-between mb-6">
                   <div>
                     <h1 className="text-2xl text-gray-500 md:text-3xl font-semibold">
@@ -106,6 +133,16 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
                       >
                         Linux
                       </button>
+                      <button
+                        onClick={() => setTab("macos")}
+                        className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+                          tab === "macos"
+                            ? "bg-white text-blue-300  shadow"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        Mac
+                      </button>
                     </div>
                   </div>
                 </header>
@@ -134,13 +171,32 @@ export default function MpnDownloadGuide({ open = false, onCloseDialogBox }) {
                               </p>
                             </div>
                             <div className="flex items-center gap-2 w-[280px]">
-                              {s.href && (
-                                <a
-                                  href={s.href}
+                              {s.type === "windows" && (
+                                <h4
+                                  href="#"
+                                  onClick={onWindows}
                                   className="inline-flex items-center bg-blue-500 px-3 py-1.5 border rounded-md text-sm font-medium hover:bg-gray-500"
                                 >
                                   {s.btnText || "Download"}
-                                </a>
+                                </h4>
+                              )}
+                              {s.type === "linux" && (
+                                <h4
+                                  href="#"
+                                  onClick={onLinux}
+                                  className="inline-flex items-center bg-blue-500 px-3 py-1.5 border rounded-md text-sm font-medium hover:bg-gray-500"
+                                >
+                                  {s.btnText || "Download"}
+                                </h4>
+                              )}
+                              {s.type === "macos" && (
+                                <h4
+                                  href="#"
+                                  onClick={onMac}
+                                  className="inline-flex items-center bg-blue-500 px-3 py-1.5 border rounded-md text-sm font-medium hover:bg-gray-500"
+                                >
+                                  {s.btnText || "Download"}
+                                </h4>
                               )}
                             </div>
                           </div>

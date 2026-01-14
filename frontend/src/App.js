@@ -34,14 +34,25 @@ export default function ScannerApp() {
   const [isNewScanCopy, setIsNewScanCopy] = useState(false);
   const [isLoadedPage, setIsLoadedPage] = useState(false);
 
+  const downloadFileName = "MPN-Scanner-Library-For";
+
   const windowSetupDownload = () => {
-    downloadFile("./mpn-software-win.EXE", "mpn-software-win.EXE", false);
+    downloadFile(
+      "./mpn-software-win.EXE",
+      `${downloadFileName}-Windows.EXE`,
+      false
+    );
   };
   const linuxSetupDownload = () => {
-    downloadFile("./mpn-core-linux.run", "mpn-core-linux.run", false);
+    downloadFile(
+      "./mpn-core-linux.run",
+      `${downloadFileName}-Linux.run`,
+      false
+    );
   };
+
   const macSetupDownload = () => {
-    downloadFile("./mpn-core-mac.pkg", "mpn-core-mac.pkg", false);
+    downloadFile("./mpn-core-mac.pkg", `${downloadFileName}-MacOS.pkg`, false);
   };
 
   const downloadFile = (url, filename, isNewTab = false) => {
@@ -236,8 +247,12 @@ export default function ScannerApp() {
       <ScannerLoader loader={loader} selectedDevice={selectedDevice} />
 
       <MpnDownloadGuide
+        downloadName={downloadFileName}
         open={openGuidelineDialogBox}
         onCloseDialogBox={() => setOpenGuidelineDialogBox(false)}
+        onWindows={() => windowSetupDownload()}
+        onLinux={() => linuxSetupDownload()}
+        onMac={() => macSetupDownload()}
       />
       <>
         <div className="h-screen w-screen flex flex-row">
