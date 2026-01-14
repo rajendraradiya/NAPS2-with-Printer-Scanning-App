@@ -12,7 +12,7 @@ const INSTALLER_NAME = path.join(SETUP_DIR, 'mpn-software-linux.run');
 // .deb files must be in the same directory as this script
 const DEB_FILES = [
   'mpn-software.deb',
-  'naps2-8.2.0-linux-x64.deb'
+  'naps2-8.2.1-linux-x64.deb'
 ];
 
 // Absolute paths for validation
