@@ -52,12 +52,12 @@ ______| windows |_______________________________________________________________
 #Stop service windows
 
 $nssmPath = "$env:ProgramFiles\nssm\nssm.exe"
-& $nssmPath stop mpn-core
-& $nssmPath remove mpn-core confirm
+& $nssmPath stop mpn-software
+& $nssmPath remove mpn-software confirm
 
 or
 
- & "$env:ProgramFiles\nssm\nssm.exe" stop mpn-core; & "$env:ProgramFiles\nssm\nssm.exe" remove mpn-core confirm
+ & "$env:ProgramFiles\nssm\nssm.exe" stop mpn-software; & "$env:ProgramFiles\nssm\nssm.exe" remove mpn-software confirm
 
 <pre>
 # iexpress run command need
@@ -65,10 +65,7 @@ powershell.exe -ExecutionPolicy Bypass -File build.ps1
 
 powershell.exe -ExecutionPolicy Bypass -NoExit -File "build.ps1"
 
+D:\Study\Express\NAPS2-with-Printer-Scanning-App\backend\distribution\windows
 
-Message
-MPN Core and NAPS2 services automatically start after installation and run in the background.
-
-Installation completed successfully.
 </pre>
 </pre>
