@@ -28,7 +28,7 @@ if (-not (Test-Path $iconSource)) {
 }
 
 # ==========================================
-#  Confirmation Popup Function (WPF)
+# STEP 1.  Confirmation Popup Function 
 # ==========================================
 
 Add-Type -AssemblyName PresentationFramework
@@ -130,33 +130,15 @@ function Show-YesNoPopup {
     return $script:result
 }
 
-# ==========================================
-#  SHOW CONFIRMATION POPUP
-# ==========================================
-
-$confirm = Show-YesNoPopup `
-    -Title "MPN Software" `
-    -Message "To scan documents to this device, we need to install 3rd party software. In the future, the NAPS2 software will load automatically to help facilitate scanning. Select 'Yes' to continue or 'No' if you don't need the ability to scan documents on this device." `
-    -IconPath $iconSource
-
-if (-not $confirm) {
-    exit 1
-}
-
-# ==========================================
-#  INSTALL PHASE
-# ==========================================
-
-New-Item -ItemType Directory -Path $installDir -Force | Out-Null
-Copy-Item $iconSource $iconDest -Force
 
 
 # ==========================================
-#  Run As Administrator
+# STEP 2.  Run As Administrator
 # ==========================================
+
+$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 
 # Check for admin
-$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
 
     Write-Host "Restarting script as Administrator..."
@@ -165,11 +147,33 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
     Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
 
     # Wait 15 seconds before exiting current process
-    Start-Sleep -Seconds 15
+    Start-Sleep -Seconds 30
 
     # Exit non-admin PowerShell
-    exit
+    [Environment]::Exit(0)
 }
+
+# ==========================================
+#  SHOW CONFIRMATION POPUP
+# ==========================================
+
+
+$confirm = Show-YesNoPopup `
+    -Title "MPN Software" `
+    -Message "To scan documents to this device, we need to install 3rd party software. In the future, the NAPS2 software will load automatically to help facilitate scanning. Select 'Yes' to continue or 'No' if you don't need the ability to scan documents on this device." `
+    -IconPath $iconSource
+
+if (-not $confirm) {
+    Write-Host "User declined installation."
+    [Environment]::Exit(0)
+}
+
+# ==========================================
+#  INSTALL PHASE
+# ==========================================
+
+New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+Copy-Item $iconSource $iconDest -Force
 
 # Admin code continues here
 Write-Host "Running as Administrator"
@@ -243,34 +247,91 @@ if (!(Test-Path $nssmPath)) {
     Write-Host "NSSM already installed."
 }
 
+# # ==========================================
+# # Remove existing service if any
+# # ==========================================
+# if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+#     Write-Host "Removing existing service..."
+#     & $nssmPath stop $serviceName -ErrorAction SilentlyContinue
+#     & $nssmPath remove $serviceName confirm
+# }
+
+# # ==========================================
+# # Install and configure service
+# # ==========================================
+# # Write-Host "Creating Windows service '$serviceName'..."
+# & $nssmPath install $serviceName $appPath
+# & $nssmPath set $serviceName AppDirectory $PSScriptRoot
+# & $nssmPath set $serviceName Start SERVICE_AUTO_START
+
+# # Create logs folder
+# $logDir = Join-Path $PSScriptRoot "logs"
+# New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+# & $nssmPath set $serviceName AppStdout (Join-Path $logDir "out.log")
+# & $nssmPath set $serviceName AppStderr (Join-Path $logDir "error.log")
+
+# # Start the service
+# # Write-Host "Starting service..."
+# & $nssmPath start $serviceName
+# Start-Sleep -Seconds 2
+# # Write-Host "✅ Service '$serviceName' is running."
+
+
 # ==========================================
-# Remove existing service if any
+# Install and configure NSSM service (Hardened)
 # ==========================================
+
+# Resolve script root safely
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+# Logs directory
+$logDir = Join-Path $scriptRoot "logs"
+New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+
+# Remove service if it already exists (optional but recommended)
 if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
     Write-Host "Removing existing service..."
-    & $nssmPath stop $serviceName -ErrorAction SilentlyContinue
-    & $nssmPath remove $serviceName confirm
+    & $nssmPath stop $serviceName | Out-Null
+    & $nssmPath remove $serviceName confirm | Out-Null
+    Start-Sleep -Seconds 2
 }
 
-# ==========================================
-# Install and configure service
-# ==========================================
-# Write-Host "Creating Windows service '$serviceName'..."
+# Install service
 & $nssmPath install $serviceName $appPath
-& $nssmPath set $serviceName AppDirectory $PSScriptRoot
-& $nssmPath set $serviceName Start SERVICE_AUTO_START
 
-# Create logs folder
-$logDir = Join-Path $PSScriptRoot "logs"
-New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+# Set working directory
+& $nssmPath set $serviceName AppDirectory $scriptRoot
+
+# Startup behavior (delayed = smoother boot)
+& $nssmPath set $serviceName Start SERVICE_DELAYED_AUTO_START
+
+# Restart automatically if app exits
+& $nssmPath set $serviceName AppExit Default Restart
+& $nssmPath set $serviceName AppRestartDelay 5000
+
+# Logging
 & $nssmPath set $serviceName AppStdout (Join-Path $logDir "out.log")
 & $nssmPath set $serviceName AppStderr (Join-Path $logDir "error.log")
 
-# Start the service
-# Write-Host "Starting service..."
+# Give Windows time before starting
+Start-Sleep -Seconds 5
+
+# Start service
 & $nssmPath start $serviceName
-Start-Sleep -Seconds 2
-# Write-Host "✅ Service '$serviceName' is running."
+
+# Verify service state
+Start-Sleep -Seconds 5
+$svc = Get-Service $serviceName
+
+if ($svc.Status -ne 'Running') {
+    Write-Error "Service '$serviceName' failed to start. Check logs."
+    exit 1
+}
+
+Write-Host "Service '$serviceName' started successfully."
+
+
+
 
 # ==========================================
 # Create Control Panel Uninstall Entry
