@@ -16,30 +16,6 @@ $uninstallPs1 = Join-Path $installDir "uninstall.ps1"
 
 
 # ==========================================
-#  Run As Administrator
-# ==========================================
-
-# Check for admin
-$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
-if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-
-    Write-Host "Restarting script as Administrator..."
-
-    # Launch elevated PowerShell
-    Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-
-    # Wait 15 seconds before exiting current process
-    Start-Sleep -Seconds 15
-
-    # Exit non-admin PowerShell
-    exit
-}
-
-# Admin code continues here
-Write-Host "Running as Administrator"
-
-
-# ==========================================
 #  Source icon (MUST EXIST before popup)
 # ==========================================
 
@@ -174,7 +150,30 @@ if (-not $confirm) {
 New-Item -ItemType Directory -Path $installDir -Force | Out-Null
 Copy-Item $iconSource $iconDest -Force
 
-# Continue installation logic here
+
+# ==========================================
+#  Run As Administrator
+# ==========================================
+
+# Check for admin
+$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+
+    Write-Host "Restarting script as Administrator..."
+
+    # Launch elevated PowerShell
+    Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
+
+    # Wait 15 seconds before exiting current process
+    Start-Sleep -Seconds 15
+
+    # Exit non-admin PowerShell
+    exit
+}
+
+# Admin code continues here
+Write-Host "Running as Administrator"
+
 
 
 
