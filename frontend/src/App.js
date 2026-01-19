@@ -113,9 +113,6 @@ export default function ScannerApp() {
           } else {
             setIsInstalled(false);
             setOpenDialogBox(true);
-            localStorage.removeItem("selectedDevice");
-            setDevices([]);
-            setSelectedDevice(null);
           }
           setIsNAPS2ServiceRunning(true);
         });
