@@ -45,7 +45,7 @@ export default function ScannerApp() {
   };
   const linuxSetupDownload = () => {
     downloadFile(
-      `./${downloadFileName}-Linux.run`,
+      `./mpn-software-linux.run`,
       `MPN-Scanner-Library-For-Linux.run`,
       false,
     );
