@@ -1,7 +1,6 @@
 # ==========================================
 # MPN-Software Full Installer Script
 # ==========================================
-$serviceName = "mpn-software"
 $appPath = Join-Path $PSScriptRoot "mpn-core-win.exe"
 $nssmBase = Join-Path $env:ProgramFiles "nssm"
 $nssmPath = Join-Path $nssmBase "nssm.exe"
@@ -281,51 +280,63 @@ if (!(Test-Path $nssmPath)) {
 # Install and configure NSSM service (Hardened)
 # ==========================================
 
-# Resolve script root safely
-$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ErrorActionPreference = "Stop"
 
-# Logs directory
-$logDir = Join-Path $scriptRoot "logs"
-New-Item -ItemType Directory -Force -Path $logDir | Out-Null
+# -----------------------------
+# CONFIG
+# -----------------------------
 
-# Remove service if it already exists (optional but recommended)
-if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
-    Write-Host "Removing existing service..."
-    & $nssmPath stop $serviceName | Out-Null
-    & $nssmPath remove $serviceName confirm | Out-Null
-    Start-Sleep -Seconds 2
+$scriptRoot = Split-Path -Parent $PSCommandPath
+$nssmPath   = Join-Path $env:ProgramFiles "nssm\nssm.exe"
+
+$appExe     = Join-Path $scriptRoot "mpn-core-win.exe"
+$logDir     = Join-Path $scriptRoot "logs"
+
+$outLog     = Join-Path $logDir "out.log"
+$errorLog   = Join-Path $logDir "error.log"
+
+# -----------------------------
+# PREP
+# -----------------------------
+New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+
+# -----------------------------
+# INSTALL + START FUNCTION
+# -----------------------------
+function Install-And-StartService {
+
+    if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+        & $nssmPath stop $serviceName | Out-Null
+        Start-Sleep 2
+        & $nssmPath remove $serviceName confirm | Out-Null
+        Start-Sleep 2
+    }
+
+    & $nssmPath install $serviceName $appExe
+    & $nssmPath set $serviceName AppDirectory $scriptRoot
+    & $nssmPath set $serviceName Start SERVICE_DELAYED_AUTO_START
+    & $nssmPath set $serviceName AppExit Default Restart
+    & $nssmPath set $serviceName AppRestartDelay 5000
+    & $nssmPath set $serviceName AppStdout $outLog
+    & $nssmPath set $serviceName AppStderr $errorLog
+
+    & $nssmPath start $serviceName
 }
 
-# Install service
-& $nssmPath install $serviceName $appPath
+# -----------------------------
+# START (RETRY ONCE)
+# -----------------------------
+Install-And-StartService
+Start-Sleep 10
 
-# Set working directory
-& $nssmPath set $serviceName AppDirectory $scriptRoot
+if ((Get-Service $serviceName).Status -ne "Running") {
+    Install-And-StartService
+    Start-Sleep 10
 
-# Startup behavior (delayed = smoother boot)
-& $nssmPath set $serviceName Start SERVICE_DELAYED_AUTO_START
-
-# Restart automatically if app exits
-& $nssmPath set $serviceName AppExit Default Restart
-& $nssmPath set $serviceName AppRestartDelay 5000
-
-# Logging
-& $nssmPath set $serviceName AppStdout (Join-Path $logDir "out.log")
-& $nssmPath set $serviceName AppStderr (Join-Path $logDir "error.log")
-
-# Give Windows time before starting
-Start-Sleep -Seconds 5
-
-# Start service
-& $nssmPath start $serviceName
-
-# Verify service state
-Start-Sleep -Seconds 5
-$svc = Get-Service $serviceName
-
-if ($svc.Status -ne 'Running') {
-    Write-Error "Service '$serviceName' failed to start. Check logs."
-    exit 1
+    if ((Get-Service $serviceName).Status -ne "Running") {
+        Write-Error "Service failed to start after second attempt."
+        exit 1
+    }
 }
 
 Write-Host "Service '$serviceName' started successfully."
