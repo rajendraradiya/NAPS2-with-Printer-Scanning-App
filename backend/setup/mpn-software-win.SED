@@ -34,6 +34,7 @@ FILE0="build.ps1"
 FILE1="icon.ico"
 FILE2="mpn-core-win.exe"
 FILE3="naps2-8.2.1-win-x64.exe"
+FILE4="nssm-2.24.zip"
 [SourceFiles]
 SourceFiles0=D:\Study\Express\NAPS2-with-Printer-Scanning-App\backend\distribution\windows\
 [SourceFiles0]
@@ -41,3 +42,4 @@ SourceFiles0=D:\Study\Express\NAPS2-with-Printer-Scanning-App\backend\distributi
 %FILE1%=
 %FILE2%=
 %FILE3%=
+%FILE4%=
