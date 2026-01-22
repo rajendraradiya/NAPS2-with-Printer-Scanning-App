@@ -20,7 +20,13 @@ export default function ScannerApp() {
   const platform = window?.navigator?.platform?.split(" ")[0];
   const platform2 = window?.navigator?.userAgentData?.platform;
   const [devices, setDevices] = useState([]);
+  const [deviceTypes, setDevicesTypes] = useState([
+    { label: "Feeder", value: "feeder" },
+    { label: "Duplex", value: true },
+    { label: "Glass", value: "glass" },
+  ]);
   const [selectedDevice, setSelectedDevice] = useState("");
+  const [selectedDeviceType, setSelectedDeviceType] = useState("flatbed");
   const [imageBase64, setImageBase64] = useState(null);
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
@@ -119,7 +125,9 @@ export default function ScannerApp() {
     } catch (err) {
       console.error(err);
       localStorage.removeItem("selectedDevice");
+      localStorage.removeItem("selectedDeviceType");
       setSelectedDevice(null);
+      setSelectedDeviceType(null);
       setDevices([]);
       setIsLoadedPage(true);
       setIsNAPS2ServiceRunning(false);
@@ -129,8 +137,10 @@ export default function ScannerApp() {
 
   const getDeviceList = async () => {
     const savedDevice = localStorage.getItem("selectedDevice");
+    const savedDeviceType = localStorage.getItem("selectedDeviceType");
     if (savedDevice) {
       setSelectedDevice(savedDevice);
+      setSelectedDeviceType(savedDeviceType);
       setDevices([savedDevice]);
     } else {
       setDeviceLoader(true);
@@ -169,9 +179,11 @@ export default function ScannerApp() {
     }, 1000);
     try {
       localStorage.setItem("selectedDevice", selectedDevice.trim());
+      localStorage.setItem("selectedDeviceType", selectedDeviceType.trim());
       const res = await axioInstance.post(`/api/scan`, {
         device: selectedDevice.trim(),
         os: platform2 || platform,
+        type : selectedDeviceType.trim()
       });
       if (res.status !== 200) {
         alert("Something went wrong. Please try again later!");
@@ -273,7 +285,7 @@ export default function ScannerApp() {
 
                 {devices && devices.length ? (
                   <>
-                    <div>
+                    <div style={{ display: "flex" }}>
                       <select
                         value={selectedDevice}
                         style={{ minWidth: "340px" }}
@@ -284,6 +296,19 @@ export default function ScannerApp() {
                         {devices.map((d, i) => (
                           <option key={i} value={d}>
                             {d}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={selectedDeviceType}
+                        style={{ width: "195px" }}
+                        className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                        onChange={(e) => setSelectedDeviceType(e.target.value)}
+                      >
+                        <option value="">Select Paper Source</option>
+                        {deviceTypes.map((type, i) => (
+                          <option key={i} value={type.value}>
+                            {type.label}
                           </option>
                         ))}
                       </select>

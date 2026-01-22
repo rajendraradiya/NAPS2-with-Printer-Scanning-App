@@ -18,11 +18,11 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, Content-Type, Authorization"
+    "Origin, Content-Type, Authorization",
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
+    "GET, POST, PUT, DELETE, OPTIONS",
   );
 
   if (req.method === "OPTIONS") {
@@ -31,7 +31,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
 
 // Show installed successfully notification (cross-platform)
 function showSuccessNotification() {
@@ -111,7 +110,7 @@ app.post("/api/devices", (req, res) => {
 
 // 2. Scan document
 app.post("/api/scan", (req, res) => {
-  const { device, os } = req.body;
+  const { device, os, type } = req.body;
 
   const scanFolder = path.join(operatingSystem.tmpdir(), "scans");
   fs.mkdirSync(scanFolder, { recursive: true });
@@ -132,6 +131,8 @@ app.post("/api/scan", (req, res) => {
         "sane",
         "--device",
         device,
+        "--source",
+        `${type}`,
       ]);
     } else if (os === "Windows" || os === "Win32") {
       child = spawn(
@@ -144,8 +145,10 @@ app.post("/api/scan", (req, res) => {
           "wia", // use "wia" or "twain" on Windows, not "sane"
           "--device",
           device,
+          "--source",
+          `${type}`,
         ],
-        { shell: true } // helps with Windows path/args parsing
+        { shell: true }, // helps with Windows path/args parsing
       );
     } else if (os === "macOS") {
       child = spawn("/Applications/NAPS2.app/Contents/MacOS/NAPS2", [
@@ -157,6 +160,8 @@ app.post("/api/scan", (req, res) => {
         "apple",
         "--device",
         device,
+        "--source",
+        `${type}`,
       ]);
     }
 
