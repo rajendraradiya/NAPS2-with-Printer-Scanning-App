@@ -26,7 +26,7 @@ export default function ScannerApp() {
     { label: "Glass", value: "glass" },
   ]);
   const [selectedDevice, setSelectedDevice] = useState("");
-  const [selectedDeviceType, setSelectedDeviceType] = useState("flatbed");
+  const [selectedDeviceType, setSelectedDeviceType] = useState("glass");
   const [imageBase64, setImageBase64] = useState(null);
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
