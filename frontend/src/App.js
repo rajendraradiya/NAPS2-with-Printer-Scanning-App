@@ -26,7 +26,7 @@ export default function ScannerApp() {
     { label: "Glass", value: "glass" },
   ]);
   const [selectedDevice, setSelectedDevice] = useState("");
-  const [selectedDeviceType, setSelectedDeviceType] = useState("flatbed");
+  const [selectedDeviceType, setSelectedDeviceType] = useState("glass");
   const [imageBase64, setImageBase64] = useState(null);
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
@@ -116,6 +116,16 @@ export default function ScannerApp() {
           setIsLoadedPage(true);
           if (res.data.installed) {
             setIsInstalled(true);
+            const savedDeviceType = localStorage.getItem("selectedDeviceType");
+            const savedDevice = localStorage.getItem("selectedDevice");
+            if (!savedDeviceType) {
+              localStorage.setItem("selectedDeviceType", "glass");
+              setSelectedDevice(savedDevice);
+              setSelectedDeviceType("glass");
+              setDevices([savedDevice]);
+            } else {
+              setSelectedDeviceType(savedDeviceType);
+            }
           } else {
             setIsInstalled(false);
             setOpenDialogBox(true);
@@ -154,7 +164,7 @@ export default function ScannerApp() {
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
           } else {
-            setDevices(res.data);
+            setDevices((prev) => [...prev, ...res.data]);
           }
           setDeviceLoader(false);
         });
@@ -183,7 +193,7 @@ export default function ScannerApp() {
       const res = await axioInstance.post(`/api/scan`, {
         device: selectedDevice.trim(),
         os: platform2 || platform,
-        type : selectedDeviceType.trim()
+        type: selectedDeviceType.trim(),
       });
       if (res.status !== 200) {
         alert("Something went wrong. Please try again later!");
