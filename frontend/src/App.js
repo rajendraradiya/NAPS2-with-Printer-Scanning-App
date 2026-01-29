@@ -44,14 +44,14 @@ export default function ScannerApp() {
 
   const windowSetupDownload = () => {
     downloadFile(
-      `./${downloadFileName}-Windows.EXE`,
+      `https://stcloudehrdevnaps2.blob.core.windows.net/downloads/MPN-Scanner-Library-For-Windows.EXE`,
       `MPN-Scanner-Library-For-Windows.EXE`,
       false,
     );
   };
   const linuxSetupDownload = () => {
     downloadFile(
-      `./mpn-software-linux.run`,
+      `https://stcloudehrdevnaps2.blob.core.windows.net/downloads/MPN-Scanner-Library-For-Linux.run`,
       `MPN-Scanner-Library-For-Linux.run`,
       false,
     );
@@ -59,7 +59,7 @@ export default function ScannerApp() {
 
   const macSetupDownload = () => {
     downloadFile(
-      `./${downloadFileName}-MacOS.pkg`,
+      `https://stcloudehrdevnaps2.blob.core.windows.net/downloads/MPN-Scanner-Library-For-MacOS.pkg`,
       `MPN-Scanner-Library-For-MacOS.pkg`,
       false,
     );
