@@ -26,7 +26,7 @@ export default function ScannerApp() {
     { label: "Glass", value: "glass" },
   ]);
   const [selectedDevice, setSelectedDevice] = useState("");
-  const [selectedDeviceType, setSelectedDeviceType] = useState("glass");
+  const [selectedDeviceType, setSelectedDeviceType] = useState("");
   const [imageBase64, setImageBase64] = useState(null);
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
@@ -118,13 +118,14 @@ export default function ScannerApp() {
             setIsInstalled(true);
             const savedDeviceType = localStorage.getItem("selectedDeviceType");
             const savedDevice = localStorage.getItem("selectedDevice");
-            if (!savedDeviceType) {
-              localStorage.setItem("selectedDeviceType", "glass");
+            if (savedDevice) {
+              if (savedDeviceType) {
+                setSelectedDeviceType(savedDeviceType);
+              } else {
+                setSelectedDeviceType("glass");
+              }
               setSelectedDevice(savedDevice);
-              setSelectedDeviceType("glass");
               setDevices([savedDevice]);
-            } else {
-              setSelectedDeviceType(savedDeviceType);
             }
           } else {
             setIsInstalled(false);
@@ -146,16 +147,6 @@ export default function ScannerApp() {
   };
 
   const getDeviceList = async () => {
-    const savedDevice = localStorage.getItem("selectedDevice");
-    const savedDeviceType = localStorage.getItem("selectedDeviceType");
-    if (savedDevice) {
-      setSelectedDevice(savedDevice);
-      setSelectedDeviceType(savedDeviceType);
-      setDevices([savedDevice]);
-    } else {
-      setDeviceLoader(true);
-    }
-
     try {
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
