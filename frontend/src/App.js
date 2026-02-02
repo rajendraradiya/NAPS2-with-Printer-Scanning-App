@@ -116,14 +116,8 @@ export default function ScannerApp() {
           setIsLoadedPage(true);
           if (res.data.installed) {
             setIsInstalled(true);
-            const savedDeviceType = localStorage.getItem("selectedDeviceType");
             const savedDevice = localStorage.getItem("selectedDevice");
             if (savedDevice) {
-              if (savedDeviceType) {
-                setSelectedDeviceType(savedDeviceType);
-              } else {
-                setSelectedDeviceType("glass");
-              }
               setSelectedDevice(savedDevice);
               setDevices([savedDevice]);
             }
@@ -146,7 +140,10 @@ export default function ScannerApp() {
     }
   };
 
-  const getDeviceList = async () => {
+  const getDeviceList = async (isEnableLoader = false) => {
+    if (isEnableLoader) {
+      setDeviceLoader(true);
+    }
     try {
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
@@ -222,10 +219,16 @@ export default function ScannerApp() {
     calledRef.current = true;
     getDeviceList();
     getSdkInformation();
+    const savedDeviceType = localStorage.getItem("selectedDeviceType");
+    if (savedDeviceType) {
+      setSelectedDeviceType(savedDeviceType);
+    } else {
+      setSelectedDeviceType("glass");
+    }
   }, []);
 
   const onRefreshHandler = () => {
-    getDeviceList();
+    getDeviceList(true);
     getSdkInformation();
   };
 
