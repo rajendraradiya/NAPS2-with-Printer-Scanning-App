@@ -229,9 +229,7 @@ if (!(Test-Path $naps2Exe)) {
     Write-Host "NAPS2 already installed."
 }
 
-# ==========================================
-# Install NSSM if missing
-# ==========================================
+
 # ==================================================
 # Install NSSM from local ZIP
 # ==================================================
@@ -323,15 +321,24 @@ Ensure-NssmInstalled
 
 
 function Install-And-StartService {
-    Write-Host "Installing Service..."
-    if (Get-Service $serviceName -ErrorAction SilentlyContinue) {
-        Write-Host "Removing existing service..."
-        & $nssmPath stop $serviceName | Out-Null
-        & $nssmPath remove $serviceName confirm | Out-Null
-        Start-Sleep 5
+    Write-Host "Checking service '$serviceName'..."
+
+    $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+
+    if ($service) {
+        Write-Host "Service exists. Restarting..."
+        & $nssmPath restart $serviceName | Out-Null
+        Start-Sleep -Seconds 3
+        Write-Host "Service '$serviceName' restarted."
+        return
     }
 
+    Write-Host "Service not found. Installing..."
+
     $logDir = Join-Path $PSScriptRoot "logs"
+    if (-not (Test-Path $logDir)) {
+        New-Item -ItemType Directory -Path $logDir | Out-Null
+    }
 
     & $nssmPath install $serviceName $appPath
     & $nssmPath set $serviceName AppDirectory $PSScriptRoot
@@ -341,15 +348,15 @@ function Install-And-StartService {
     & $nssmPath set $serviceName AppStderr (Join-Path $logDir "error.log")
 
     & $nssmPath start $serviceName
-    Start-Sleep -Seconds 5
-    Write-Host "Service '$serviceName' is running."
+    Start-Sleep -Seconds 3
+    Write-Host "Service '$serviceName' installed and running."
 }
 
 # -----------------------------
 # First Attempt
 # -----------------------------
 Install-And-StartService
-Start-Sleep 10
+Start-Sleep 2
 
 $svc = Get-Service $serviceName -ErrorAction SilentlyContinue
 
@@ -418,9 +425,7 @@ Set-ItemProperty $uninstallRegPath NoRepair 1 -Type DWord
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host "Installation completed successfully!" -ForegroundColor Green
-# Write-Host "Service: $serviceName" -ForegroundColor Green
-# Write-Host "Logs: $logDir" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
-Start-Sleep 5
+Start-Sleep 1
 exit
