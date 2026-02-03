@@ -333,7 +333,7 @@ function Install-And-StartService {
         return
     }
 
-    Write-Host "Service not found. Installing..."
+    Write-Host "Service missing. Creating new service instance..."
 
     $logDir = Join-Path $PSScriptRoot "logs"
     if (-not (Test-Path $logDir)) {
@@ -341,6 +341,19 @@ function Install-And-StartService {
     }
 
     & $nssmPath install $serviceName $appPath
+
+    # Wait until Windows registers the service
+    $timeout = 10
+    while ($timeout -gt 0 -and -not (Get-Service -Name $serviceName -ErrorAction SilentlyContinue)) {
+        Start-Sleep 1
+        $timeout--
+    }
+
+    if (-not (Get-Service -Name $serviceName -ErrorAction SilentlyContinue)) {
+        Write-Error "Service was not registered after install."
+        exit 1
+    }
+
     & $nssmPath set $serviceName AppDirectory $PSScriptRoot
     & $nssmPath set $serviceName AppStartupDelay 5000
     & $nssmPath set $serviceName Start SERVICE_AUTO_START
@@ -367,7 +380,7 @@ if (-not $svc -or $svc.Status -ne "Running") {
     # Second Attempt
     # -----------------------------
     Install-And-StartService
-    Start-Sleep 10
+    Start-Sleep 5
 
     $svc = Get-Service $serviceName -ErrorAction SilentlyContinue
 
