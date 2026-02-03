@@ -342,6 +342,7 @@ function Install-And-StartService {
 
     & $nssmPath install $serviceName $appPath
     & $nssmPath set $serviceName AppDirectory $PSScriptRoot
+    & $nssmPath set $serviceName AppStartupDelay 5000
     & $nssmPath set $serviceName Start SERVICE_AUTO_START
     & $nssmPath set $serviceName AppExit Default Restart
     & $nssmPath set $serviceName AppStdout (Join-Path $logDir "out.log")
