@@ -229,7 +229,9 @@ if (!(Test-Path $naps2Exe)) {
     Write-Host "NAPS2 already installed."
 }
 
-
+# ==========================================
+# Install NSSM if missing
+# ==========================================
 # ==================================================
 # Install NSSM from local ZIP
 # ==================================================
@@ -321,56 +323,33 @@ Ensure-NssmInstalled
 
 
 function Install-And-StartService {
-    Write-Host "Checking service '$serviceName'..."
-
-    $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
-
-    if ($service) {
-        Write-Host "Service exists. Restarting..."
-        & $nssmPath restart $serviceName | Out-Null
-        Start-Sleep -Seconds 3
-        Write-Host "Service '$serviceName' restarted."
-        return
+    Write-Host "Installing Service..."
+    if (Get-Service $serviceName -ErrorAction SilentlyContinue) {
+        Write-Host "Removing existing service..."
+        & $nssmPath stop $serviceName | Out-Null
+        & $nssmPath remove $serviceName confirm | Out-Null
+        Start-Sleep 5
     }
-
-    Write-Host "Service missing. Creating new service instance..."
 
     $logDir = Join-Path $PSScriptRoot "logs"
-    if (-not (Test-Path $logDir)) {
-        New-Item -ItemType Directory -Path $logDir | Out-Null
-    }
 
     & $nssmPath install $serviceName $appPath
-
-    # Wait until Windows registers the service
-    $timeout = 10
-    while ($timeout -gt 0 -and -not (Get-Service -Name $serviceName -ErrorAction SilentlyContinue)) {
-        Start-Sleep 1
-        $timeout--
-    }
-
-    if (-not (Get-Service -Name $serviceName -ErrorAction SilentlyContinue)) {
-        Write-Error "Service was not registered after install."
-        exit 1
-    }
-
     & $nssmPath set $serviceName AppDirectory $PSScriptRoot
-    & $nssmPath set $serviceName AppStartupDelay 5000
     & $nssmPath set $serviceName Start SERVICE_AUTO_START
     & $nssmPath set $serviceName AppExit Default Restart
     & $nssmPath set $serviceName AppStdout (Join-Path $logDir "out.log")
     & $nssmPath set $serviceName AppStderr (Join-Path $logDir "error.log")
 
     & $nssmPath start $serviceName
-    Start-Sleep -Seconds 3
-    Write-Host "Service '$serviceName' installed and running."
+    Start-Sleep -Seconds 5
+    Write-Host "Service '$serviceName' is running."
 }
 
 # -----------------------------
 # First Attempt
 # -----------------------------
 Install-And-StartService
-Start-Sleep 2
+Start-Sleep 10
 
 $svc = Get-Service $serviceName -ErrorAction SilentlyContinue
 
@@ -380,7 +359,7 @@ if (-not $svc -or $svc.Status -ne "Running") {
     # Second Attempt
     # -----------------------------
     Install-And-StartService
-    Start-Sleep 5
+    Start-Sleep 10
 
     $svc = Get-Service $serviceName -ErrorAction SilentlyContinue
 
@@ -439,7 +418,9 @@ Set-ItemProperty $uninstallRegPath NoRepair 1 -Type DWord
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host "Installation completed successfully!" -ForegroundColor Green
+# Write-Host "Service: $serviceName" -ForegroundColor Green
+# Write-Host "Logs: $logDir" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
-Start-Sleep 1
+Start-Sleep 5
 exit
