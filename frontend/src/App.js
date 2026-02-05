@@ -44,7 +44,7 @@ export default function ScannerApp() {
 
   const windowSetupDownload = () => {
     downloadFile(
-      `https://stcloudehrdevnaps2.blob.core.windows.net/downloads/MPN-Scanner-Library-For-Windows.EXE`,
+      `https://stcloudehrdevnaps2.blob.core.windows.net/downloads/MPN-Scanner-Library-For-Windows.exe`,
       `MPN-Scanner-Library-For-Windows.EXE`,
       false,
     );
