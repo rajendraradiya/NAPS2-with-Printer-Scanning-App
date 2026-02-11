@@ -25,7 +25,7 @@ export default function ScannerApp() {
   const [devices, setDevices] = useState([]);
   const [deviceTypes, setDevicesTypes] = useState([
     { label: "Feeder", value: "feeder" },
-    { label: "Duplex", value: true },
+    // { label: "Duplex", value: true },
     { label: "Single page", value: "glass" },
   ]);
   const [selectedDevice, setSelectedDevice] = useState("");
@@ -34,6 +34,8 @@ export default function ScannerApp() {
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
   const [deviceLoader, setDeviceLoader] = useState(false);
+  const [insideDeviceLoader, setInsideDeviceLoader] = useState(false);
+
   const [isInstalled, setIsInstalled] = useState(false);
   const [openDialogBox, setOpenDialogBox] = useState(false);
   const [openGuidelineDialogBox, setOpenGuidelineDialogBox] = useState(false);
@@ -121,8 +123,7 @@ export default function ScannerApp() {
         .then((res) => {
           clearInterval(intervalRef.current);
           clearTimeout(timeoutRef.current);
-           setOpenDialogBox(false)
-           console.log("calling")
+          setOpenDialogBox(false);
           const savedDeviceType = localStorage.getItem("selectedDeviceType");
           if (savedDeviceType) {
             setSelectedDeviceType(savedDeviceType);
@@ -176,9 +177,11 @@ export default function ScannerApp() {
       setDeviceLoader(true);
     }
     try {
+      setInsideDeviceLoader(true);
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
         .then((res) => {
+          setInsideDeviceLoader(false);
           setIsInstalled(true);
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
@@ -189,6 +192,7 @@ export default function ScannerApp() {
         });
     } catch (err) {
       console.error(err);
+      setInsideDeviceLoader(false);
       setDeviceLoader(false);
       if (err.request.status === 0 || !isNAPS2ServiceRunning) {
         setIsInstalled(false);
@@ -296,7 +300,6 @@ export default function ScannerApp() {
       clearTimeout(timeoutRef.current);
     };
   }, []);
-  
 
   return (
     <>
@@ -334,19 +337,22 @@ export default function ScannerApp() {
                 {devices && devices.length ? (
                   <>
                     <div style={{ display: "flex" }}>
-                      <select
-                        value={selectedDevice}
-                        style={{ minWidth: "340px" }}
-                        className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                        onChange={(e) => setSelectedDevice(e.target.value)}
-                      >
-                        <option value="">Select Device</option>
-                        {devices.map((d, i) => (
-                          <option key={i} value={d}>
-                            {d}
-                          </option>
-                        ))}
-                      </select>
+                        <select
+                          value={selectedDevice}
+                          style={{ minWidth: "340px" }}
+                          className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                          onChange={(e) => setSelectedDevice(e.target.value)}
+                        >
+                          <option value="">Select Device</option>
+                          {devices.map((d, i) => (
+                            <option key={i} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                          {insideDeviceLoader && (
+                            <option  className="text-center">Detecting scanners...</option>
+                          )}
+                        </select>
                       <select
                         value={selectedDeviceType}
                         style={{ width: "195px" }}
