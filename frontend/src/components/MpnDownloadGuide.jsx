@@ -101,7 +101,7 @@ export default function MpnDownloadGuide({
         <>
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
             <div className=" flex items-start justify-center">
-              <div className="w-[60vw] w-full bg-white rounded-2xl shadow-lg p-6 md:p-10 ">
+              <div className="w-[75vw]  bg-white rounded-2xl shadow-lg p-6 md:p-10 ">
                 <header className="flex items-center justify-between mb-6">
                   <div>
                     <h1 className="text-2xl text-gray-500 md:text-3xl font-semibold">
