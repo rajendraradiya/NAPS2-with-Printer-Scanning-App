@@ -16,6 +16,9 @@ const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
 });
 
+const CHECK_INTERVAL = 2000; // 2 seconds
+const MAX_DURATION = 300000; // 5 minutes
+
 export default function ScannerApp() {
   const platform = window?.navigator?.platform?.split(" ")[0];
   const platform2 = window?.navigator?.userAgentData?.platform;
@@ -23,7 +26,7 @@ export default function ScannerApp() {
   const [deviceTypes, setDevicesTypes] = useState([
     { label: "Feeder", value: "feeder" },
     { label: "Duplex", value: true },
-    { label: "Glass", value: "glass" },
+    { label: "Single page", value: "glass" },
   ]);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedDeviceType, setSelectedDeviceType] = useState("");
@@ -39,6 +42,9 @@ export default function ScannerApp() {
   const [printList, setPrintList] = useState([]);
   const [isNewScanCopy, setIsNewScanCopy] = useState(false);
   const [isLoadedPage, setIsLoadedPage] = useState(false);
+
+  const intervalRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   const downloadFileName = "MPN-Scanner-Library-For";
 
@@ -106,6 +112,28 @@ export default function ScannerApp() {
     return uint8ToBase64(mergedBytes);
   }
 
+  const checkingSoftware = async () => {
+    try {
+      await axioInstance
+        .post(`/api/getDeviceInformation`, {
+          os: platform2 || platform,
+        })
+        .then((res) => {
+          clearInterval(intervalRef.current);
+          clearTimeout(timeoutRef.current);
+           setOpenDialogBox(false)
+           console.log("calling")
+          const savedDeviceType = localStorage.getItem("selectedDeviceType");
+          if (savedDeviceType) {
+            setSelectedDeviceType(savedDeviceType);
+          } else {
+            setSelectedDeviceType("glass");
+          }
+          onRefreshHandler();
+        });
+    } catch (err) {}
+  };
+
   const getSdkInformation = async () => {
     setIsFirstTime(true);
     try {
@@ -115,6 +143,8 @@ export default function ScannerApp() {
           setIsFirstTime(false);
           setIsLoadedPage(true);
           if (res.data.installed) {
+            clearInterval(intervalRef.current);
+            clearTimeout(timeoutRef.current);
             setIsInstalled(true);
             const savedDevice = localStorage.getItem("selectedDevice");
             if (savedDevice) {
@@ -141,7 +171,8 @@ export default function ScannerApp() {
   };
 
   const getDeviceList = async (isEnableLoader = false) => {
-    if (isEnableLoader) {
+    const savedDevice = localStorage.getItem("selectedDevice");
+    if (isEnableLoader && !savedDevice) {
       setDeviceLoader(true);
     }
     try {
@@ -217,7 +248,7 @@ export default function ScannerApp() {
   useEffect(() => {
     if (calledRef.current) return;
     calledRef.current = true;
-    getDeviceList();
+    getDeviceList(true);
     getSdkInformation();
     const savedDeviceType = localStorage.getItem("selectedDeviceType");
     if (savedDeviceType) {
@@ -233,8 +264,6 @@ export default function ScannerApp() {
   };
 
   const scanNexPage = (base64File = null) => {
-    // if (!base64File || !isNewScanCopy) return;
-    // setIsNewScanCopy(false);
     startScan();
   };
 
@@ -253,6 +282,21 @@ export default function ScannerApp() {
   };
 
   const resetForScan = () => {};
+
+  useEffect(() => {
+    intervalRef.current = setInterval(checkingSoftware, CHECK_INTERVAL);
+
+    timeoutRef.current = setTimeout(() => {
+      clearInterval(intervalRef.current);
+      console.log("Stopped checking after 2 minutes");
+    }, MAX_DURATION);
+
+    return () => {
+      clearInterval(intervalRef.current);
+      clearTimeout(timeoutRef.current);
+    };
+  }, []);
+  
 
   return (
     <>
