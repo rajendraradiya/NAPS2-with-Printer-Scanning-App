@@ -17,7 +17,7 @@ const axioInstance = axios.create({
 });
 
 const CHECK_INTERVAL = 2000; // 2 seconds
-const MAX_DURATION = 300000; // 5 minutes
+const MAX_DURATION = 600000; // 10 minutes
 
 export default function ScannerApp() {
   const platform = window?.navigator?.platform?.split(" ")[0];
@@ -128,7 +128,7 @@ export default function ScannerApp() {
           if (savedDeviceType) {
             setSelectedDeviceType(savedDeviceType);
           } else {
-            setSelectedDeviceType("glass");
+            setSelectedDeviceType("feeder");
           }
           onRefreshHandler();
         });
@@ -258,7 +258,7 @@ export default function ScannerApp() {
     if (savedDeviceType) {
       setSelectedDeviceType(savedDeviceType);
     } else {
-      setSelectedDeviceType("glass");
+      setSelectedDeviceType("feeder");
     }
   }, []);
 
@@ -285,7 +285,16 @@ export default function ScannerApp() {
     window.parent.postMessage(message, "*");
   };
 
-  const resetForScan = () => {};
+  const resetForScan = () => {
+    setImageBase64(null);
+    setPrintList([]);
+    setSelectedDevice(null);
+    setSelectedDeviceType(null);
+    setDevices([]);
+    localStorage.removeItem("selectedDevice");
+    localStorage.removeItem("selectedDeviceType");
+    onRefreshHandler();
+  };
 
   useEffect(() => {
     intervalRef.current = setInterval(checkingSoftware, CHECK_INTERVAL);
@@ -337,22 +346,24 @@ export default function ScannerApp() {
                 {devices && devices.length ? (
                   <>
                     <div style={{ display: "flex" }}>
-                        <select
-                          value={selectedDevice}
-                          style={{ minWidth: "340px" }}
-                          className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                          onChange={(e) => setSelectedDevice(e.target.value)}
-                        >
-                          <option value="">Select Device</option>
-                          {devices.map((d, i) => (
-                            <option key={i} value={d}>
-                              {d}
-                            </option>
-                          ))}
-                          {insideDeviceLoader && (
-                            <option  className="text-center">Detecting scanners...</option>
-                          )}
-                        </select>
+                      <select
+                        value={selectedDevice}
+                        style={{ minWidth: "340px" }}
+                        className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                        onChange={(e) => setSelectedDevice(e.target.value)}
+                      >
+                        <option value="">Select Device</option>
+                        {devices.map((d, i) => (
+                          <option key={i} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                        {insideDeviceLoader && (
+                          <option className="text-center">
+                            Detecting scanners...
+                          </option>
+                        )}
+                      </select>
                       <select
                         value={selectedDeviceType}
                         style={{ width: "195px" }}
@@ -467,6 +478,7 @@ export default function ScannerApp() {
                   onSave={onSendToBackend}
                   isNewScanCopy={isNewScanCopy}
                   backToHamePage={resetForScan}
+                  reset={resetForScan}
                 />
               </div>
             </>

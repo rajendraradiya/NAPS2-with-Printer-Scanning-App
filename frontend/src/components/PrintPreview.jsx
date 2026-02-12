@@ -5,6 +5,7 @@ const PrintPreview = ({
   printList = null,
   isNewScanCopy = false,
   backToHamePage,
+  reset
 }) => {
   return (
     <>
@@ -47,12 +48,18 @@ const PrintPreview = ({
               </button>
               {printList && printList.length && (
                 <button
-                  className="bg-blue-600 px-4  h-8 rounded-lg"
+                  className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
                   onClick={onSave}
                 >
                   Save
                 </button>
               )}
+              <button
+                className="bg-red-600 px-4  h-8 rounded-lg"
+                onClick={reset}
+              >
+                Cancel
+              </button>
             </div>
           </>
         ) : (
