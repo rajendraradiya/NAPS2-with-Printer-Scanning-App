@@ -359,7 +359,6 @@ export default function ScannerApp() {
                         className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                         onChange={(e) => setSelectedDeviceType(e.target.value)}
                       >
-                        <option value="">Select Paper Source</option>
                         {deviceTypes.map((type, i) => (
                           <option key={i} value={type.value}>
                             {type.label}

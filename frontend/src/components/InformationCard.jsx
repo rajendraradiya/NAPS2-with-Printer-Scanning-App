@@ -38,7 +38,7 @@ const InformationCard = ({ isInstalled, isNAPS2ServiceRunning }) => {
                 className="mr-6"
                 alt="naps2-icon"
               ></img>
-              <h2 className="text-blue-950">MPN Core Service</h2>
+              <h2 className="text-blue-950">MPN Service</h2>
             </div>
           )}
         </div>
