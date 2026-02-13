@@ -1,32 +1,68 @@
+# 🐧 MPN Software
+
+Comprehensive Linux Build, Installation, and Uninstallation Guide
+
+## 📌 Overview
+
+MPN Software is distributed for Linux systems using a self-contained `.run` installer and optionally a `.deb` package for Debian-based distributions.
+
+
+This document provides complete instructions for:
+
+* Building the Linux installer
+* Installing the software
+* Uninstalling the software
+* Cleaning up remaining dependencies
+
+
+
+
 # Backend Service Configuration
 
 This repository contains a **Node.js + Express** backend service packaged as a standalone executable for multiple operating systems.
 
-
-
 ## Tech Stack
 
-* Node.js
-* Express.js
+- Node.js
+- Express.js
 
-## Project Structure
 
-  ```
-  backend/
-  └── distribution/
-  ├   ├── linux/
-  ├    ├── windows/
-  ├    └── macos/
-  └─ server.js
-  ```
 
-* **server.js** All backend APIs are implemented in a single file:
-* The `distribution` directory contains OS-specific build setup and generated files.
+## 🔎 Verify Node.js and npm Installation
 
-## Prerequisites
+Run the following commands:
 
-* Node.js installed on your system
-* npm (comes with Node.js)
+node -v
+npm -v
+
+If not installed, install Node.js from your distribution package manager or official website.
+
+---
+
+## 📁 Project Structure
+
+Ensure your project structure is organized as follows:
+
+```
+backend/
+└── distribution/
+├   ├── linux/
+├    ├── windows/
+├    └── macos/
+└─ server.js
+```
+
+All build commands must be executed inside the `backend` directory.
+
+---
+
+- **server.js** All backend APIs are implemented in a single file:
+- The `distribution` directory contains OS-specific build setup and generated files.
+
+## ⚡ Prerequisites
+
+- Node.js installed on your system
+- npm (comes with Node.js)
 
 Install dependencies before building:
 
@@ -34,67 +70,133 @@ Install dependencies before building:
 npm install
 ```
 
-
 ## ⚙️ Windows
 
 To generate the Windows executable, run:
+
+### Build
 
 ```bash
 npm run windows
 ```
 
-### Build Output
+### Output
 
 The command generates the executable:
 
-  ```
-  mpn-core-win.exe
-  ```
+```
+mpn-core-win.exe
+```
 
 
 
+## 🖥️ Linux
+
+Before proceeding, ensure your system meets the following requirements:
+
+* Linux operating system (64-bit recommended)
+* Node.js (LTS version recommended)
+* npm (comes with Node.js)
+* sudo (administrator) privileges
+* Internet connection (for dependency installation during build)
+
+---
 
 
+# 🏗️ Building the Linux Installer
 
+Follow these steps carefully.
 
-## ⚙️ Linux
+## Step 1: Open Terminal
 
-1. Open a terminal
-2. Navigate to the `backend` folder
-3. Run the following command:
+Open your system terminal.
 
-```bash
+## Step 2: Navigate to Backend Directory
+
+cd backend
+
+## Step 3: Run Linux Build Command
+
+```
 npm run linux
 ```
 
-### Build Output
+This command will:
 
-This command generates the following files:
+* Build the backend
+* Package the application
+* Generate the Linux installer file
 
-* `mpn-software.deb`
-* `mpn-software-linux.run`
+---
 
-### Installation
+## 📦 Build Output
 
-* The `.run` file is used to install the software on Linux systems
-* The `.deb` file can be installed using Debian-based package managers
+After successful completion, the following file will be generated:
 
-Example installation using the `.run` file:
-
-```bash
-chmod +x mpn-software-linux.run
-./mpn-software-linux.run
+```
+mpn-software-linux.run
 ```
 
-> ⚠️ You may need `sudo` privileges to install the software.
+Depending on configuration, you may also see:
 
-## Notes
+mpn-software.deb
 
-* Ensure no other service is using the same port before starting the server
-* Linux and macOS builds are located in their respective folders under `distribution`
+If the build fails, ensure:
+
+* Node.js is installed correctly
+* All npm dependencies are installed
+* You are inside the `backend` folder
+
+---
+
+# 🚀 Installation Guide
+
+You can install the software using one of the following methods.
+
+## ✅ Method 1: Install Using `.run` File (Recommended for All Linux Systems)
+
+#### Step 1: Make the Installer Executable
+```base
+sudo chmod +x mpn-software-linux.run
+```
+#### Step 2: Run the Installer
+```base
+sudo ./mpn-software-linux.run
+```
+Follow the on-screen installation instructions.
+
+This method works on most Linux distributions.
 
 
 
-## License
+## ❌ Uninstallation Guide
+
+To completely remove MPN Software and related components, run:
+
+sudo dpkg --purge mpn-software
+sudo dpkg --purge naps2
+
+Verify removal:
+
+```base
+dpkg -l | grep -E 'mpn-software|naps2'
+```
+Remove installer directory if it exists:
+```base
+sudo dpkg --purge mpn-software
+sudo dpkg --purge naps2
+dpkg -l | grep -E 'mpn-software|naps2'
+sudo rm -rf /opt/dual-installer
+sudo apt-get remove  mpn-software naps2
+```
+
+# 📄 License
 
 Add your license information here.
+
+---
+
+# 👨‍💻 Maintainer
+
+MPN Software Team
+[support@yourcompany.com](mailto:support@yourcompany.com)
