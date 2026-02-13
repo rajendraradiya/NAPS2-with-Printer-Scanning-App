@@ -31,7 +31,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // 1. List devices
 app.post("/api/getDeviceInformation", (req, res) => {
   const { os } = req.body;
@@ -149,29 +148,33 @@ app.post("/api/scan", async (req, res) => {
           type,
         ]);
       } else if (os === "Windows") {
-        child = spawn("naps2.console.exe", [
-          "-o",
-          outputFile,
-          "--noprofile",
-          "--driver",
-          "wia",
-          "--device",
-          device,
-          "--source",
-          type,
-        ]);
+        child = spawn(
+          `"C:\\Program Files\\NAPS2\\NAPS2.Console.exe"`, // full path to exe
+          [
+            "-o",
+            outputFile,
+            "--noprofile",
+            "--driver",
+            "wia", // use "wia" or "twain" on Windows, not "sane"
+            "--device",
+            device,
+            "--source",
+            `${type}`,
+          ],
+          { shell: true }, // helps with Windows path/args parsing
+        );
       } else if (os === "macOS") {
-        child = spawn("naps2", [
+        child = spawn("/Applications/NAPS2.app/Contents/MacOS/NAPS2", [
           "console",
           "-o",
           outputFile,
           "--noprofile",
           "--driver",
-          "twain",
+          "apple",
           "--device",
           device,
           "--source",
-          type,
+          `${type}`,
         ]);
       } else {
         return reject(new Error("Unsupported OS"));
