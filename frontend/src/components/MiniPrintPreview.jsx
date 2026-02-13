@@ -34,6 +34,7 @@ const MiniPrintPreview = ({ printList = null, onPreview }) => {
                       position: "absolute",
                       top: "0",
                       right: "0",
+                      overflow: "hidden",
                     }}
                   ></div>
                   <p className="text-white text-center pb-2">{index + 1}</p>
