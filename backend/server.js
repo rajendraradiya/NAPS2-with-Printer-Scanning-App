@@ -4,7 +4,6 @@ const fs = require("fs");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
-const operatingSystem = require("os");
 
 const app = express();
 app.use(cors());
@@ -32,29 +31,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Show installed successfully notification (cross-platform)
-function showSuccessNotification() {
-  if (process.platform === "win32") {
-    // Windows: run VBScript popup
-    // const vbsPath = path.join(__dirname, 'success.vbs');
-    // // Create success.vbs if not exists
-    // if (!fs.existsSync(vbsPath)) {
-    //   fs.writeFileSync(vbsPath, 'MsgBox "Installed successfully!", vbInformation, "Setup"');
-    // }
-    // exec(`cscript //nologo "${vbsPath}"`, (err) => {
-    //   if (err) console.error("Failed to show popup:", err);
-    // });
-  } else {
-    // Linux / macOS: log to console
-  }
-}
-
-// Example: call this at startup
-showSuccessNotification();
-
-// app.get("/", (req, res) => {
-//   res.sendFile(path.resolve("index.html"));
-// });
 
 // 1. List devices
 app.post("/api/getDeviceInformation", (req, res) => {
@@ -109,127 +85,182 @@ app.post("/api/devices", (req, res) => {
 });
 
 // 2. Scan document
-app.post("/api/scan", (req, res) => {
+app.post("/api/scan", async (req, res) => {
   const { device, os, type } = req.body;
 
-  const scanFolder = path.join(operatingSystem.tmpdir(), "scans");
+  const scanFolder = path.join(process.cwd(), "scans");
   fs.mkdirSync(scanFolder, { recursive: true });
+
   const outputFile = path.join(scanFolder, `scan_${Date.now()}.pdf`);
-  // const outputFile = "scan.pdf";
+  const logFile = path.join(scanFolder, "scan.log");
 
-  let responded = false;
+  const INACTIVITY_LIMIT = 600000; // 10 minutes
 
-  try {
-    let child = null;
-    if (os === "Linux") {
-      child = spawn("naps2", [
-        "console",
-        "-o",
-        outputFile,
-        "--noprofile",
-        "--driver",
-        "sane",
-        "--device",
-        device,
-        "--source",
-        `${type}`,
-      ]);
-    } else if (os === "Windows" || os === "Win32") {
-      child = spawn(
-        `"C:\\Program Files\\NAPS2\\NAPS2.Console.exe"`, // full path to exe
-        [
+  function writeLog(message) {
+    const time = new Date().toISOString();
+    fs.appendFileSync(logFile, `[${time}] ${message}\n`);
+  }
+
+  async function runScan(attempt = 1) {
+    return new Promise((resolve, reject) => {
+      let child;
+      let inactivityTimer;
+      let stdoutData = "";
+      let stderrData = "";
+
+      writeLog(`\n=== Scan Attempt ${attempt} Started ===`);
+      console.log(`\n=== Scan Attempt ${attempt} Started ===`);
+      writeLog(`Device: ${device}`);
+      console.log(`Device: ${device}`);
+      writeLog(`OS: ${os}`);
+      console.log(`OS: ${os}`);
+      writeLog(`Source: ${type}`);
+      console.log(`Source: ${type}`);
+      writeLog(`Output: ${outputFile}`);
+      console.log(`Output: ${outputFile}`);
+
+      function cleanupTimer() {
+        if (inactivityTimer) clearTimeout(inactivityTimer);
+      }
+
+      function resetTimer() {
+        cleanupTimer();
+        inactivityTimer = setTimeout(() => {
+          writeLog("Scan timed out due to inactivity.");
+          console.log("Scan timed out due to inactivity.");
+          child.kill("SIGTERM");
+          setTimeout(() => child.kill("SIGKILL"), 5000);
+          reject(new Error("Scan timed out (inactivity)"));
+        }, INACTIVITY_LIMIT);
+      }
+
+      // Spawn based on OS
+      if (os === "Linux") {
+        child = spawn("naps2", [
+          "console",
           "-o",
           outputFile,
           "--noprofile",
           "--driver",
-          "wia", // use "wia" or "twain" on Windows, not "sane"
+          "sane",
           "--device",
           device,
           "--source",
-          `${type}`,
-        ],
-        { shell: true }, // helps with Windows path/args parsing
-      );
-    } else if (os === "macOS") {
-      child = spawn("/Applications/NAPS2.app/Contents/MacOS/NAPS2", [
-        "console",
-        "-o",
-        outputFile,
-        "--noprofile",
-        "--driver",
-        "apple",
-        "--device",
-        device,
-        "--source",
-        `${type}`,
-      ]);
-    }
-
-    child.stdout.on("data", (data) => {
-      console.log(`stdout: ${data}`);
-    });
-
-    child.stderr.on("data", (data) => {
-      console.error(`stderr: ${data}`);
-    });
-
-    const timer = setTimeout(() => {
-      if (!responded) {
-        responded = true;
-        child.kill("SIGKILL"); // force kill
-        return res
-          .status(500)
-          .json({ success: false, error: "Scan timed out" });
-      }
-    }, 60000);
-
-    child.on("close", (code) => {
-      if (responded) return;
-      responded = true;
-      clearTimeout(timer);
-
-      if (code !== 0) {
-        return res
-          .status(500)
-          .json({ success: false, status: 500, error: "Scan failed" });
+          type,
+        ]);
+      } else if (os === "Windows") {
+        child = spawn("naps2.console.exe", [
+          "-o",
+          outputFile,
+          "--noprofile",
+          "--driver",
+          "wia",
+          "--device",
+          device,
+          "--source",
+          type,
+        ]);
+      } else if (os === "macOS") {
+        child = spawn("naps2", [
+          "console",
+          "-o",
+          outputFile,
+          "--noprofile",
+          "--driver",
+          "twain",
+          "--device",
+          device,
+          "--source",
+          type,
+        ]);
+      } else {
+        return reject(new Error("Unsupported OS"));
       }
 
-      fs.readFile(outputFile, (err, data) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ success: false, status: 500, error: err.message });
+      resetTimer();
+
+      child.stdout.on("data", (data) => {
+        const msg = data.toString();
+        stdoutData += msg;
+        writeLog(`STDOUT: ${msg.trim()}`);
+        console.log(`STDOUT: ${msg.trim()}`);
+        resetTimer();
+      });
+
+      child.stderr.on("data", (data) => {
+        const msg = data.toString();
+        stderrData += msg;
+        writeLog(`STDERR: ${msg.trim()}`);
+        console.log(`STDERR: ${msg.trim()}`);
+        resetTimer();
+      });
+
+      child.on("error", (err) => {
+        cleanupTimer();
+        writeLog(`Process error: ${err.message}`);
+        console.log(`Process error: ${err.message}`);
+        reject(err);
+      });
+
+      child.on("close", (code) => {
+        cleanupTimer();
+        writeLog(`Process exited with code: ${code}`);
+        console.log(`Process exited with code: ${code}`);
+
+        if (
+          code !== 0 ||
+          stderrData.includes("libpng error") ||
+          stdoutData.includes("No scanned pages") ||
+          stdoutData.includes(
+            "Communication with the scanning device was interrupted",
+          )
+        ) {
+          writeLog("Scan failed due to detected error.");
+          console.log("Scan failed due to detected error.");
+          return reject(new Error("Scan failed"));
         }
 
-        const base64Image = data.toString("base64");
-        res.json({ success: true, imageBase64: base64Image });
-
-        fs.unlink(outputFile, (unlinkErr) => {
-          if (unlinkErr) console.error("Error deleting scan file:", unlinkErr);
-        });
+        writeLog("Scan completed successfully.");
+        console.log("Scan completed successfully.");
+        resolve();
       });
     });
-  } catch (err) {
-    if (!responded) {
-      responded = true;
-      return res.status(500).json({
-        success: false,
-        status: 500,
-        error: err.message || "Unexpected error",
-      });
-    }
   }
-});
 
-app.post("/api/location", (req, res) => {
-  const { path } = req.body;
-  const downloadsPath = `${operatingSystem.homedir()}/${
-    path ? path : "Downloads"
-  }`;
-  if (process.platform === "win32") exec(`start "" "${downloadsPath}"`);
-  else if (process.platform === "darwin") exec(`open "${downloadsPath}"`);
-  else exec(`xdg-open "${downloadsPath}"`);
-  res.json({ success: true });
+  // Retry logic (important for Wi-Fi scanners)
+  const MAX_RETRIES = 3;
+
+  try {
+    for (let i = 1; i <= MAX_RETRIES; i++) {
+      try {
+        await runScan(i);
+        break;
+      } catch (err) {
+        writeLog(`Attempt ${i} failed: ${err.message}`);
+        console.log(`Attempt ${i} failed: ${err.message}`);
+        if (i === MAX_RETRIES) throw err;
+      }
+    }
+
+    const data = fs.readFileSync(outputFile);
+    const base64Image = data.toString("base64");
+
+    writeLog("Sending response to client.");
+    console.log("Sending response to client.");
+    res.json({
+      success: true,
+      imageBase64: base64Image,
+    });
+
+    fs.unlinkSync(outputFile);
+  } catch (err) {
+    writeLog(`Final failure: ${err.message}`);
+    console.log(`Final failure: ${err.message}`);
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
 });
 
 app.listen(52345, () => console.log(`Backend running on port 52345`));
