@@ -183,6 +183,12 @@ export default function ScannerApp() {
         .then((res) => {
           setInsideDeviceLoader(false);
           setIsInstalled(true);
+          const savedDeviceType = localStorage.getItem("selectedDeviceType");
+          if (savedDeviceType) {
+            setSelectedDeviceType(savedDeviceType);
+          } else {
+            setSelectedDeviceType("feeder");
+          }
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
           } else {
@@ -206,6 +212,7 @@ export default function ScannerApp() {
   const startScan = async () => {
     setImageBase64(null);
     if (!selectedDevice) return alert("Select a device first!");
+    if (!selectedDeviceType) return alert("Select a device type");
     setLoader(true);
     let timer = setInterval(() => {
       setCount((prev) => prev + 1);
