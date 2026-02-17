@@ -143,11 +143,6 @@ export default function ScannerApp() {
             clearInterval(intervalRef.current);
             clearTimeout(timeoutRef.current);
             setIsInstalled(true);
-            const savedDevice = localStorage.getItem("selectedDevice");
-            if (savedDevice) {
-              setSelectedDevice(savedDevice);
-              setDevices([savedDevice]);
-            }
           } else {
             setIsInstalled(false);
             setOpenDialogBox(true);
@@ -192,7 +187,9 @@ export default function ScannerApp() {
             setSelectedDevice(null);
             setSelectedDeviceType(null);
           } else {
-            setDevices((prev) => [...prev, ...res.data]);
+            setDevices((prev) => {
+              return [...new Set([...prev, ...res.data])];
+            });
           }
           setDeviceLoader(false);
         });
@@ -260,7 +257,15 @@ export default function ScannerApp() {
     calledRef.current = true;
     getDeviceList(true);
     getSdkInformation();
+
+    const savedDevice = localStorage.getItem("selectedDevice");
     const savedDeviceType = localStorage.getItem("selectedDeviceType");
+    if (savedDevice) {
+      setSelectedDevice(savedDevice);
+      setDevices((prev) => {
+        return [...new Set([...prev, savedDevice])];
+      });
+    }
     if (savedDeviceType) {
       setSelectedDeviceType(savedDeviceType);
     } else {
