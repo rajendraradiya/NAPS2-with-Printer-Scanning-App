@@ -40,9 +40,7 @@ export default function ScannerApp() {
   const [openDialogBox, setOpenDialogBox] = useState(false);
   const [openGuidelineDialogBox, setOpenGuidelineDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
-  const [isFirstTime, setIsFirstTime] = useState(false);
   const [printList, setPrintList] = useState([]);
-  const [isNewScanCopy, setIsNewScanCopy] = useState(false);
   const [isLoadedPage, setIsLoadedPage] = useState(false);
 
   const intervalRef = useRef(null);
@@ -136,12 +134,10 @@ export default function ScannerApp() {
   };
 
   const getSdkInformation = async () => {
-    setIsFirstTime(true);
     try {
       await axioInstance
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
-          setIsFirstTime(false);
           setIsLoadedPage(true);
           if (res.data.installed) {
             clearInterval(intervalRef.current);
@@ -191,6 +187,10 @@ export default function ScannerApp() {
           }
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
+            localStorage.removeItem("selectedDevice");
+            localStorage.removeItem("selectedDeviceType");
+            setSelectedDevice(null);
+            setSelectedDeviceType(null);
           } else {
             setDevices((prev) => [...prev, ...res.data]);
           }
@@ -236,7 +236,6 @@ export default function ScannerApp() {
       clearInterval(timer);
 
       setImageBase64(data.imageBase64);
-      setIsNewScanCopy(true);
       setPrintList((prev) => [...prev, data.imageBase64]);
     } catch (err) {
       console.log(err);
@@ -397,7 +396,7 @@ export default function ScannerApp() {
                   <></>
                 )}
 
-                {isFirstTime ? (
+                {devices && devices.length === 0 && (
                   <>
                     <button
                       className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
@@ -406,10 +405,7 @@ export default function ScannerApp() {
                       Refresh
                     </button>
                   </>
-                ) : (
-                  <></>
                 )}
-
                 <div className="text-center mt-10">
                   <p className="text-gray-600">
                     ❗<b>Important : </b> To enable scanning, please download &
@@ -483,7 +479,6 @@ export default function ScannerApp() {
                   imageBase64={imageBase64}
                   onNext={scanNexPage}
                   onSave={onSendToBackend}
-                  isNewScanCopy={isNewScanCopy}
                   backToHamePage={resetForScan}
                   reset={resetForScan}
                 />

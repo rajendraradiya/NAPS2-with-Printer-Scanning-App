@@ -3,8 +3,6 @@ const PrintPreview = ({
   onNext,
   onSave,
   printList = null,
-  isNewScanCopy = false,
-  backToHamePage,
   reset,
 }) => {
   return (
@@ -42,7 +40,6 @@ const PrintPreview = ({
               <button
                 className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
                 onClick={() => onNext(imageBase64)}
-                disabled={!isNewScanCopy}
               >
                 Next Page Scan
               </button>
@@ -74,7 +71,6 @@ const PrintPreview = ({
               <button
                 className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
                 onClick={() => onNext(imageBase64)}
-                disabled={!isNewScanCopy}
               >
                 Scan Again
               </button>
