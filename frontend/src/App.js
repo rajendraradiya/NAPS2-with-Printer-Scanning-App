@@ -182,17 +182,30 @@ export default function ScannerApp() {
           }
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
-            localStorage.removeItem("selectedDevice");
-            localStorage.removeItem("selectedDeviceType");
+
             setSelectedDevice(null);
             setSelectedDeviceType(null);
           } else {
-            setDevices((prev) => {
-              const cleaned = res.data.map((item) =>
-                item.replace(/^\r+|\r+$/g, ""),
-              );
-              return [...new Set([...prev, ...cleaned])];
-            });
+            const savedDevice = localStorage.getItem("selectedDevice");
+
+            console.log(devices);
+            if (savedDevice) {
+              setSelectedDevice(savedDevice);
+              setDevices((prev) => {
+                const savePrinter = savedDevice.replace(/^\r+|\r+$/g, "");
+                const cleaned = res.data.map((item) =>
+                  item.replace(/^\r+|\r+$/g, ""),
+                );
+                return [...new Set([...prev, savePrinter, ...cleaned])];
+              });
+            } else {
+              setDevices((prev) => {
+                const cleaned = res.data.map((item) =>
+                  item.replace(/^\r+|\r+$/g, ""),
+                );
+                return [...new Set([...prev, ...cleaned])];
+              });
+            }
           }
           setDeviceLoader(false);
         });
@@ -261,15 +274,8 @@ export default function ScannerApp() {
     getDeviceList(true);
     getSdkInformation();
 
-    const savedDevice = localStorage.getItem("selectedDevice");
     const savedDeviceType = localStorage.getItem("selectedDeviceType");
-    if (savedDevice) {
-      setSelectedDevice(savedDevice);
-      setDevices((prev) => {
-        const cleaned = savedDevice.replace(/^\r+|\r+$/g, "");
-        return [...new Set([...prev, cleaned])];
-      });
-    }
+
     if (savedDeviceType) {
       setSelectedDeviceType(savedDeviceType.replace(/^\r+|\r+$/g, ""));
     } else {
@@ -300,15 +306,17 @@ export default function ScannerApp() {
     window.parent.postMessage(message, "*");
   };
 
-  const resetForScan = () => {
+  const resetForScan = (isRestSaveValue = true) => {
     setImageBase64(null);
     setPrintList([]);
-    setSelectedDevice(null);
-    setSelectedDeviceType(null);
-    setDevices([]);
-    localStorage.removeItem("selectedDevice");
-    localStorage.removeItem("selectedDeviceType");
-    onRefreshHandler();
+    if (isRestSaveValue) {
+      setDevices([]);
+      setSelectedDevice(null);
+      setSelectedDeviceType(null);
+      localStorage.removeItem("selectedDevice");
+      localStorage.removeItem("selectedDeviceType");
+      onRefreshHandler();
+    }
   };
 
   useEffect(() => {
@@ -316,7 +324,7 @@ export default function ScannerApp() {
 
     timeoutRef.current = setTimeout(() => {
       clearInterval(intervalRef.current);
-      console.log("Stopped checking after 2 minutes");
+      console.log("Stopped checking after 10 minutes");
     }, MAX_DURATION);
 
     return () => {

@@ -53,7 +53,7 @@ const PrintPreview = ({
               )}
               <button
                 className="bg-red-600 px-4  h-8 rounded-lg"
-                onClick={reset}
+                onClick={() => reset(false)}
               >
                 Cancel
               </button>
@@ -90,7 +90,7 @@ const PrintPreview = ({
               )}
               <button
                 className="bg-red-600 px-4  h-8 rounded-lg"
-                onClick={reset}
+                onClick={() => reset(false)}
               >
                 Cancel
               </button>
