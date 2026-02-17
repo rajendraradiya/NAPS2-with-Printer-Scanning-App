@@ -188,7 +188,10 @@ export default function ScannerApp() {
             setSelectedDeviceType(null);
           } else {
             setDevices((prev) => {
-              return [...new Set([...prev, ...res.data])];
+              const cleaned = res.data.map((item) =>
+                item.replace(/^\r+|\r+$/g, ""),
+              );
+              return [...new Set([...prev, ...cleaned])];
             });
           }
           setDeviceLoader(false);
@@ -263,7 +266,8 @@ export default function ScannerApp() {
     if (savedDevice) {
       setSelectedDevice(savedDevice);
       setDevices((prev) => {
-        return [...new Set([...prev, savedDevice])];
+        const cleaned = savedDevice.replace(/^\r+|\r+$/g, "");
+        return [...new Set([...prev, cleaned])];
       });
     }
     if (savedDeviceType) {
