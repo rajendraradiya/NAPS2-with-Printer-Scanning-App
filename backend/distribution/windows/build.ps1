@@ -422,5 +422,5 @@ Write-Host "Installation completed successfully!" -ForegroundColor Green
 # Write-Host "Logs: $logDir" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host ""
-Start-Sleep 5
+Start-Sleep 2
 exit
