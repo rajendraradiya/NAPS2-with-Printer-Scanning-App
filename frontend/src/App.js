@@ -176,7 +176,7 @@ export default function ScannerApp() {
           setIsInstalled(true);
           const savedDeviceType = localStorage.getItem("selectedDeviceType");
           if (savedDeviceType) {
-            setSelectedDeviceType(savedDeviceType);
+            setSelectedDeviceType(savedDeviceType.replace(/^\r+|\r+$/g, ""));
           } else {
             setSelectedDeviceType("feeder");
           }
@@ -271,7 +271,7 @@ export default function ScannerApp() {
       });
     }
     if (savedDeviceType) {
-      setSelectedDeviceType(savedDeviceType);
+      setSelectedDeviceType(savedDeviceType.replace(/^\r+|\r+$/g, ""));
     } else {
       setSelectedDeviceType("feeder");
     }
