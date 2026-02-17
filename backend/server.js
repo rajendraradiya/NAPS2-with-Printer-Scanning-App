@@ -93,7 +93,7 @@ app.post("/api/scan", async (req, res) => {
   const outputFile = path.join(scanFolder, `scan_${Date.now()}.pdf`);
   const logFile = path.join(scanFolder, "scan.log");
 
-  const INACTIVITY_LIMIT = 600000; // 10 minutes
+  const INACTIVITY_LIMIT = 300000; // 5 minutes
 
   function writeLog(message) {
     const time = new Date().toISOString();
