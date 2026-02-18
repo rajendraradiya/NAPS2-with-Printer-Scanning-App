@@ -42,6 +42,7 @@ export default function ScannerApp() {
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
   const [printList, setPrintList] = useState([]);
   const [isLoadedPage, setIsLoadedPage] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(false);
 
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -134,10 +135,12 @@ export default function ScannerApp() {
   };
 
   const getSdkInformation = async () => {
+    setIsFirstTime(true);
     try {
       await axioInstance
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
+          setIsFirstTime(false);
           setIsLoadedPage(true);
           if (res.data.installed) {
             clearInterval(intervalRef.current);
@@ -163,8 +166,7 @@ export default function ScannerApp() {
   };
 
   const getDeviceList = async (isEnableLoader = false) => {
-    const savedDevice = localStorage.getItem("selectedDevice");
-    if (isEnableLoader && !savedDevice) {
+    if (isEnableLoader) {
       setDeviceLoader(true);
     }
     try {
@@ -271,8 +273,8 @@ export default function ScannerApp() {
   useEffect(() => {
     if (calledRef.current) return;
     calledRef.current = true;
-    getDeviceList(true);
     getSdkInformation();
+    getDeviceList(true);
 
     const savedDeviceType = localStorage.getItem("selectedDeviceType");
 
