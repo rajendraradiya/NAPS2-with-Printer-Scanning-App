@@ -5,7 +5,7 @@ SEDVersion=3
 PackagePurpose=InstallApp
 ShowInstallProgramWindow=0
 HideExtractAnimation=1
-UseLongFileName=0
+UseLongFileName=1
 InsideCompressed=0
 CAB_FixedSize=0
 CAB_ResvCodeSigning=0
@@ -24,7 +24,7 @@ SourceFiles=SourceFiles
 InstallPrompt=
 DisplayLicense=
 FinishMessage=
-TargetName=D:\Study\Express\NAPS2-with-Printer-Scanning-App\backend\setup\mpn-software-win.EXE
+TargetName=C:\Rajendra\NAPS2-with-Printer-Scanning-App\backend\setup\mpn-software-win.EXE
 FriendlyName=MPN Software
 AppLaunched=powershell.exe -ExecutionPolicy Bypass -File build.ps1
 PostInstallCmd=<None>
@@ -36,7 +36,7 @@ FILE2="mpn-core-win.exe"
 FILE3="naps2-8.2.1-win-x64.exe"
 FILE4="nssm-2.24.zip"
 [SourceFiles]
-SourceFiles0=D:\Study\Express\NAPS2-with-Printer-Scanning-App\backend\distribution\windows\
+SourceFiles0=C:\Rajendra\NAPS2-with-Printer-Scanning-App\backend\distribution\windows\
 [SourceFiles0]
 %FILE0%=
 %FILE1%=

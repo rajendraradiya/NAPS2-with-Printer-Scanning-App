@@ -40,9 +40,7 @@ export default function ScannerApp() {
   const [openDialogBox, setOpenDialogBox] = useState(false);
   const [openGuidelineDialogBox, setOpenGuidelineDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
-  const [isFirstTime, setIsFirstTime] = useState(false);
   const [printList, setPrintList] = useState([]);
-  const [isNewScanCopy, setIsNewScanCopy] = useState(false);
   const [isLoadedPage, setIsLoadedPage] = useState(false);
 
   const intervalRef = useRef(null);
@@ -136,22 +134,15 @@ export default function ScannerApp() {
   };
 
   const getSdkInformation = async () => {
-    setIsFirstTime(true);
     try {
       await axioInstance
         .post(`/api/getDeviceInformation`, { os: platform2 || platform })
         .then((res) => {
-          setIsFirstTime(false);
           setIsLoadedPage(true);
           if (res.data.installed) {
             clearInterval(intervalRef.current);
             clearTimeout(timeoutRef.current);
             setIsInstalled(true);
-            const savedDevice = localStorage.getItem("selectedDevice");
-            if (savedDevice) {
-              setSelectedDevice(savedDevice);
-              setDevices([savedDevice]);
-            }
           } else {
             setIsInstalled(false);
             setOpenDialogBox(true);
@@ -185,14 +176,36 @@ export default function ScannerApp() {
           setIsInstalled(true);
           const savedDeviceType = localStorage.getItem("selectedDeviceType");
           if (savedDeviceType) {
-            setSelectedDeviceType(savedDeviceType);
+            setSelectedDeviceType(savedDeviceType.replace(/^\r+|\r+$/g, ""));
           } else {
             setSelectedDeviceType("feeder");
           }
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
+
+            setSelectedDevice(null);
+            setSelectedDeviceType(null);
           } else {
-            setDevices((prev) => [...prev, ...res.data]);
+            const savedDevice = localStorage.getItem("selectedDevice");
+
+            console.log(devices);
+            if (savedDevice) {
+              setSelectedDevice(savedDevice);
+              setDevices((prev) => {
+                const savePrinter = savedDevice.replace(/^\r+|\r+$/g, "");
+                const cleaned = res.data.map((item) =>
+                  item.replace(/^\r+|\r+$/g, ""),
+                );
+                return [...new Set([...prev, savePrinter, ...cleaned])];
+              });
+            } else {
+              setDevices((prev) => {
+                const cleaned = res.data.map((item) =>
+                  item.replace(/^\r+|\r+$/g, ""),
+                );
+                return [...new Set([...prev, ...cleaned])];
+              });
+            }
           }
           setDeviceLoader(false);
         });
@@ -236,7 +249,6 @@ export default function ScannerApp() {
       clearInterval(timer);
 
       setImageBase64(data.imageBase64);
-      setIsNewScanCopy(true);
       setPrintList((prev) => [...prev, data.imageBase64]);
     } catch (err) {
       console.log(err);
@@ -261,9 +273,11 @@ export default function ScannerApp() {
     calledRef.current = true;
     getDeviceList(true);
     getSdkInformation();
+
     const savedDeviceType = localStorage.getItem("selectedDeviceType");
+
     if (savedDeviceType) {
-      setSelectedDeviceType(savedDeviceType);
+      setSelectedDeviceType(savedDeviceType.replace(/^\r+|\r+$/g, ""));
     } else {
       setSelectedDeviceType("feeder");
     }
@@ -292,15 +306,17 @@ export default function ScannerApp() {
     window.parent.postMessage(message, "*");
   };
 
-  const resetForScan = () => {
+  const resetForScan = (isRestSaveValue = true) => {
     setImageBase64(null);
     setPrintList([]);
-    setSelectedDevice(null);
-    setSelectedDeviceType(null);
-    setDevices([]);
-    localStorage.removeItem("selectedDevice");
-    localStorage.removeItem("selectedDeviceType");
-    onRefreshHandler();
+    if (isRestSaveValue) {
+      setDevices([]);
+      setSelectedDevice(null);
+      setSelectedDeviceType(null);
+      localStorage.removeItem("selectedDevice");
+      localStorage.removeItem("selectedDeviceType");
+      onRefreshHandler();
+    }
   };
 
   useEffect(() => {
@@ -308,7 +324,7 @@ export default function ScannerApp() {
 
     timeoutRef.current = setTimeout(() => {
       clearInterval(intervalRef.current);
-      console.log("Stopped checking after 2 minutes");
+      console.log("Stopped checking after 10 minutes");
     }, MAX_DURATION);
 
     return () => {
@@ -397,7 +413,7 @@ export default function ScannerApp() {
                   <></>
                 )}
 
-                {isFirstTime ? (
+                {devices && devices.length === 0 && (
                   <>
                     <button
                       className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
@@ -406,10 +422,7 @@ export default function ScannerApp() {
                       Refresh
                     </button>
                   </>
-                ) : (
-                  <></>
                 )}
-
                 <div className="text-center mt-10">
                   <p className="text-gray-600">
                     ❗<b>Important : </b> To enable scanning, please download &
@@ -483,7 +496,6 @@ export default function ScannerApp() {
                   imageBase64={imageBase64}
                   onNext={scanNexPage}
                   onSave={onSendToBackend}
-                  isNewScanCopy={isNewScanCopy}
                   backToHamePage={resetForScan}
                   reset={resetForScan}
                 />
