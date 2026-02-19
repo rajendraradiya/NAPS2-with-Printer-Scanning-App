@@ -235,6 +235,9 @@ export default function ScannerApp() {
     try {
       localStorage.setItem("selectedDevice", selectedDevice.trim());
       localStorage.setItem("selectedDeviceType", selectedDeviceType.trim());
+
+      console.log(selectedDevice.trim())
+      console.log(selectedDeviceType.trim())
       const res = await axioInstance.post(`/api/scan`, {
         device: selectedDevice.trim(),
         os: platform2 || platform,
