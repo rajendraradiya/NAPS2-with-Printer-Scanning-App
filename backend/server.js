@@ -146,6 +146,10 @@ app.post("/api/scan", async (req, res) => {
           device,
           "--source",
           type,
+          "--dpi",
+          "75",
+          "--pagesize",
+          "A4",
         ]);
       } else if (os === "Windows") {
         child = spawn(

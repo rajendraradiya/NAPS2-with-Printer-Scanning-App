@@ -224,6 +224,18 @@ export default function ScannerApp() {
     }
   };
 
+  function isValidPDF(base64String) {
+    if (!base64String) return;
+    const cleaned = base64String.replace(/^data:application\/pdf;base64,/, "");
+
+    const padding = (cleaned.match(/=+$/) || [""])[0].length;
+    const size = (cleaned.length * 3) / 4 - padding;
+
+    console.log(size);
+
+    return size >= 36000;
+  }
+
   const startScan = async () => {
     setImageBase64(null);
     if (!selectedDevice) return alert("Select a device first!");
@@ -236,8 +248,8 @@ export default function ScannerApp() {
       localStorage.setItem("selectedDevice", selectedDevice.trim());
       localStorage.setItem("selectedDeviceType", selectedDeviceType.trim());
 
-      console.log(selectedDevice.trim())
-      console.log(selectedDeviceType.trim())
+      console.log(selectedDevice.trim());
+      console.log(selectedDeviceType.trim());
       const res = await axioInstance.post(`/api/scan`, {
         device: selectedDevice.trim(),
         os: platform2 || platform,
@@ -253,8 +265,13 @@ export default function ScannerApp() {
       setCount(0);
       clearInterval(timer);
 
-      setImageBase64(data.imageBase64);
-      setPrintList((prev) => [...prev, data.imageBase64]);
+      if (isValidPDF(data?.imageBase64)) {
+        setImageBase64(data.imageBase64);
+        setPrintList((prev) => [...prev, data.imageBase64]);
+      }
+      else{
+         alert("Communication with the scanning device was interrupt");
+      }
     } catch (err) {
       console.log(err);
       setLoader(false);
