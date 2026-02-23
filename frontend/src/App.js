@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import DialogBox from "./components/DialogBox";
 import axios from "axios";
-import windowsIcon from "./assets/windows-icon.png";
-import LinuxIcon from "./assets/linux-icon.png";
-import MacIcon from "./assets/macos-icon.jpg";
+
 import DeviceLoader from "./components/DeviceLoader";
 import ScannerLoader from "./components/ScannerLoader";
 import InformationCard from "./components/InformationCard";
@@ -12,6 +10,7 @@ import MiniPrintPreview from "./components/MiniPrintPreview";
 import MpnDownloadGuide from "./components/MpnDownloadGuide";
 import { PDFDocument } from "pdf-lib";
 import { file } from "./components/temp";
+import InstructionComponent from "./components/Instruction";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -147,13 +146,14 @@ export default function ScannerApp() {
             clearInterval(intervalRef.current);
             clearTimeout(timeoutRef.current);
             setIsInstalled(true);
+            setIsNAPS2ServiceRunning(true);
           } else {
             setIsInstalled(false);
             setOpenDialogBox(true);
           }
-          setIsNAPS2ServiceRunning(true);
         });
     } catch (err) {
+      setIsFirstTime(true);
       console.error(err);
       localStorage.removeItem("selectedDevice");
       localStorage.removeItem("selectedDeviceType");
@@ -175,6 +175,7 @@ export default function ScannerApp() {
       await axioInstance
         .post(`/api/devices`, { os: platform2 || platform })
         .then((res) => {
+          setDeviceLoader(false);
           setInsideDeviceLoader(false);
           setIsInstalled(true);
           const savedDeviceType = localStorage.getItem("selectedDeviceType");
@@ -210,7 +211,6 @@ export default function ScannerApp() {
               });
             }
           }
-          setDeviceLoader(false);
         });
     } catch (err) {
       console.error(err);
@@ -348,8 +348,8 @@ export default function ScannerApp() {
   }, []);
 
   const onRefreshHandler = () => {
-    getDeviceList(true);
     getSdkInformation();
+    getDeviceList(true);
   };
 
   const scanNexPage = (base64File = null) => {
@@ -428,9 +428,23 @@ export default function ScannerApp() {
                 className="w-full p-6 bg-white shadow-md flex flex-col items-center justify-center"
                 style={{ width: "100%" }}
               >
-                <DeviceLoader deviceLoader={deviceLoader} devices={devices} />
+                {isFirstTime ? (
+                  <>
+                    <h2 className="text-red-400">
+                      <b> After Installing, please click the Refresh button.</b>
+                    </h2>
+                    <button
+                      className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
+                      onClick={() => onRefreshHandler()}
+                    >
+                      Refresh
+                    </button>
+                  </>
+                ) : (
+                  <DeviceLoader deviceLoader={deviceLoader} devices={devices} />
+                )}
 
-                {devices && devices.length ? (
+                {!isFirstTime && devices && devices.length ? (
                   <>
                     <div style={{ display: "flex" }}>
                       <select
@@ -477,69 +491,25 @@ export default function ScannerApp() {
                   <></>
                 )}
 
-                {devices && devices.length === 0 && (
+                {!isFirstTime && devices && devices.length === 0 && (
                   <>
                     <button
                       className="bg-blue-600 px-5  h-10 rounded-2xl mt-6"
-                      onClick={onRefreshHandler}
+                      onClick={() => getDeviceList(true)}
                     >
                       Refresh
                     </button>
                   </>
                 )}
-                <div className="text-center mt-10">
-                  <p className="text-gray-600">
-                    ❗<b>Important : </b> To enable scanning, please download &
-                    install the ECLIPSE EHR Cloud Scanning Utility using the
-                    appropriate link (e.g. Windows) below. <br /> For more
-                    detailed instructions, please{" "}
-                    <b
-                      onClick={() => setOpenGuidelineDialogBox(true)}
-                      className="text-blue-500"
-                    >
-                      click here.
-                    </b>
-                  </p>
 
-                  <div className="flex justify-center my-4">
-                    <button
-                      className="text-blue-500 flex flex-col items-center"
-                      onClick={windowSetupDownload}
-                    >
-                      <img
-                        src={windowsIcon}
-                        alt="Windows Icon"
-                        className="h-10 w-10 object-contain"
-                        title="Windows"
-                      />
-                      <span className="mt-1"> Windows</span>
-                    </button>
-                    <button
-                      className="text-blue-500 flex flex-col items-center"
-                      onClick={linuxSetupDownload}
-                    >
-                      <img
-                        src={LinuxIcon}
-                        alt="Linux Icon"
-                        className="h-10 w-10 object-contain mx-8"
-                        title="Linux"
-                      />
-                      <span className="mt-1"> Linux</span>
-                    </button>
-                    <button
-                      className="text-blue-500 flex flex-col items-center"
-                      onClick={macSetupDownload}
-                    >
-                      <img
-                        src={MacIcon}
-                        alt="Mac Icon"
-                        className="h-10 w-10 object-contain"
-                        title="Mac Icon"
-                      />
-                      <span className="mt-1"> Mac</span>
-                    </button>
-                  </div>
-                </div>
+                {(!isInstalled || !isNAPS2ServiceRunning) && (
+                  <InstructionComponent
+                    openGuidelineDialog={() => setOpenGuidelineDialogBox(true)}
+                    onWindows={() => windowSetupDownload()}
+                    onLinux={() => linuxSetupDownload()}
+                    onMac={() => macSetupDownload()}
+                  />
+                )}
               </div>
             </>
           ) : (
