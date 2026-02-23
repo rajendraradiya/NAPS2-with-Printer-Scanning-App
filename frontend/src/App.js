@@ -11,6 +11,7 @@ import PrintPreview from "./components/PrintPreview";
 import MiniPrintPreview from "./components/MiniPrintPreview";
 import MpnDownloadGuide from "./components/MpnDownloadGuide";
 import { PDFDocument } from "pdf-lib";
+import { file } from "./components/temp";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -236,6 +237,45 @@ export default function ScannerApp() {
     return size >= 36000;
   }
 
+  async function uint8ToBase64(uint8Array) {
+    return new Promise((resolve, reject) => {
+      const blob = new Blob([uint8Array], { type: "application/pdf" });
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const base64data = reader.result.split(",")[1];
+        resolve(base64data);
+      };
+
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function splitPdf(base64Pdf) {
+    const base64Data = base64Pdf.replace(/^data:application\/pdf;base64,/, "");
+    const pdfBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const totalPages = pdfDoc.getPageCount();
+
+    const separatedPdfs = [];
+
+    for (let i = 0; i < totalPages; i++) {
+      const newPdf = await PDFDocument.create();
+      const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
+      newPdf.addPage(copiedPage);
+
+      const newPdfBytes = await newPdf.save();
+
+      // ✅ Safe conversion
+      const newBase64 = await uint8ToBase64(newPdfBytes);
+
+      separatedPdfs.push(newBase64);
+    }
+
+    return separatedPdfs;
+  }
   const startScan = async () => {
     setImageBase64(null);
     if (!selectedDevice) return alert("Select a device first!");
@@ -266,11 +306,13 @@ export default function ScannerApp() {
       clearInterval(timer);
 
       if (isValidPDF(data?.imageBase64)) {
-        setImageBase64(data.imageBase64);
-        setPrintList((prev) => [...prev, data.imageBase64]);
-      }
-      else{
-         alert("Communication with the scanning device was interrupt");
+        const pdfs = await splitPdf(data?.imageBase64);
+        setImageBase64(pdfs[0]);
+        for (let i = 0; i < pdfs.length; i++) {
+          setPrintList((prev) => [...prev, pdfs[i]]);
+        }
+      } else {
+        alert("Communication with the scanning device was interrupt");
       }
     } catch (err) {
       console.log(err);
