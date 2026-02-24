@@ -312,7 +312,7 @@ export default function ScannerApp() {
           setPrintList((prev) => [...prev, pdfs[i]]);
         }
       } else {
-        alert("Communication with the scanning device was interrupt");
+        alert("Communication with the scanning device was interrupted");
       }
     } catch (err) {
       console.log(err);
