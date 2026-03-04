@@ -85,7 +85,7 @@ app.post("/api/devices", (req, res) => {
 
 // 2. Scan document
 app.post("/api/scan", async (req, res) => {
-  const { device, os, type } = req.body;
+  const { device, os, type, pageSize, mode, resolution } = req.body;
 
   const scanFolder = path.join(process.cwd(), "scans");
   fs.mkdirSync(scanFolder, { recursive: true });
@@ -115,6 +115,12 @@ app.post("/api/scan", async (req, res) => {
       console.log(`OS: ${os}`);
       writeLog(`Source: ${type}`);
       console.log(`Source: ${type}`);
+      writeLog(`Resolution: ${resolution}`);
+      console.log(`Resolution: ${resolution}`);
+      writeLog(`PageSize: ${pageSize}`);
+      console.log(`PageSize: ${pageSize}`);
+      writeLog(`Mode: ${mode}`);
+      console.log(`Mode: ${mode}`);
       writeLog(`Output: ${outputFile}`);
       console.log(`Output: ${outputFile}`);
 
@@ -146,10 +152,12 @@ app.post("/api/scan", async (req, res) => {
           device,
           "--source",
           type,
+          "--bitdepth",
+          mode,
           "--dpi",
-          "75",
+          resolution,
           "--pagesize",
-          "A4",
+          pageSize,
         ]);
       } else if (os === "Windows") {
         child = spawn(

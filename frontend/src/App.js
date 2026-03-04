@@ -34,7 +34,7 @@ export default function ScannerApp() {
   const [selectedDeviceType, setSelectedDeviceType] = useState("");
   const [selectedPageSize, setSelectedPageSize] = useState("");
   const [selectedColorMode, setSelectedColorMode] = useState("");
-  const [selectedResolution, setSelectedResolution] = useState("");
+  const [selectedResolution, setSelectedResolution] = useState(null);
 
   const [imageBase64, setImageBase64] = useState(null);
   const [count, setCount] = useState(0);
@@ -286,6 +286,9 @@ export default function ScannerApp() {
     setImageBase64(null);
     if (!selectedDevice) return alert("Select a device first!");
     if (!selectedDeviceType) return alert("Select a device type");
+    if (!selectedPageSize) return alert("Select a page size");
+    if (!selectedColorMode) return alert("Select a mode");
+    if (!selectedResolution) return alert("Select a resolution");
     setLoader(true);
     let timer = setInterval(() => {
       setCount((prev) => prev + 1);
@@ -296,11 +299,19 @@ export default function ScannerApp() {
 
       console.log(selectedDevice.trim());
       console.log(selectedDeviceType.trim());
+      console.log(selectedPageSize.trim());
+      console.log(selectedColorMode.trim());
+      console.log(selectedResolution);
+
       const res = await axioInstance.post(`/api/scan`, {
         device: selectedDevice.trim(),
         os: platform2 || platform,
         type: selectedDeviceType.trim(),
+        pageSize: selectedPageSize.trim(),
+        mode: selectedColorMode.trim(),
+        resolution: selectedResolution,
       });
+
       if (res.status !== 200) {
         alert("Something went wrong. Please try again later!");
         window.parent.postMessage({ status: "error", data: "" }, "*");
@@ -310,16 +321,18 @@ export default function ScannerApp() {
       setLoader(false);
       setCount(0);
       clearInterval(timer);
-
-      if (isValidPDF(data?.imageBase64)) {
-        const pdfs = await splitPdf(data?.imageBase64);
-        setImageBase64(pdfs[0]);
-        for (let i = 0; i < pdfs.length; i++) {
-          setPrintList((prev) => [...prev, pdfs[i]]);
-        }
-      } else {
-        alert("Communication with the scanning device was interrupted");
+      const pdfs = await splitPdf(data?.imageBase64);
+      setImageBase64(pdfs[0]);
+      for (let i = 0; i < pdfs.length; i++) {
+        setPrintList((prev) => [...prev, pdfs[i]]);
       }
+
+      // if (isValidPDF(data?.imageBase64)) {
+
+      //   }
+      // } else {
+      //   alert("Communication with the scanning device was interrupted");
+      // }
     } catch (err) {
       console.log(err);
       setLoader(false);
@@ -533,7 +546,7 @@ export default function ScannerApp() {
                               value={selectedResolution}
                               className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                               onChange={(e) =>
-                                setSelectedResolution(e.target.value)
+                                setSelectedResolution(parseInt(e.target.value))
                               }
                             >
                               {RESOLUTIONS.map((type, i) => (
