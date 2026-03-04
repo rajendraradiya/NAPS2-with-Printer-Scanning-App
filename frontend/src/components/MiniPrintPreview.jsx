@@ -1,6 +1,38 @@
+import { PDFDocument } from "pdf-lib";
+
 const MiniPrintPreview = ({ printList = null, onPreview }) => {
+  const download = async () => {
+    const mergedPdf = await PDFDocument.create();
+
+    for (const base64 of printList) {
+      // Convert Base64 → Uint8Array
+      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+
+      const pdf = await PDFDocument.load(bytes);
+
+      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+
+      copiedPages.forEach((page) => {
+        mergedPdf.addPage(page);
+      });
+    }
+
+    const mergedBytes = await mergedPdf.save();
+
+    // Download
+    const blob = new Blob([mergedBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "scan-documents.pdf";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <>
+    <div className="mini-preview-content">
       {printList && printList.length > 0 ? (
         <>
           <div
@@ -13,7 +45,7 @@ const MiniPrintPreview = ({ printList = null, onPreview }) => {
                   <iframe
                     src={`data:application/pdf;base64,${v}#toolbar=0`}
                     title="preview of pdf"
-                    style={{ height: "180px", width: "100%" }}
+                    style={{ height: "200px", width: "100%" }}
                   >
                     <p>
                       Your browser does not support iframes. You can{" "}
@@ -46,7 +78,15 @@ const MiniPrintPreview = ({ printList = null, onPreview }) => {
       ) : (
         ""
       )}
-    </>
+      <div className="button-content">
+        <button
+          className="bg-gray-600 px-4  h-8  mr-2"
+          onClick={() => download()}
+        >
+          Download PDF
+        </button>
+      </div>
+    </div>
   );
 };
 export default MiniPrintPreview;

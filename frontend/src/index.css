@@ -61,3 +61,28 @@ h1 {
   padding-bottom: 9px;
   font-weight: 400;
 }
+.preview-option {
+  height: 50px;
+  background-color: #242424;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mini-preview-content {
+  /* height: 90vh !important; */
+  position: relative;
+}
+.mini-preview-content .button-content {
+  position: absolute;
+  bottom: 0px ;
+  width: 90%;
+  height: 50px;
+  background-color: #242424 !important;
+  text-align: center;
+  padding: 10px 10px;
+}
+
+.mini-preview-content button {
+width: 100%;
+}
