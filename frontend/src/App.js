@@ -11,6 +11,12 @@ import MpnDownloadGuide from "./components/MpnDownloadGuide";
 import { PDFDocument } from "pdf-lib";
 import { file } from "./components/temp";
 import InstructionComponent from "./components/Instruction";
+import {
+  COLOR_MODES,
+  DEVICE_TYPES,
+  PAGE_SIZES,
+  RESOLUTIONS,
+} from "./constants";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -23,13 +29,13 @@ export default function ScannerApp() {
   const platform = window?.navigator?.platform?.split(" ")[0];
   const platform2 = window?.navigator?.userAgentData?.platform;
   const [devices, setDevices] = useState([]);
-  const [deviceTypes, setDevicesTypes] = useState([
-    { label: "Feeder", value: "feeder" },
-    // { label: "Duplex", value: true },
-    { label: "Single page", value: "glass" },
-  ]);
+
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedDeviceType, setSelectedDeviceType] = useState("");
+  const [selectedPageSize, setSelectedPageSize] = useState("");
+  const [selectedColorMode, setSelectedColorMode] = useState("");
+  const [selectedResolution, setSelectedResolution] = useState("");
+
   const [imageBase64, setImageBase64] = useState(null);
   const [count, setCount] = useState(0);
   const [loader, setLoader] = useState(false);
@@ -446,45 +452,107 @@ export default function ScannerApp() {
 
                 {!isFirstTime && devices && devices.length ? (
                   <>
-                    <div style={{ display: "flex" }}>
-                      <select
-                        value={selectedDevice}
-                        style={{ minWidth: "340px" }}
-                        className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                        onChange={(e) => setSelectedDevice(e.target.value)}
-                      >
-                        <option value="">Select Device</option>
-                        {devices.map((d, i) => (
-                          <option key={i} value={d}>
-                            {d}
-                          </option>
-                        ))}
-                        {insideDeviceLoader && (
-                          <option className="text-center">
-                            Detecting scanners...
-                          </option>
-                        )}
-                      </select>
-                      <select
-                        value={selectedDeviceType}
-                        style={{ width: "195px" }}
-                        className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                        onChange={(e) => setSelectedDeviceType(e.target.value)}
-                      >
-                        {deviceTypes.map((type, i) => (
-                          <option key={i} value={type.value}>
-                            {type.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <button
-                        className="bg-blue-600 px-5  h-10 rounded-2xl mt-6 mr-4"
-                        onClick={startScan}
-                      >
-                        Scan Now
-                      </button>
+                    <div className="flex flex-col" style={{ width: "70vh" }}>
+                      <div>
+                        <select
+                          value={selectedDevice}
+                          style={{ minWidth: "340px" }}
+                          className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                          onChange={(e) => setSelectedDevice(e.target.value)}
+                        >
+                          <option value="">Select Device</option>
+                          {devices.map((d, i) => (
+                            <option key={i} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                          {insideDeviceLoader && (
+                            <option className="text-center">
+                              Detecting scanners...
+                            </option>
+                          )}
+                        </select>
+                      </div>
+                      <div class="relative border border-gray-300 p-4 rounded-lg mt-8">
+                        <label class="absolute -top-3 left-4 bg-white px-2 text-gray-500 text-sm">
+                          Configuration
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                          <div className="">
+                            <h6 className="scanner-title">Device Type</h6>
+                            <select
+                              value={selectedDeviceType}
+                              // style={{ width: "195px" }}
+                              className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                              onChange={(e) =>
+                                setSelectedDeviceType(e.target.value)
+                              }
+                            >
+                              {DEVICE_TYPES.map((type, i) => (
+                                <option key={i} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="">
+                            <h6 className="scanner-title">Page Size</h6>
+                            <select
+                              value={selectedPageSize}
+                              className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                              onChange={(e) =>
+                                setSelectedPageSize(e.target.value)
+                              }
+                            >
+                              {PAGE_SIZES.map((type, i) => (
+                                <option key={i} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="">
+                            <h6 className="scanner-title">Mode</h6>
+                            <select
+                              value={selectedColorMode}
+                              className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                              onChange={(e) =>
+                                setSelectedColorMode(e.target.value)
+                              }
+                            >
+                              {COLOR_MODES.map((type, i) => (
+                                <option key={i} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="">
+                            <h6 className="scanner-title">Resolution</h6>
+                            <select
+                              value={selectedResolution}
+                              className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                              onChange={(e) =>
+                                setSelectedResolution(e.target.value)
+                              }
+                            >
+                              {RESOLUTIONS.map((type, i) => (
+                                <option key={i} value={type.value}>
+                                  {type.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div className=" flex justify-center items-center">
+                        <button
+                          className="bg-blue-600 px-5 mt-8 h-10 rounded-2xl"
+                          onClick={startScan}
+                        >
+                          Scan Now
+                        </button>
+                      </div>
                     </div>
                   </>
                 ) : (

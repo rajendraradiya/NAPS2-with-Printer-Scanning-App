@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -32,11 +31,10 @@ h1 {
   line-height: 1.1;
 }
 
-
 /* For Firefox and Edge (standard properties) */
 .custom-scrollbar {
   scrollbar-width: thin; /* Can be 'auto', 'thin', or 'none' */
-  scrollbar-color: #90A4AE #CFD8DC; /* thumb color track color */
+  scrollbar-color: #90a4ae #cfd8dc; /* thumb color track color */
 }
 
 /* For Chrome, Safari, and Opera (WebKit pseudo-elements) */
@@ -46,10 +44,20 @@ h1 {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #CFD8DC; /* Light grey track color */
+  background: #cfd8dc; /* Light grey track color */
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #90A4AE; /* Medium grey thumb color */
+  background-color: #90a4ae; /* Medium grey thumb color */
   border-radius: 5px; /* Optional: rounded corners */
+}
+
+.ba {
+  border: 1px solid red !important;
+}
+
+.scanner-title {
+  color: #24242463;
+  padding-bottom: 9px;
+  font-weight: 400;
 }
