@@ -11,10 +11,13 @@ export default function InstructionComponent({
   return (
     <>
       <div className="text-center mt-10">
-        <p className="text-gray-600">
-          ❗<b>Important : </b> To enable scanning, please download & install
-          the ECLIPSE EHR Cloud Scanning Utility using the appropriate link
-          (e.g. Windows) below. <br /> For more detailed instructions, please{" "}
+        <p className="text-gray-600 ">
+          ❗<b>Important : </b>{" "}
+          <span className="text-red-400">
+            To enable scanning, please download & install the ECLIPSE EHR Cloud
+            Scanning Utility using the appropriate link (e.g. Windows) below.{" "}
+            <br /> For more detailed instructions, please{" "}
+          </span>
           <b onClick={() => openGuidelineDialog()} className="text-blue-500">
             click here.
           </b>

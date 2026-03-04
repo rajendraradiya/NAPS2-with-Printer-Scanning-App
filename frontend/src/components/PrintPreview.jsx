@@ -110,7 +110,7 @@ const PrintPreview = ({
               </button> */}
               {printList && printList.length && (
                 <button
-                  className="bg-blue-600 px-4  h-8 rounded-lg"
+                  className="bg-blue-600 px-4  h-8 rounded-lg mr-2"
                   onClick={onSave}
                 >
                   Save

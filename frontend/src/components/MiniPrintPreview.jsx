@@ -45,7 +45,7 @@ const MiniPrintPreview = ({ printList = null, onPreview }) => {
                   <iframe
                     src={`data:application/pdf;base64,${v}#toolbar=0`}
                     title="preview of pdf"
-                    style={{ height: "200px", width: "100%" }}
+                    style={{ height: "220px", width: "100%" }}
                   >
                     <p>
                       Your browser does not support iframes. You can{" "}
@@ -61,7 +61,7 @@ const MiniPrintPreview = ({ printList = null, onPreview }) => {
                   <div
                     onClick={() => onPreview(v)}
                     style={{
-                      height: "160px",
+                      height: "220px",
                       width: "100%",
                       position: "absolute",
                       top: "0",

@@ -31,9 +31,9 @@ export default function ScannerApp() {
   const [devices, setDevices] = useState([]);
 
   const [selectedDevice, setSelectedDevice] = useState("");
-  const [selectedDeviceType, setSelectedDeviceType] = useState("");
-  const [selectedPageSize, setSelectedPageSize] = useState("");
-  const [selectedColorMode, setSelectedColorMode] = useState("");
+  const [selectedDeviceType, setSelectedDeviceType] = useState(null);
+  const [selectedPageSize, setSelectedPageSize] = useState(null);
+  const [selectedColorMode, setSelectedColorMode] = useState(null);
   const [selectedResolution, setSelectedResolution] = useState(null);
 
   const [imageBase64, setImageBase64] = useState(null);
@@ -129,12 +129,26 @@ export default function ScannerApp() {
           clearInterval(intervalRef.current);
           clearTimeout(timeoutRef.current);
           setOpenDialogBox(false);
-          const savedDeviceType = localStorage.getItem("selectedDeviceType");
-          if (savedDeviceType) {
-            setSelectedDeviceType(savedDeviceType);
-          } else {
-            setSelectedDeviceType("feeder");
-          }
+
+          setSelectedDeviceType(
+            localStorage
+              .getItem("selectedDeviceType")
+              ?.replace(/^\r+|\r+$/g, "") || "feeder",
+          );
+          setSelectedPageSize(
+            localStorage
+              .getItem("selectedPageSize")
+              ?.replace(/^\r+|\r+$/g, "") || "a4",
+          );
+          setSelectedColorMode(
+            localStorage
+              .getItem("selectedColorMode")
+              ?.replace(/^\r+|\r+$/g, "") || "gray",
+          );
+          setSelectedResolution(
+            localStorage.getItem("selectedResolution") || 150,
+          );
+
           onRefreshHandler();
         });
     } catch (err) {}
@@ -163,8 +177,14 @@ export default function ScannerApp() {
       console.error(err);
       localStorage.removeItem("selectedDevice");
       localStorage.removeItem("selectedDeviceType");
+      localStorage.removeItem("selectedPageSize");
+      localStorage.removeItem("selectedColorMode");
+      localStorage.removeItem("selectedResolution");
       setSelectedDevice(null);
       setSelectedDeviceType(null);
+      setSelectedPageSize(null);
+      setSelectedColorMode(null);
+      setSelectedResolution(null);
       setDevices([]);
       setIsLoadedPage(true);
       setIsNAPS2ServiceRunning(false);
@@ -184,17 +204,34 @@ export default function ScannerApp() {
           setDeviceLoader(false);
           setInsideDeviceLoader(false);
           setIsInstalled(true);
-          const savedDeviceType = localStorage.getItem("selectedDeviceType");
-          if (savedDeviceType) {
-            setSelectedDeviceType(savedDeviceType.replace(/^\r+|\r+$/g, ""));
-          } else {
-            setSelectedDeviceType("feeder");
-          }
+
+          setSelectedDeviceType(
+            localStorage
+              .getItem("selectedDeviceType")
+              ?.replace(/^\r+|\r+$/g, "") || "feeder",
+          );
+          setSelectedPageSize(
+            localStorage
+              .getItem("selectedPageSize")
+              ?.replace(/^\r+|\r+$/g, "") || "a4",
+          );
+          setSelectedColorMode(
+            localStorage
+              .getItem("selectedColorMode")
+              ?.replace(/^\r+|\r+$/g, "") || "gray",
+          );
+          setSelectedResolution(
+            localStorage.getItem("selectedResolution") || 150,
+          );
+
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
 
             setSelectedDevice(null);
             setSelectedDeviceType(null);
+            setSelectedPageSize(null);
+            setSelectedColorMode(null);
+            setSelectedResolution(null);
           } else {
             const savedDevice = localStorage.getItem("selectedDevice");
 
@@ -296,6 +333,9 @@ export default function ScannerApp() {
     try {
       localStorage.setItem("selectedDevice", selectedDevice.trim());
       localStorage.setItem("selectedDeviceType", selectedDeviceType.trim());
+      localStorage.setItem("selectedPageSize", selectedPageSize.trim());
+      localStorage.setItem("selectedColorMode", selectedColorMode.trim());
+      localStorage.setItem("selectedResolution", selectedResolution);
 
       console.log(selectedDevice.trim());
       console.log(selectedDeviceType.trim());
@@ -357,13 +397,19 @@ export default function ScannerApp() {
     getSdkInformation();
     getDeviceList(true);
 
-    const savedDeviceType = localStorage.getItem("selectedDeviceType");
-
-    if (savedDeviceType) {
-      setSelectedDeviceType(savedDeviceType.replace(/^\r+|\r+$/g, ""));
-    } else {
-      setSelectedDeviceType("feeder");
-    }
+    setSelectedDeviceType(
+      localStorage.getItem("selectedDeviceType")?.replace(/^\r+|\r+$/g, "") ||
+        "feeder",
+    );
+    setSelectedPageSize(
+      localStorage.getItem("selectedPageSize")?.replace(/^\r+|\r+$/g, "") ||
+        "a4",
+    );
+    setSelectedColorMode(
+      localStorage.getItem("selectedColorMode")?.replace(/^\r+|\r+$/g, "") ||
+        "gray",
+    );
+    setSelectedResolution(localStorage.getItem("selectedResolution") || 150);
   }, []);
 
   const onRefreshHandler = () => {
