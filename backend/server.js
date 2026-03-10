@@ -171,7 +171,13 @@ app.post("/api/scan", async (req, res) => {
             "--device",
             device,
             "--source",
-            `${type}`,
+            type,
+            "--bitdepth",
+            mode,
+            "--dpi",
+            resolution,
+            "--pagesize",
+            pageSize,
           ],
           { shell: true }, // helps with Windows path/args parsing
         );
@@ -187,6 +193,12 @@ app.post("/api/scan", async (req, res) => {
           device,
           "--source",
           `${type}`,
+          "--bitdepth",
+          mode,
+          "--dpi",
+          resolution,
+          "--pagesize",
+          pageSize,
         ]);
       } else {
         return reject(new Error("Unsupported OS"));
