@@ -86,3 +86,7 @@ h1 {
 .mini-preview-content button {
 width: 100%;
 }
+
+.z-Index{
+  z-index: 11111;
+}

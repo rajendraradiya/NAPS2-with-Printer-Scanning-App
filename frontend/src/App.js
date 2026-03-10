@@ -17,6 +17,12 @@ import {
   PAGE_SIZES,
   RESOLUTIONS,
 } from "./constants";
+// import CustomPageDialog from "./components/CustomPageDialog";
+
+const DEFAULT_RESOLUTION = 200;
+const DEFAULT_DEVICE_TYPE = "feeder";
+const DEFAULT_PAGE_SIZE = "letter";
+const DEFAULT_MODE = "bw";
 
 const axioInstance = axios.create({
   baseURL: "http://localhost:52345",
@@ -43,12 +49,16 @@ export default function ScannerApp() {
   const [insideDeviceLoader, setInsideDeviceLoader] = useState(false);
 
   const [isInstalled, setIsInstalled] = useState(false);
-  const [openDialogBox, setOpenDialogBox] = useState(false);
-  const [openGuidelineDialogBox, setOpenGuidelineDialogBox] = useState(false);
   const [isNAPS2ServiceRunning, setIsNAPS2ServiceRunning] = useState(false);
   const [printList, setPrintList] = useState([]);
+  const [pageSizeList, setPageSizeList] = useState(PAGE_SIZES);
   const [isLoadedPage, setIsLoadedPage] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(false);
+
+  const [openGuidelineDialogBox, setOpenGuidelineDialogBox] = useState(false);
+  const [openDialogBox, setOpenDialogBox] = useState(false);
+  const [openCustomPageSizeDialog, setOpenCustomPageSizeDialog] =
+    useState(false);
 
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
@@ -119,6 +129,24 @@ export default function ScannerApp() {
     return uint8ToBase64(mergedBytes);
   }
 
+  const setDefaultValues = () => {
+    setSelectedDeviceType(
+      localStorage.getItem("selectedDeviceType")?.replace(/^\r+|\r+$/g, "") ||
+        DEFAULT_DEVICE_TYPE,
+    );
+    setSelectedPageSize(
+      localStorage.getItem("selectedPageSize")?.replace(/^\r+|\r+$/g, "") ||
+        DEFAULT_PAGE_SIZE,
+    );
+    setSelectedColorMode(
+      localStorage.getItem("selectedColorMode")?.replace(/^\r+|\r+$/g, "") ||
+        DEFAULT_MODE,
+    );
+    setSelectedResolution(
+      localStorage.getItem("selectedResolution") || DEFAULT_RESOLUTION,
+    );
+  };
+
   const checkingSoftware = async () => {
     try {
       await axioInstance
@@ -130,24 +158,7 @@ export default function ScannerApp() {
           clearTimeout(timeoutRef.current);
           setOpenDialogBox(false);
 
-          setSelectedDeviceType(
-            localStorage
-              .getItem("selectedDeviceType")
-              ?.replace(/^\r+|\r+$/g, "") || "feeder",
-          );
-          setSelectedPageSize(
-            localStorage
-              .getItem("selectedPageSize")
-              ?.replace(/^\r+|\r+$/g, "") || "a4",
-          );
-          setSelectedColorMode(
-            localStorage
-              .getItem("selectedColorMode")
-              ?.replace(/^\r+|\r+$/g, "") || "gray",
-          );
-          setSelectedResolution(
-            localStorage.getItem("selectedResolution") || 150,
-          );
+          setDefaultValues();
 
           onRefreshHandler();
         });
@@ -205,24 +216,7 @@ export default function ScannerApp() {
           setInsideDeviceLoader(false);
           setIsInstalled(true);
 
-          setSelectedDeviceType(
-            localStorage
-              .getItem("selectedDeviceType")
-              ?.replace(/^\r+|\r+$/g, "") || "feeder",
-          );
-          setSelectedPageSize(
-            localStorage
-              .getItem("selectedPageSize")
-              ?.replace(/^\r+|\r+$/g, "") || "a4",
-          );
-          setSelectedColorMode(
-            localStorage
-              .getItem("selectedColorMode")
-              ?.replace(/^\r+|\r+$/g, "") || "gray",
-          );
-          setSelectedResolution(
-            localStorage.getItem("selectedResolution") || 150,
-          );
+          setDefaultValues();
 
           if (res?.data?.devices?.length === 0) {
             alert("No scanners detected.");
@@ -399,17 +393,19 @@ export default function ScannerApp() {
 
     setSelectedDeviceType(
       localStorage.getItem("selectedDeviceType")?.replace(/^\r+|\r+$/g, "") ||
-        "feeder",
+        DEFAULT_DEVICE_TYPE,
     );
     setSelectedPageSize(
       localStorage.getItem("selectedPageSize")?.replace(/^\r+|\r+$/g, "") ||
-        "a4",
+        DEFAULT_PAGE_SIZE,
     );
     setSelectedColorMode(
       localStorage.getItem("selectedColorMode")?.replace(/^\r+|\r+$/g, "") ||
-        "gray",
+        DEFAULT_MODE,
     );
-    setSelectedResolution(localStorage.getItem("selectedResolution") || 150);
+    setSelectedResolution(
+      localStorage.getItem("selectedResolution") || DEFAULT_RESOLUTION,
+    );
   }, []);
 
   const onRefreshHandler = () => {
@@ -462,8 +458,36 @@ export default function ScannerApp() {
     };
   }, []);
 
+  // const openCustomPageDialog = () => {
+  //   setOpenCustomPageSizeDialog(true);
+  // };
+
+  // const setDimension = ({
+  //   label,
+  //   dimensionWidth,
+  //   dimensionHeight,
+  //   dimensionUnit,
+  // }) => {
+  //   let val = `${dimensionWidth}x${dimensionHeight}${dimensionUnit}`;
+  //   setPageSizeList((prev) => {
+  //     let update = [...prev];
+  //     update.push({
+  //       label: label,
+  //       value: val,
+  //     });
+  //     return update;
+  //   });
+  //   setSelectedPageSize(val);
+  //   setOpenCustomPageSizeDialog(false);
+  // };
+
   return (
     <>
+      {/* <CustomPageDialog
+        open={openCustomPageSizeDialog}
+        onCloseDialogBox={() => setOpenCustomPageSizeDialog(false)}
+        sendDataDimension={setDimension}
+      /> */}
       <DialogBox
         open={openDialogBox}
         onCloseDialogBox={() => setOpenDialogBox(false)}
@@ -559,15 +583,20 @@ export default function ScannerApp() {
                             <select
                               value={selectedPageSize}
                               className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4  rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                              onChange={(e) =>
-                                setSelectedPageSize(e.target.value)
-                              }
+                              onChange={(e) => {
+                                if (e.target.value === "custom") {
+                                  // openCustomPageDialog();
+                                } else {
+                                  setSelectedPageSize(e.target.value);
+                                }
+                              }}
                             >
-                              {PAGE_SIZES.map((type, i) => (
+                              {pageSizeList.map((type, i) => (
                                 <option key={i} value={type.value}>
                                   {type.label}
                                 </option>
                               ))}
+                              {/* <option value="custom">custom...</option> */}
                             </select>
                           </div>
                           <div className="">

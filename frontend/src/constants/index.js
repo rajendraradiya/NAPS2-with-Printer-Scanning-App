@@ -27,3 +27,9 @@ export const COLOR_MODES = [
   { label: "Grayscale", value: "gray" },
   { label: "Black & White", value: "bw" },
 ];
+
+export const DIMENSION_UNIT = [
+  { label: "mm", value: "mm" },
+  { label: "cm", value: "cm" },
+  { label: "in", value: "in" },
+];
