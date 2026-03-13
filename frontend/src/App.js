@@ -535,7 +535,7 @@ export default function ScannerApp() {
 
                 {!isFirstTime && devices && devices.length ? (
                   <>
-                    <div className="flex flex-col" style={{ width: "70vh" }}>
+                    <div className="flex flex-col" style={{ width: "80vh" }}>
                       <div>
                         <select
                           value={selectedDevice}
