@@ -30,7 +30,7 @@ const PrintPreview = ({
                 width="100%"
                 title="preview of pdf"
                 height="100%"
-                style={{ height: "90vh" }}
+                style={{ height: "86vh" }}
               >
                 <p>
                   Your browser does not support iframes. You can
@@ -46,7 +46,7 @@ const PrintPreview = ({
             </div>
             <div
               className="flex justify-center items-center"
-              style={{ height: "10vh" }}
+              style={{ height: "230px" }}
             >
               <button
                 className="bg-blue-600 px-4  h-8 rounded-lg mr-2"

@@ -676,10 +676,7 @@ export default function ScannerApp() {
             <>
               <MiniPrintPreview printList={printList} onPreview={onPreview} />
               <div
-                className="w-full bg-white shadow-md flex flex-col items-center justify-center col-4"
-                style={{
-                  width: "100%",
-                }}
+                className="w-full h-100 bg-white shadow-md flex flex-col items-center justify-center col-4"
               >
                 <PrintPreview
                   printList={printList}
